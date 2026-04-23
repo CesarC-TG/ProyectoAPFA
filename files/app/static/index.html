@@ -29,6 +29,26 @@
   --texto: #2F3E46;  
   --suave: #7A8B94;  
 }
+
+.auth-wall-container {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(135deg, var(--bg-color), #d1e5e0);
+    display: flex; justify-content: center; align-items: center; z-index: 9999;
+}
+.auth-card {
+    background: white; padding: 40px 30px; border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 400px;
+    text-align: center;
+}
+.apfa-logo { width: 80px; height: 80px; filter: brightness(0.2); margin-bottom: 10px; }
+.auth-card h2 { color: var(--teal); font-size: 28px; margin: 0; }
+.auth-subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
+.input-hint { display: block; font-size: 11px; color: #888; text-align: left; margin: -10px 0 10px 5px; }
+.auth-links { margin-top: 15px; font-size: 13px; color: var(--teal); cursor: pointer; }
+.auth-links span:hover { text-decoration: underline; }
+.captcha-box { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+
+
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--fondo);color:var(--texto);font-family:'DM Sans',sans-serif;min-height:100dvh;display:flex;flex-direction:column}
 input,textarea,select,button{font-family:inherit}
@@ -410,6 +430,55 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
 </style>
 </head>
 <body>
+
+  <div id="auth-wall" class="auth-wall-container">
+    <div class="auth-card">
+      <img src="/static/kai_transparent.png" class="apfa-logo" alt="Logo APFA">
+      <h2>APFA</h2>
+      <p class="auth-subtitle">Asistencia Psicológica FES Acatlán</p>
+
+      <div id="login-section">
+        <input type="email" id="login-email" placeholder="Correo (@pcpuma.acatlan.unam.mx)" class="kai-input">
+        <input type="password" id="login-pass" placeholder="Contraseña" class="kai-input">
+        <button class="kai-btn-primary" onclick="login()">Entrar</button>
+        <div class="auth-links">
+            <span onclick="switchAuthView('register')">Crear cuenta</span> | 
+            <span onclick="switchAuthView('recover')">¿Olvidaste tu contraseña?</span>
+        </div>
+      </div>
+
+      <div id="register-section" style="display: none;">
+        <input type="text" id="reg-name" placeholder="Nombre completo" class="kai-input">
+        <input type="email" id="reg-email" placeholder="Correo institucional" class="kai-input">
+        <span class="input-hint">Solo se acepta @pcpuma.acatlan.unam.mx</span>
+        
+        <input type="tel" id="reg-phone" placeholder="Número celular (10 dígitos)" class="kai-input">
+        <input type="password" id="reg-pass" placeholder="Crea tu contraseña" class="kai-input">
+        
+        <div class="captcha-box">
+            <span id="captcha-question">¿Cuánto es 5 + 3?</span>
+            <input type="number" id="captcha-answer" placeholder="Respuesta" class="kai-input" style="width: 80px;">
+        </div>
+
+        <button class="kai-btn-primary" onclick="iniciarRegistro()">Registrarme</button>
+        <div class="auth-links">
+            <span onclick="switchAuthView('login')">Ya tengo cuenta</span>
+        </div>
+      </div>
+
+      <div id="verify-section" style="display: none;">
+        <h3>Verifica tu cuenta</h3>
+        <p>Enviamos un código a tu correo/celular.</p>
+        <h1 id="timer-display" style="color: var(--teal);">03:00</h1>
+        <input type="text" id="verify-code" placeholder="Código de 6 dígitos" class="kai-input">
+        <button class="kai-btn-primary" onclick="verificarCodigo()">Confirmar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="main-app" style="display: none;">
+
 <header>
   <div class="brand" onclick="go('home')">
     <img src="/static/Kai_logo.jpeg" alt="Logo APFA" class="brand-img">
@@ -760,6 +829,76 @@ const API=window.location.origin+'/api'
 // Recuperamos el token y el usuario del almacenamiento local
 let token = localStorage.getItem('apfa_at') || '';
 let user = null;
+
+// Variables del Captcha y Timer
+let captchaRes = 0;
+let tiempoRestante = 180; // 3 minutos en segundos
+let timerInterval;
+
+// Generar Captcha
+function generarCaptcha() {
+    let n1 = Math.floor(Math.random() * 10) + 1;
+    let n2 = Math.floor(Math.random() * 10) + 1;
+    captchaRes = n1 + n2;
+    document.getElementById('captcha-question').innerText = `¿Cuánto es ${n1} + ${n2}?`;
+}
+
+// Cambiar entre Login y Registro
+function switchAuthView(view) {
+    document.getElementById('login-section').style.display = view === 'login' ? 'block' : 'none';
+    document.getElementById('register-section').style.display = view === 'register' ? 'block' : 'none';
+    document.getElementById('verify-section').style.display = view === 'verify' ? 'block' : 'none';
+    if(view === 'register') generarCaptcha();
+}
+
+// Iniciar Registro (Validaciones)
+function iniciarRegistro() {
+    const email = document.getElementById('reg-email').value;
+    const phone = document.getElementById('reg-phone').value;
+    const answer = parseInt(document.getElementById('captcha-answer').value);
+
+    // 1. Validar correo UNAM
+    if (!email.endsWith('@pcpuma.acatlan.unam.mx')) {
+        alert('Solo se admiten correos institucionales de la FES Acatlán (@pcpuma.acatlan.unam.mx)');
+        return;
+    }
+
+    // 2. Validar Captcha
+    if (answer !== captchaRes) {
+        alert('Captcha incorrecto. Eres un robot o reprobaste mate.');
+        generarCaptcha();
+        return;
+    }
+
+    // Si todo sale bien, pasamos a la pantalla de Verificación y arrancamos el reloj
+    switchAuthView('verify');
+    arrancarTimer();
+}
+
+// Temporizador de 3 minutos
+function arrancarTimer() {
+    tiempoRestante = 180;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        tiempoRestante--;
+        let min = Math.floor(tiempoRestante / 60).toString().padStart(2, '0');
+        let sec = (tiempoRestante % 60).toString().padStart(2, '0');
+        document.getElementById('timer-display').innerText = `${min}:${sec}`;
+
+        if (tiempoRestante <= 0) {
+            clearInterval(timerInterval);
+            alert("El tiempo se ha agotado. Vuelve a registrarte.");
+            switchAuthView('register');
+        }
+    }, 1000);
+}
+
+// Al arrancar la página, mostramos el login primero
+window.onload = () => {
+    switchAuthView('login');
+    // TODO: Aquí luego revisaremos si ya hay un token guardado para saltarnos el login
+};
+
 
 // Intentamos restaurar la sesión del usuario si existe
 const savedUser = localStorage.getItem('user');
