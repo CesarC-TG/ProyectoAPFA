@@ -317,3 +317,17 @@ class AsignacionPsicologo(Base):
         Index("ix_asig_psicologo",  "psicologo_id"),
         Index("ix_asig_estudiante", "estudiante_id"),
     )
+
+class VerificacionRegistro(Base):
+     """Token de 6 dígitos para verificar el correo antes de completar el registro."""
+     __tablename__ = "verificaciones_registro"
+
+     id         = Column(String(36), primary_key=True, default=gen_uuid)
+     email      = Column(String(200), nullable=False, index=True)
+     codigo     = Column(String(6),   nullable=False)
+     expira_en  = Column(DateTime(timezone=True), nullable=False)
+     usado      = Column(Boolean, default=False)
+     creado_en  = Column(DateTime(timezone=True), server_default=func.now())
+
+     __table_args__ = (Index("ix_verif_email", "email"),)
+ 

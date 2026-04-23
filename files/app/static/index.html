@@ -1047,27 +1047,18 @@ async function doRegistro(){
 }
 
 function onAuth(r) {
-    // 1. Guardar tokens
     token = r.access_token;
     localStorage.setItem('apfa_at', token);
     localStorage.setItem('token', token);
     if (r.refresh_token) localStorage.setItem('apfa_rt', r.refresh_token);
-    // 2. Guardar usuario
     user = r.usuario;
     localStorage.setItem('user', JSON.stringify(user));
-    // 3. UI y cerrar modal
     actualizarUI();
-    if (typeof cerrarAuth === 'function') cerrarAuth();
-    // 4. Redirigir según rol
     const rol = (user && user.rol) ? user.rol.toLowerCase() : '';
-    if (rol === 'admin') {
-        window.location.href = '/admin.html';
-    } else if (rol === 'psicologo') {
-        window.location.href = '/psicologo.html';
-    } else {
-        go('home');
-        toast('¡Bienvenido/a, ' + (user.nombre || 'Usuario') + '!');
-    }
+    if (rol === 'admin')     { window.location.href = '/admin.html';     return; }
+    if (rol === 'psicologo') { window.location.href = '/psicologo.html'; return; }
+    go('home');
+    toast('¡Bienvenido/a, ' + (user.nombre || 'Usuario') + '!');
 }
 
 function actualizarUI() {
@@ -1219,15 +1210,15 @@ async function cerrarSesion(){
     localStorage.removeItem('user');
     token = '';
     user = null;
-    // 3. Redirigir al inicio
-    window.location.href = "/";
+    // 3. Redirigir al login
+    window.location.href = "/login.html";
 }
 
 async function eliminarCuenta(){
   if(!confirm('⚠️ ¿Eliminar tu cuenta? Esta acción es IRREVERSIBLE.'))return
   if(!confirm('¿Confirmas la eliminación permanente de todos tus datos?'))return
   try{await api('/auth/logout-all',{method:'POST'})}catch{}
-  localStorage.clear();token='';user=null;actualizarUI();go('home');toast('Cuenta eliminada')
+  localStorage.clear();token='';user=null;actualizarUI();window.location.href='/login.html';
 }
 
 // Perfil
@@ -1586,11 +1577,20 @@ function toggleRecDetail(id) {
 // ── Init único ─────────────────────────────────────────
 ;(async () => {
   renderConds();
+  // Ocultar el auth-wall viejo siempre
+  const aw = document.getElementById('auth-wall');
+  if (aw) aw.style.display = 'none';
+  const ma = document.getElementById('main-app');
+  if (ma) ma.style.display = 'block';
+
   if (token) {
     try {
       user = await api('/auth/me');
+      // Redirigir según rol
+      const rol = (user && user.rol) ? user.rol.toLowerCase() : '';
+      if (rol === 'admin')     { window.location.href = '/admin.html';     return; }
+      if (rol === 'psicologo') { window.location.href = '/psicologo.html'; return; }
       actualizarUI();
-      // Sin redirección automática — el usuario ve su perfil en el index
     } catch {
       localStorage.removeItem('apfa_at');
       localStorage.removeItem('apfa_rt');
@@ -1598,7 +1598,14 @@ function toggleRecDetail(id) {
       localStorage.removeItem('user');
       token = '';
       user = null;
+      // Sin sesión válida → ir al login
+      window.location.href = '/login.html';
+      return;
     }
+  } else {
+    // Sin token → ir al login
+    window.location.href = '/login.html';
+    return;
   }
   go('home');
 })();

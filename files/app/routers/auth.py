@@ -1,12 +1,14 @@
 """
 Router de Autenticación — registro, login (email/teléfono), OAuth, refresh, logout, recuperar contraseña
 """
+import random
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timedelta, timezone
 import secrets, string
+from app.models import VerificacionRegistro 
 
 from app.database import get_db
 from app.models import Usuario, SesionUsuario, RolUsuario
@@ -281,3 +283,99 @@ async def cerrar_todas_sesiones(
 @router.get("/me", response_model=UsuarioRespuesta)
 async def obtener_mi_perfil(usuario: Usuario = Depends(get_current_user)):
     return usuario
+
+# ── Solicitar verificación de correo ──────────────────────
+ 
+@router.post("/solicitar-verificacion", response_model=MensajeRespuesta)
+async def solicitar_verificacion(
+    datos,   # SolicitarVerificacionRequest
+    db,      # AsyncSession
+):
+    """
+    Genera un código de 6 dígitos, lo guarda en BD con TTL de 3 min,
+    e idealmente lo envía por correo/SMS.
+    En modo DEV lo devuelve en el mensaje para facilitar pruebas.
+    """
+    from datetime import datetime, timedelta, timezone
+ 
+    email = datos.email.strip().lower()
+ 
+    # Solo correos institucionales
+    if not email.endswith('@pcpuma.acatlan.unam.mx'):
+        raise Exception("Solo se aceptan correos @pcpuma.acatlan.unam.mx")
+ 
+    # Generar código de 6 dígitos
+    import random
+    codigo = str(random.randint(100000, 999999))
+ 
+    # Invalidar códigos previos del mismo email
+    from sqlalchemy import select, update
+    from app.models import VerificacionRegistro
+    await db.execute(
+        update(VerificacionRegistro)
+        .where(VerificacionRegistro.email == email, VerificacionRegistro.usado == False)
+        .values(usado=True)
+    )
+ 
+    # Guardar nuevo código
+    verif = VerificacionRegistro(
+        email     = email,
+        codigo    = codigo,
+        expira_en = datetime.now(timezone.utc) + timedelta(minutes=3),
+    )
+    db.add(verif)
+    await db.commit()
+ 
+    # TODO producción: enviar email real con smtplib/sendgrid
+    send_email(email, subject="Tu código APFA", body=VERIFICATION_TEMPLATE.format(
+        nombre=datos.nombre, codigo=codigo))
+ 
+    # DEV — devolver el código en el mensaje
+    return {
+        "mensaje": f"Código enviado a {email}. [DEV] Código: {codigo}"
+    }
+ 
+ 
+# ── Verificar código ──────────────────────────────────────
+ 
+@router.post("/verificar-codigo", response_model=MensajeRespuesta)
+async def verificar_codigo(
+    datos,   # VerificarCodigoRequest
+    db,      # AsyncSession
+):
+    """
+    Valida que el código de 6 dígitos sea correcto y no haya expirado.
+    """
+    from datetime import datetime, timezone
+    from sqlalchemy import select
+    from app.models import VerificacionRegistro
+ 
+    email  = datos.email.strip().lower()
+    codigo = datos.codigo.strip()
+ 
+    # Buscar el código más reciente no usado
+    result = await db.execute(
+        select(VerificacionRegistro)
+        .where(
+            VerificacionRegistro.email  == email,
+            VerificacionRegistro.codigo == codigo,
+            VerificacionRegistro.usado  == False,
+        )
+        .order_by(VerificacionRegistro.creado_en.desc())
+        .limit(1)
+    )
+    verif = result.scalar_one_or_none()
+ 
+    if not verif:
+        raise Exception("Código incorrecto. Verifica e intenta de nuevo.")
+ 
+    if datetime.now(timezone.utc) > verif.expira_en:
+        verif.usado = True
+        await db.commit()
+        raise Exception("El código ha expirado. Solicita uno nuevo.")
+ 
+    # Marcar como usado (se usará al completar el registro)
+    verif.usado = True
+    await db.commit()
+ 
+    return {"mensaje": "Código verificado correctamente."}

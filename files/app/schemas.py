@@ -295,3 +295,12 @@ class AsignacionRespuesta(BaseModel):
 
 # Alias para compatibilidad
 PasswordResetEmailRequest = PasswordResetRequest
+
+class SolicitarVerificacionRequest(BaseModel):
+     email: str
+     nombre: str
+
+class VerificarCodigoRequest(BaseModel):
+     email: str
+     codigo: str
+ 

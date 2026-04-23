@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>APFA — FES Acatlán · UNAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --azul:   #276266;
+  --azul2:  #418f94;
+  --fondo:  #F8F7F4;
+  --borde:  #E5E1D8;
+  --verde:  #337E59;
+  --rojo:   #C65A49;
+  --dorado: #C9A84C;
+  --blanco: #FFFFFF;
+  --texto:  #2F3E46;
+  --suave:  #7A8B94;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);color:var(--texto)}
+
+/* ── Fondo decorativo ── */
+.bg-art{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg-circle{position:absolute;border-radius:50%;opacity:.07}
+.bg-circle.c1{width:600px;height:600px;background:var(--azul);top:-200px;right:-150px}
+.bg-circle.c2{width:400px;height:400px;background:var(--azul2);bottom:-100px;left:-80px}
+.bg-circle.c3{width:200px;height:200px;background:var(--dorado);top:40%;left:60%}
+
+/* ── Wrapper centrado ── */
+.wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;z-index:1}
+
+/* ── Card principal ── */
+.card{background:var(--blanco);border-radius:28px;padding:36px 32px 32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(39,98,102,.13),0 4px 16px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--azul),var(--azul2))}
+
+/* ── Logo / Brand ── */
+.brand-area{text-align:center;margin-bottom:28px}
+.brand-logo{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid rgba(39,98,102,.15);margin-bottom:10px;background:var(--fondo)}
+.brand-logo-placeholder{width:68px;height:68px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;margin:0 auto 10px;font-family:'Fraunces',serif}
+.brand-name{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--azul);letter-spacing:-.02em}
+.brand-sub{font-size:12px;color:var(--suave);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── Tabs login/registro ── */
+.tabs{display:flex;background:var(--fondo);border-radius:14px;padding:4px;gap:4px;margin-bottom:24px}
+.tab-btn{flex:1;padding:9px 6px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--suave);background:transparent}
+.tab-btn.on{background:var(--blanco);color:var(--azul);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+/* ── Paneles de vista ── */
+.panel{display:none}
+.panel.on{display:block}
+
+/* ── Campos ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.field input,.field select{width:100%;padding:11px 14px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;font-family:inherit;color:var(--texto);background:var(--blanco);transition:border-color .18s,box-shadow .18s;outline:none}
+.field input:focus,.field select:focus{border-color:var(--azul2);box-shadow:0 0 0 3px rgba(65,143,148,.1)}
+.field input.err{border-color:var(--rojo)}
+.field-hint{font-size:11px;color:var(--suave);margin-top:4px;line-height:1.4}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── Pass toggle ── */
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:42px}
+.pass-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--suave);font-size:18px;line-height:1;padding:0}
+.pass-eye:hover{color:var(--azul)}
+
+/* ── Captcha ── */
+.captcha-wrap{background:var(--fondo);border:1.5px solid var(--borde);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.captcha-question{flex:1;font-size:13px;font-weight:600;color:var(--texto)}
+.captcha-input{width:80px;padding:8px 10px;border:1.5px solid var(--borde);border-radius:8px;font-size:14px;font-family:inherit;text-align:center;color:var(--texto);background:var(--blanco);outline:none;transition:border-color .18s}
+.captcha-input:focus{border-color:var(--azul2)}
+.captcha-refresh{background:none;border:none;cursor:pointer;color:var(--suave);font-size:20px;padding:0;flex-shrink:0;transition:color .15s}
+.captcha-refresh:hover{color:var(--azul)}
+
+/* ── Verificación ── */
+.verify-wrap{text-align:center;padding:8px 0}
+.verify-icon{font-size:48px;margin-bottom:12px}
+.verify-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--azul);margin-bottom:6px}
+.verify-sub{font-size:13px;color:var(--suave);line-height:1.55;margin-bottom:22px}
+.verify-sub strong{color:var(--texto)}
+
+/* Timer */
+.timer-ring{display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.timer-svg{transform:rotate(-90deg)}
+.timer-circle-bg{fill:none;stroke:var(--borde);stroke-width:4}
+.timer-circle-fg{fill:none;stroke:var(--azul2);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .5s}
+.timer-circle-fg.urgente{stroke:var(--rojo)}
+.timer-text{position:absolute;font-size:18px;font-weight:700;color:var(--texto);font-family:'Fraunces',serif}
+.timer-label{font-size:10px;color:var(--suave);text-align:center;margin-top:-14px;margin-bottom:20px;text-transform:uppercase;letter-spacing:.07em}
+
+/* Código 6 dígitos */
+.code-inputs{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+.code-digit{width:46px;height:52px;border:2px solid var(--borde);border-radius:12px;font-size:22px;font-weight:700;text-align:center;font-family:'Fraunces',serif;color:var(--azul);background:var(--blanco);outline:none;transition:border-color .18s,box-shadow .18s}
+.code-digit:focus{border-color:var(--azul2);box-shadow:0 0 0 3px rgba(65,143,148,.12)}
+.code-digit.filled{border-color:var(--azul);background:rgba(39,98,102,.04)}
+.code-digit.err{border-color:var(--rojo);background:rgba(198,90,73,.04)}
+
+/* Reenviar código */
+.resend-area{text-align:center;margin-bottom:4px}
+.resend-btn{background:none;border:none;color:var(--azul2);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;font-family:inherit;transition:color .15s}
+.resend-btn:disabled{color:var(--suave);cursor:default;text-decoration:none}
+.resend-countdown{font-size:12px;color:var(--suave);display:none}
+
+/* ── Recuperar contraseña ── */
+.recover-back{background:none;border:none;color:var(--suave);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:16px;font-family:inherit;padding:0;transition:color .15s}
+.recover-back:hover{color:var(--azul)}
+.recover-icon-wrap{text-align:center;font-size:44px;margin-bottom:14px}
+.recover-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--azul);margin-bottom:6px;text-align:center}
+.recover-sub{font-size:13px;color:var(--suave);line-height:1.55;margin-bottom:20px;text-align:center}
+
+/* Selector email/tel */
+.mode-tabs{display:flex;gap:6px;margin-bottom:14px}
+.mode-tab{flex:1;background:var(--fondo);border:1.5px solid var(--borde);border-radius:9px;padding:7px 6px;font-size:12px;font-weight:600;color:var(--suave);cursor:pointer;text-align:center;transition:all .15s;font-family:inherit}
+.mode-tab.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+/* ── Botones ── */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--azul);color:#fff}
+.btn-primary:hover{background:var(--azul2)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.btn-ghost{background:var(--blanco);border:1.5px solid var(--borde);color:var(--texto);margin-top:10px}
+.btn-ghost:hover{border-color:var(--azul2);color:var(--azul)}
+.btn-sm{padding:10px;font-size:13px;margin-top:0}
+
+/* ── Mensajes ── */
+.msg-box{border-radius:10px;padding:10px 13px;font-size:13px;margin-bottom:14px;display:none;line-height:1.45}
+.msg-box.on{display:block}
+.msg-box.err{background:#FEF2F2;border:1px solid #FECACA;color:var(--rojo)}
+.msg-box.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:var(--verde)}
+.msg-box.info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8}
+
+/* ── Separador ── */
+.sep{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--suave);font-size:12px}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--borde)}
+
+/* ── Link acción ── */
+.link-action{text-align:center;font-size:13px;color:var(--suave);margin-top:16px}
+.link-action a,.link-action button{color:var(--azul2);font-weight:600;text-decoration:none;cursor:pointer;background:none;border:none;font-family:inherit;font-size:13px}
+.link-action a:hover,.link-action button:hover{text-decoration:underline}
+
+/* ── Info UNAM ── */
+.unam-badge{display:flex;align-items:center;gap:8px;background:rgba(39,98,102,.06);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:12px;color:var(--azul)}
+.unam-badge i{font-size:16px;flex-shrink:0;color:var(--azul2)}
+
+/* ── Password strength ── */
+.strength-bar{height:4px;border-radius:2px;background:var(--borde);margin-top:6px;overflow:hidden}
+.strength-fill{height:100%;border-radius:2px;width:0;transition:width .3s,background .3s}
+.strength-label{font-size:11px;margin-top:3px;color:var(--suave)}
+
+/* ── Responsive ── */
+@media(max-width:480px){
+  .card{padding:28px 22px 26px;border-radius:22px}
+  .brand-name{font-size:22px}
+  .code-digit{width:40px;height:46px;font-size:19px;border-radius:10px}
+  .code-inputs{gap:6px}
+  .field-row{grid-template-columns:1fr}
+}
+@media(max-height:700px){
+  .card{margin:10px 0}
+  .brand-area{margin-bottom:18px}
+  .brand-logo,.brand-logo-placeholder{width:52px;height:52px;font-size:20px}
+  .brand-name{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-art">
+  <div class="bg-circle c1"></div>
+  <div class="bg-circle c2"></div>
+  <div class="bg-circle c3"></div>
+</div>
+
+<div class="wrapper">
+<div class="card" id="main-card">
+
+  <!-- BRAND -->
+  <div class="brand-area">
+    <img src="/static/Kai_logo.jpeg" alt="APFA" class="brand-logo"
+         onerror="this.style.display='none';document.getElementById('logo-ph').style.display='flex'"/>
+    <div class="brand-logo-placeholder" id="logo-ph" style="display:none">A</div>
+    <div class="brand-name">APFA</div>
+    <div class="brand-sub">FES Acatlán · UNAM</div>
+  </div>
+
+  <!-- ══════════════ PANEL: LOGIN ══════════════ -->
+  <div class="panel on" id="panel-login">
+
+    <div class="tabs">
+      <button class="tab-btn on" onclick="setTab('login')">Iniciar sesión</button>
+      <button class="tab-btn" onclick="setTab('registro')">Crear cuenta</button>
+    </div>
+
+    <div id="login-err" class="msg-box err"></div>
+
+    <!-- Selector email / teléfono -->
+    <div class="mode-tabs">
+      <div class="mode-tab on" id="lm-email" onclick="setLoginMode('email')">
+        <i class='bx bx-envelope'></i> Correo
+      </div>
+      <div class="mode-tab" id="lm-tel" onclick="setLoginMode('tel')">
+        <i class='bx bx-phone'></i> Teléfono
+      </div>
+    </div>
+
+    <div id="login-email-f" class="field">
+      <label>Correo institucional</label>
+      <input type="email" id="l-email" placeholder="usuario@pcpuma.acatlan.unam.mx"
+             onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div id="login-tel-f" class="field" style="display:none">
+      <label>Teléfono</label>
+      <input type="tel" id="l-tel" placeholder="Ej. 5512345678"
+             onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+
+    <div class="field">
+      <label>Contraseña</label>
+      <div class="pass-wrap">
+        <input type="password" id="l-pass" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button class="pass-eye" type="button" onclick="togglePass('l-pass',this)">
+          <i class='bx bx-show'></i>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
+      <i class='bx bx-log-in'></i> Iniciar sesión
+    </button>
+
+    <div class="link-action" style="margin-top:12px">
+      <button onclick="showRecover()">¿Olvidaste tu contraseña?</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ PANEL: REGISTRO ══════════════ -->
+  <div class="panel" id="panel-registro">
+
+    <div class="tabs">
+      <button class="tab-btn" onclick="setTab('login')">Iniciar sesión</button>
+      <button class="tab-btn on" onclick="setTab('registro')">Crear cuenta</button>
+    </div>
+
+    <div class="unam-badge">
+      <i class='bx bx-shield-check'></i>
+      <span>Solo se aceptan correos <strong>@pcpuma.acatlan.unam.mx</strong></span>
+    </div>
+
+    <div id="reg-err" class="msg-box err"></div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Nombre(s)</label>
+        <input type="text" id="r-nombre" placeholder="Tu nombre"/>
+      </div>
+      <div class="field">
+        <label>Apellidos</label>
+        <input type="text" id="r-apellidos" placeholder="Tus apellidos"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Correo institucional</label>
+      <input type="email" id="r-email" placeholder="usuario@pcpuma.acatlan.unam.mx"/>
+      <div class="field-hint">Solo cuentas @pcpuma.acatlan.unam.mx</div>
+    </div>
+
+    <div class="field">
+      <label>Teléfono (10 dígitos)</label>
+      <input type="tel" id="r-tel" placeholder="Ej. 5512345678" maxlength="10"/>
+      <div class="field-hint">Se usará para recuperar tu contraseña</div>
+    </div>
+
+    <div class="field">
+      <label>Contraseña</label>
+      <div class="pass-wrap">
+        <input type="password" id="r-pass" placeholder="Mínimo 8 caracteres"
+               oninput="checkStrength(this.value)"/>
+        <button class="pass-eye" type="button" onclick="togglePass('r-pass',this)">
+          <i class='bx bx-show'></i>
+        </button>
+      </div>
+      <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+      <div class="strength-label" id="strength-label"></div>
+    </div>
+
+    <div class="field">
+      <label>Carrera (opcional)</label>
+      <input type="text" id="r-carrera" placeholder="Ej. Pedagogía, Derecho…"/>
+    </div>
+
+    <!-- CAPTCHA -->
+    <div class="captcha-wrap">
+      <i class='bx bx-bot' style="font-size:20px;color:var(--azul2);flex-shrink:0"></i>
+      <span class="captcha-question" id="captcha-q">¿Cuánto es…?</span>
+      <input class="captcha-input" type="number" id="captcha-ans" placeholder="?"/>
+      <button class="captcha-refresh" type="button" onclick="generarCaptcha()" title="Nueva pregunta">
+        <i class='bx bx-refresh'></i>
+      </button>
+    </div>
+
+    <button class="btn btn-primary" id="reg-btn" onclick="doRegistro()">
+      <i class='bx bx-user-plus'></i> Crear cuenta
+    </button>
+  </div>
+
+  <!-- ══════════════ PANEL: VERIFICACIÓN ══════════════ -->
+  <div class="panel" id="panel-verify">
+    <div class="verify-wrap">
+      <div class="verify-icon">📬</div>
+      <div class="verify-title">Verifica tu correo</div>
+      <p class="verify-sub">
+        Enviamos un código de 6 dígitos a<br>
+        <strong id="verify-dest">tu correo</strong>
+      </p>
+
+      <!-- Timer circular -->
+      <div class="timer-ring">
+        <svg class="timer-svg" width="80" height="80" viewBox="0 0 80 80">
+          <circle class="timer-circle-bg" cx="40" cy="40" r="34"/>
+          <circle class="timer-circle-fg" id="timer-arc" cx="40" cy="40" r="34"
+                  stroke-dasharray="213.6" stroke-dashoffset="0"/>
+        </svg>
+        <span class="timer-text" id="timer-txt">3:00</span>
+      </div>
+      <div class="timer-label">Tiempo restante</div>
+
+      <!-- 6 inputs individuales -->
+      <div class="code-inputs" id="code-inputs">
+        <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+               id="cd-0" onkeyup="onDigit(0,event)" oninput="onDigitInput(0)"/>
+        <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+               id="cd-1" onkeyup="onDigit(1,event)" oninput="onDigitInput(1)"/>
+        <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+               id="cd-2" onkeyup="onDigit(2,event)" oninput="onDigitInput(2)"/>
+        <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+               id="cd-3" onkeyup="onDigit(3,event)" oninput="onDigitInput(3)"/>
+        <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+               id="cd-4" onkeyup="onDigit(4,event)" oninput="onDigitInput(4)"/>
+        <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+               id="cd-5" onkeyup="onDigit(5,event)" oninput="onDigitInput(5)"/>
+      </div>
+
+      <div id="verify-err" class="msg-box err" style="margin-bottom:14px"></div>
+
+      <button class="btn btn-primary" id="verify-btn" onclick="verificarCodigo()">
+        <i class='bx bx-check-circle'></i> Confirmar código
+      </button>
+
+      <div class="resend-area" style="margin-top:14px">
+        <button class="resend-btn" id="resend-btn" onclick="reenviarCodigo()" disabled>
+          Reenviar código
+        </button>
+        <span class="resend-countdown" id="resend-cd">Disponible en <b id="resend-sec">60</b>s</span>
+      </div>
+
+      <button class="btn btn-ghost btn-sm" onclick="setPanel('registro')" style="margin-top:14px">
+        <i class='bx bx-arrow-back'></i> Volver al registro
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════ PANEL: RECUPERAR CONTRASEÑA ══════════════ -->
+  <div class="panel" id="panel-recover">
+    <button class="recover-back" onclick="setPanel('login')">
+      <i class='bx bx-arrow-back'></i> Volver al inicio
+    </button>
+
+    <div class="recover-icon-wrap">🔑</div>
+    <div class="recover-title">Recuperar contraseña</div>
+    <p class="recover-sub">
+      Ingresa tu correo o teléfono registrado y te enviaremos tu contraseña temporal.
+    </p>
+
+    <div class="mode-tabs">
+      <div class="mode-tab on" id="rm-email" onclick="setRecoverMode('email')">
+        <i class='bx bx-envelope'></i> Correo
+      </div>
+      <div class="mode-tab" id="rm-tel" onclick="setRecoverMode('tel')">
+        <i class='bx bx-phone'></i> Teléfono
+      </div>
+    </div>
+
+    <div id="recover-email-f" class="field">
+      <label>Correo institucional</label>
+      <input type="email" id="rec-email" placeholder="usuario@pcpuma.acatlan.unam.mx"
+             onkeydown="if(event.key==='Enter')doRecover()"/>
+    </div>
+    <div id="recover-tel-f" class="field" style="display:none">
+      <label>Teléfono registrado</label>
+      <input type="tel" id="rec-tel" placeholder="Ej. 5512345678"
+             onkeydown="if(event.key==='Enter')doRecover()"/>
+    </div>
+
+    <div id="recover-msg" class="msg-box"></div>
+
+    <button class="btn btn-primary" id="recover-btn" onclick="doRecover()">
+      <i class='bx bx-send'></i> Enviar contraseña temporal
+    </button>
+  </div>
+
+</div><!-- /card -->
+</div><!-- /wrapper -->
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;opacity:0;transition:all .3s"></div>
+
+<script>
+const API = window.location.origin + '/api';
+
+// ── Estado global ──────────────────────────────────────────
+let captchaRes  = 0;
+let timerID     = null;
+let timerSecs   = 180;
+let resendID    = null;
+let pendingData = {};   // datos del registro pendiente de verificar
+let loginMode   = 'email';
+let recoverMode = 'email';
+const TIMER_FULL = 213.6; // 2π×34
+
+// ── Toast ──────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._to);
+  t._to = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2800);
+}
+
+// ── Helpers de error ──────────────────────────────────────
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('on');
+}
+function clearErr(id) {
+  const el = document.getElementById(id);
+  el.textContent = '';
+  el.classList.remove('on');
+}
+
+// ── API wrapper ────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts
+  });
+  if (r.status === 204) return null;
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.detail || 'Error ' + r.status);
+  return d;
+}
+
+// ── Paneles ───────────────────────────────────────────────
+function setPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('panel-' + name).classList.add('on');
+  if (name === 'registro') generarCaptcha();
+  if (name !== 'verify') stopTimer();
+}
+
+function setTab(tab) {
+  // actualiza ambos panels de tabs
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  setPanel(tab);
+  // marca activo en el panel visible
+  const panel = document.getElementById('panel-' + tab);
+  panel.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('on', (tab === 'login' ? i === 0 : i === 1));
+  });
+}
+
+// ── Mostrar/ocultar contraseña ────────────────────────────
+function togglePass(id, btn) {
+  const input = document.getElementById(id);
+  const ico   = btn.querySelector('i');
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  ico.className = show ? 'bx bx-hide' : 'bx bx-show';
+}
+
+// ── Modo login ────────────────────────────────────────────
+function setLoginMode(m) {
+  loginMode = m;
+  document.getElementById('lm-email').classList.toggle('on', m === 'email');
+  document.getElementById('lm-tel').classList.toggle('on', m === 'tel');
+  document.getElementById('login-email-f').style.display = m === 'email' ? 'block' : 'none';
+  document.getElementById('login-tel-f').style.display   = m === 'tel'   ? 'block' : 'none';
+}
+
+// ── Modo recover ──────────────────────────────────────────
+function setRecoverMode(m) {
+  recoverMode = m;
+  document.getElementById('rm-email').classList.toggle('on', m === 'email');
+  document.getElementById('rm-tel').classList.toggle('on', m === 'tel');
+  document.getElementById('recover-email-f').style.display = m === 'email' ? 'block' : 'none';
+  document.getElementById('recover-tel-f').style.display   = m === 'tel'   ? 'block' : 'none';
+}
+
+function showRecover() { setPanel('recover'); }
+
+// ── CAPTCHA ───────────────────────────────────────────────
+function generarCaptcha() {
+  const ops = ['+', '-', '×'];
+  const op  = ops[Math.floor(Math.random() * ops.length)];
+  let n1, n2, res;
+  if (op === '+') { n1 = rand(1,15); n2 = rand(1,15); res = n1 + n2; }
+  else if (op === '-') { n1 = rand(5,20); n2 = rand(1, n1); res = n1 - n2; }
+  else { n1 = rand(2,9);  n2 = rand(2,9);  res = n1 * n2; }
+  captchaRes = res;
+  document.getElementById('captcha-q').textContent = `¿Cuánto es ${n1} ${op} ${n2}?`;
+  document.getElementById('captcha-ans').value = '';
+}
+function rand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+// ── Fortaleza de contraseña ───────────────────────────────
+function checkStrength(v) {
+  const fill  = document.getElementById('strength-fill');
+  const label = document.getElementById('strength-label');
+  let score = 0;
+  if (v.length >= 8)  score++;
+  if (v.length >= 12) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/[0-9]/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  const levels = [
+    { pct:'20%', color:'#C65A49', txt:'Muy débil' },
+    { pct:'40%', color:'#C9A84C', txt:'Débil' },
+    { pct:'60%', color:'#C9A84C', txt:'Regular' },
+    { pct:'80%', color:'#418f94', txt:'Buena' },
+    { pct:'100%',color:'#337E59', txt:'Excelente' },
+  ];
+  const l = levels[Math.max(0, score - 1)] || levels[0];
+  fill.style.width = v.length ? l.pct : '0';
+  fill.style.background = l.color;
+  label.textContent = v.length ? l.txt : '';
+  label.style.color = l.color;
+}
+
+// ── LOGIN ─────────────────────────────────────────────────
+async function doLogin() {
+  clearErr('login-err');
+  const pass = document.getElementById('l-pass').value;
+  const btn  = document.getElementById('login-btn');
+
+  if (loginMode === 'tel') {
+    const tel = document.getElementById('l-tel').value.trim();
+    if (!tel || !pass) return showErr('login-err', 'Completa todos los campos.');
+    btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Entrando…';
+    try { onAuth(await api('/auth/login-telefono', { method:'POST', body:JSON.stringify({telefono:tel, password:pass}) })); }
+    catch(e) { showErr('login-err', e.message); }
+    finally { btn.disabled=false; btn.innerHTML='<i class="bx bx-log-in"></i> Iniciar sesión'; }
+    return;
+  }
+
+  const email = document.getElementById('l-email').value.trim().toLowerCase();
+  if (!email || !pass) return showErr('login-err', 'Completa todos los campos.');
+  if (!email.endsWith('@pcpuma.acatlan.unam.mx') && !email.endsWith('@comunidad.unam.mx'))
+    return showErr('login-err', 'Solo se permiten correos @pcpuma.acatlan.unam.mx');
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Entrando…';
+  try { onAuth(await api('/auth/login', { method:'POST', body:JSON.stringify({email, password:pass}) })); }
+  catch(e) { showErr('login-err', e.message); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="bx bx-log-in"></i> Iniciar sesión'; }
+}
+
+// ── REGISTRO ──────────────────────────────────────────────
+async function doRegistro() {
+  clearErr('reg-err');
+  const nombre   = document.getElementById('r-nombre').value.trim();
+  const apellidos= document.getElementById('r-apellidos').value.trim();
+  const email    = document.getElementById('r-email').value.trim().toLowerCase();
+  const tel      = document.getElementById('r-tel').value.trim();
+  const pass     = document.getElementById('r-pass').value;
+  const carrera  = document.getElementById('r-carrera').value.trim();
+  const captcha  = parseInt(document.getElementById('captcha-ans').value);
+
+  // Validaciones
+  if (!nombre || !email || !pass)
+    return showErr('reg-err', 'Nombre, correo y contraseña son obligatorios.');
+  if (!email.endsWith('@pcpuma.acatlan.unam.mx'))
+    return showErr('reg-err', 'Solo se acepta correo @pcpuma.acatlan.unam.mx');
+  if (tel && !/^\d{10}$/.test(tel))
+    return showErr('reg-err', 'El teléfono debe tener exactamente 10 dígitos.');
+  if (pass.length < 8)
+    return showErr('reg-err', 'La contraseña debe tener al menos 8 caracteres.');
+  if (isNaN(captcha) || captcha !== captchaRes) {
+    generarCaptcha();
+    return showErr('reg-err', 'Respuesta del captcha incorrecta. Intenta de nuevo.');
+  }
+
+  // Guardar datos para usar después de verificar
+  pendingData = { nombre, apellidos, email, telefono: tel || undefined,
+                  password: pass, carrera: carrera || undefined };
+
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Enviando código…';
+
+  try {
+    // Solicitar código de verificación al backend
+    await api('/auth/solicitar-verificacion', {
+      method: 'POST',
+      body: JSON.stringify({ email, nombre })
+    });
+    // Mostrar pantalla de verificación
+    document.getElementById('verify-dest').textContent = email;
+    setPanel('verify');
+    startTimer();
+    startResendCountdown();
+    // Enfocar primer dígito
+    setTimeout(() => document.getElementById('cd-0').focus(), 300);
+  } catch(e) {
+    showErr('reg-err', e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bx bx-user-plus"></i> Crear cuenta';
+  }
+}
+
+// ── TIMER circular ────────────────────────────────────────
+function startTimer() {
+  stopTimer();
+  timerSecs = 180;
+  renderTimer();
+  timerID = setInterval(() => {
+    timerSecs--;
+    renderTimer();
+    if (timerSecs <= 0) {
+      stopTimer();
+      toast('⏰ El tiempo se agotó. Vuelve a registrarte.');
+      setTimeout(() => {
+        clearCodeInputs();
+        setPanel('registro');
+      }, 2000);
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerID) { clearInterval(timerID); timerID = null; }
+}
+
+function renderTimer() {
+  const m   = Math.floor(timerSecs / 60).toString().padStart(1,'0');
+  const s   = (timerSecs % 60).toString().padStart(2,'0');
+  document.getElementById('timer-txt').textContent = m + ':' + s;
+  const pct    = timerSecs / 180;
+  const offset = TIMER_FULL * (1 - pct);
+  const arc    = document.getElementById('timer-arc');
+  arc.style.strokeDashoffset = offset;
+  arc.classList.toggle('urgente', timerSecs <= 30);
+}
+
+// ── REENVIAR código ───────────────────────────────────────
+function startResendCountdown() {
+  const btn  = document.getElementById('resend-btn');
+  const cdEl = document.getElementById('resend-cd');
+  const secEl= document.getElementById('resend-sec');
+  let secs   = 60;
+  btn.disabled = true;
+  cdEl.style.display = 'inline';
+  secEl.textContent  = secs;
+  if (resendID) clearInterval(resendID);
+  resendID = setInterval(() => {
+    secs--;
+    secEl.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(resendID);
+      cdEl.style.display = 'none';
+      btn.disabled = false;
+    }
+  }, 1000);
+}
+
+async function reenviarCodigo() {
+  const btn = document.getElementById('resend-btn');
+  btn.disabled = true;
+  try {
+    await api('/auth/solicitar-verificacion', {
+      method: 'POST',
+      body: JSON.stringify({ email: pendingData.email, nombre: pendingData.nombre })
+    });
+    clearCodeInputs();
+    stopTimer();
+    startTimer();
+    startResendCountdown();
+    document.getElementById('cd-0').focus();
+    toast('📬 Nuevo código enviado');
+  } catch(e) {
+    toast('Error: ' + e.message);
+    btn.disabled = false;
+  }
+}
+
+// ── INPUTS de código ──────────────────────────────────────
+function onDigitInput(i) {
+  const el = document.getElementById('cd-' + i);
+  // Solo permitir números
+  el.value = el.value.replace(/[^0-9]/g, '');
+  if (el.value) {
+    el.classList.add('filled');
+    if (i < 5) document.getElementById('cd-' + (i + 1)).focus();
+    else checkAutoSubmit();
+  }
+}
+
+function onDigit(i, e) {
+  if (e.key === 'Backspace') {
+    const el = document.getElementById('cd-' + i);
+    if (!el.value && i > 0) {
+      const prev = document.getElementById('cd-' + (i - 1));
+      prev.value = '';
+      prev.classList.remove('filled');
+      prev.focus();
+    } else {
+      el.classList.remove('filled');
+    }
+  }
+  if (e.key === 'Enter') verificarCodigo();
+  // Permitir pegar en el primer campo
+  if (e.key === 'v' && (e.ctrlKey || e.metaKey)) return;
+}
+
+// Soporte para pegar el código completo
+document.addEventListener('paste', e => {
+  if (!document.getElementById('panel-verify').classList.contains('on')) return;
+  const txt = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+  if (txt.length === 6) {
+    e.preventDefault();
+    txt.split('').forEach((c, i) => {
+      const el = document.getElementById('cd-' + i);
+      el.value = c; el.classList.add('filled');
+    });
+    checkAutoSubmit();
+  }
+});
+
+function getCode() {
+  return [0,1,2,3,4,5].map(i => document.getElementById('cd-'+i).value).join('');
+}
+
+function clearCodeInputs() {
+  [0,1,2,3,4,5].forEach(i => {
+    const el = document.getElementById('cd-'+i);
+    el.value = ''; el.classList.remove('filled','err');
+  });
+}
+
+function markCodeErr() {
+  [0,1,2,3,4,5].forEach(i => document.getElementById('cd-'+i).classList.add('err'));
+  setTimeout(clearCodeInputs, 900);
+}
+
+function checkAutoSubmit() {
+  if (getCode().length === 6) verificarCodigo();
+}
+
+// ── VERIFICAR CÓDIGO ──────────────────────────────────────
+async function verificarCodigo() {
+  clearErr('verify-err');
+  const codigo = getCode();
+  if (codigo.length < 6) return showErr('verify-err', 'Ingresa los 6 dígitos del código.');
+
+  const btn = document.getElementById('verify-btn');
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Verificando…';
+
+  try {
+    // Verificar código en el backend
+    await api('/auth/verificar-codigo', {
+      method: 'POST',
+      body: JSON.stringify({ email: pendingData.email, codigo })
+    });
+
+    // Código correcto → completar registro
+    stopTimer();
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Creando cuenta…';
+    const r = await api('/auth/registro', {
+      method: 'POST',
+      body: JSON.stringify(pendingData)
+    });
+    onAuth(r);
+  } catch(e) {
+    markCodeErr();
+    showErr('verify-err', e.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bx bx-check-circle"></i> Confirmar código';
+  }
+}
+
+// ── RECUPERAR CONTRASEÑA ──────────────────────────────────
+async function doRecover() {
+  const msgEl = document.getElementById('recover-msg');
+  msgEl.className = 'msg-box'; msgEl.style.display = 'none';
+  const btn = document.getElementById('recover-btn');
+  let body;
+
+  if (recoverMode === 'email') {
+    const email = document.getElementById('rec-email').value.trim().toLowerCase();
+    if (!email) { showRecoverMsg('Ingresa tu correo.', 'err'); return; }
+    body = { email };
+  } else {
+    const tel = document.getElementById('rec-tel').value.trim();
+    if (!tel) { showRecoverMsg('Ingresa tu teléfono.', 'err'); return; }
+    body = { telefono: tel };
+  }
+
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Enviando…';
+  try {
+    const r = await api('/auth/recuperar-password', { method:'POST', body:JSON.stringify(body) });
+    showRecoverMsg(r.mensaje, 'ok');
+  } catch(e) {
+    showRecoverMsg(e.message, 'err');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="bx bx-send"></i> Enviar contraseña temporal';
+  }
+}
+
+function showRecoverMsg(msg, type) {
+  const el = document.getElementById('recover-msg');
+  el.textContent = msg;
+  el.className = 'msg-box ' + type + ' on';
+}
+
+// ── ON AUTH (éxito) ────────────────────────────────────────
+function onAuth(r) {
+  localStorage.setItem('apfa_at', r.access_token);
+  localStorage.setItem('apfa_rt', r.refresh_token || '');
+  localStorage.setItem('token',   r.access_token);
+  localStorage.setItem('user',    JSON.stringify(r.usuario));
+
+  const rol = (r.usuario && r.usuario.rol) ? r.usuario.rol.toLowerCase() : '';
+  if (rol === 'admin')      { window.location.href = '/admin.html';     return; }
+  if (rol === 'psicologo')  { window.location.href = '/psicologo.html'; return; }
+  window.location.href = '/';
+}
+
+// ── INIT ──────────────────────────────────────────────────
+;(async () => {
+  generarCaptcha();
+
+  // Si ya hay sesión válida, redirigir
+  const tk = localStorage.getItem('apfa_at');
+  if (tk) {
+    try {
+      const me = await fetch(API + '/auth/me', {
+        headers: { Authorization: 'Bearer ' + tk }
+      });
+      if (me.ok) {
+        const u = await me.json();
+        const rol = (u.rol || '').toLowerCase();
+        if (rol === 'admin')     { window.location.href = '/admin.html';     return; }
+        if (rol === 'psicologo') { window.location.href = '/psicologo.html'; return; }
+        window.location.href = '/';
+        return;
+      }
+    } catch {}
+    // Token inválido — limpiar
+    localStorage.removeItem('apfa_at');
+    localStorage.removeItem('apfa_rt');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
+
+  setPanel('login');
+})();
+</script>
+</body>
+</html>
