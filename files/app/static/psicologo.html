@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Panel Psicólogo — KAI Acatlán</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --azul:   #276266;
+  --azul2:  #418f94;
+  --fondo:  #F8F7F4;
+  --borde:  #E5E1D8;
+  --verde:  #337E59;
+  --rojo:   #C65A49;
+  --dorado: #C9A84C;
+  --morado: #7A5B9C;
+  --blanco: #FFFFFF;
+  --texto:  #2F3E46;
+  --suave:  #7A8B94;
+  --card-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--fondo);color:var(--texto);font-family:'DM Sans',sans-serif;min-height:100dvh;display:flex;flex-direction:column}
+.hidden{display:none!important}
+
+/* ── Header ──────────────────────────────────────── */
+header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 14px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid rgba(255,255,255,.4)}
+.brand-txt strong{display:block;color:#fff;font-size:15px;font-weight:600}
+.brand-txt span{display:block;font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-name{color:#fff;font-size:13px;font-weight:500}
+.hdr-badge{background:rgba(255,255,255,.15);color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.btn-logout{background:rgba(198,90,73,.8);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;transition:background .2s}
+.btn-logout:hover{background:var(--rojo)}
+
+/* ── Layout ──────────────────────────────────────── */
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--borde);display:flex;flex-direction:column;padding:20px 0;flex-shrink:0;overflow-y:auto}
+.main-content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── Sidebar nav ─────────────────────────────────── */
+.nav-section{padding:0 12px;margin-bottom:4px}
+.nav-label{font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding:0 8px;margin-bottom:4px}
+.nav-btn{width:100%;background:none;border:none;text-align:left;padding:9px 12px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--texto);font-weight:500;transition:background .15s,color .15s}
+.nav-btn i{font-size:18px;color:var(--suave);transition:color .15s}
+.nav-btn:hover,.nav-btn.on{background:rgba(39,98,102,.08);color:var(--azul)}
+.nav-btn:hover i,.nav-btn.on i{color:var(--azul)}
+.nav-btn .badge{margin-left:auto;background:var(--rojo);color:#fff;font-size:10px;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+/* ── Cards ───────────────────────────────────────── */
+.page{display:none}
+.page.on{display:block}
+.page-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--azul);margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--suave);margin-bottom:24px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:var(--card-shadow);border-top:3px solid var(--azul)}
+.stat-card.verde{border-top-color:var(--verde)}
+.stat-card.dorado{border-top-color:var(--dorado)}
+.stat-card.rojo{border-top-color:var(--rojo)}
+.stat-label{font-size:11px;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:6px}
+.stat-val{font-size:32px;font-weight:700;color:var(--texto);line-height:1}
+.stat-hint{font-size:12px;color:var(--suave);margin-top:4px}
+
+/* ── Perfil card ─────────────────────────────────── */
+.perfil-card{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--card-shadow);display:flex;align-items:center;gap:20px;margin-bottom:28px}
+.perfil-avatar{width:70px;height:70px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0;overflow:hidden}
+.perfil-avatar img{width:100%;height:100%;object-fit:cover}
+.perfil-info h2{font-size:18px;font-weight:600;margin-bottom:2px}
+.perfil-info p{font-size:13px;color:var(--suave);margin-bottom:2px}
+.rol-badge{display:inline-block;background:rgba(39,98,102,.1);color:var(--azul);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+
+/* ── Estudiantes ─────────────────────────────────── */
+.estudiantes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.estudiante-card{background:#fff;border-radius:14px;padding:18px;box-shadow:var(--card-shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent}
+.estudiante-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.estudiante-card.selected{border-color:var(--azul2)}
+.est-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.est-avatar{width:42px;height:42px;border-radius:50%;background:var(--azul2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.est-name{font-weight:600;font-size:14px;margin-bottom:1px}
+.est-email{font-size:12px;color:var(--suave)}
+.est-meta{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:11px;background:var(--fondo);color:var(--suave);padding:3px 8px;border-radius:20px;font-weight:500;border:1px solid var(--borde)}
+.tag.crisis{background:rgba(198,90,73,.1);color:var(--rojo);border-color:rgba(198,90,73,.2)}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;margin-right:4px}
+.online-dot.on{background:#3DBB73}
+.btn-chat-est{margin-top:12px;width:100%;background:var(--azul);color:#fff;border:none;padding:8px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+.btn-chat-est:hover{background:var(--azul2)}
+
+/* ── Diario ──────────────────────────────────────── */
+.diario-filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.filter-select{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--texto);cursor:pointer}
+.entrada-card{background:#fff;border-radius:12px;padding:18px;box-shadow:var(--card-shadow);margin-bottom:14px;border-left:4px solid var(--azul)}
+.entrada-card.alerta{border-left-color:var(--rojo)}
+.entrada-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.entrada-autor{font-size:13px;font-weight:600;color:var(--azul)}
+.entrada-fecha{font-size:11px;color:var(--suave)}
+.entrada-animo{font-size:20px}
+.entrada-texto{font-size:14px;color:var(--texto);line-height:1.55;margin-bottom:8px}
+.entrada-tags{display:flex;gap:6px;flex-wrap:wrap}
+.alerta-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(198,90,73,.1);color:var(--rojo);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
+
+/* ── Chat ─────────────────────────────────────────── */
+.chat-layout{display:grid;grid-template-columns:260px 1fr;gap:0;height:calc(100vh - 140px);background:#fff;border-radius:16px;box-shadow:var(--card-shadow);overflow:hidden}
+.chat-sidebar{border-right:1px solid var(--borde);display:flex;flex-direction:column}
+.chat-sidebar-hdr{padding:16px;border-bottom:1px solid var(--borde)}
+.chat-sidebar-hdr h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.chat-search{width:100%;background:var(--fondo);border:1px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:13px}
+.chat-list{flex:1;overflow-y:auto}
+.chat-item{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid var(--fondo);transition:background .15s}
+.chat-item:hover,.chat-item.active{background:rgba(39,98,102,.06)}
+.chat-item-av{width:38px;height:38px;border-radius:50%;background:var(--azul2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;position:relative}
+.chat-item-av .dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:#ccc;border:2px solid #fff}
+.chat-item-av .dot.on{background:#3DBB73}
+.chat-item-info{flex:1;overflow:hidden}
+.chat-item-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-item-preview{font-size:12px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-item-time{font-size:11px;color:var(--suave);flex-shrink:0}
+.chat-main{display:flex;flex-direction:column}
+.chat-top{padding:14px 18px;border-bottom:1px solid var(--borde);display:flex;align-items:center;gap:12px}
+.chat-top-av{width:38px;height:38px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.chat-top-name{font-size:15px;font-weight:600}
+.chat-top-status{font-size:12px;color:var(--verde)}
+.chat-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;flex-direction:column;max-width:72%}
+.msg.mine{align-self:flex-end;align-items:flex-end}
+.msg.theirs{align-self:flex-start;align-items:flex-start}
+.msg-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.msg.mine .msg-bubble{background:var(--azul);color:#fff;border-bottom-right-radius:4px}
+.msg.theirs .msg-bubble{background:#F0F0F0;color:var(--texto);border-bottom-left-radius:4px}
+.msg-time{font-size:10px;color:var(--suave);margin-top:2px;padding:0 4px}
+.chat-input-bar{padding:14px 18px;border-top:1px solid var(--borde);display:flex;gap:10px;align-items:flex-end}
+.chat-input{flex:1;background:var(--fondo);border:1px solid var(--borde);border-radius:12px;padding:10px 14px;font-size:14px;resize:none;max-height:120px;font-family:inherit;line-height:1.4}
+.chat-input:focus{outline:none;border-color:var(--azul2)}
+.btn-send{background:var(--azul);color:#fff;border:none;width:42px;height:42px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.btn-send:hover{background:var(--azul2)}
+.chat-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--suave);font-size:14px;gap:10px}
+.chat-empty i{font-size:48px}
+.no-chat-sel{display:flex;align-items:center;justify-content:center;flex:1;color:var(--suave);font-size:14px;flex-direction:column;gap:8px}
+.no-chat-sel i{font-size:40px;color:var(--borde)}
+
+/* ── Citas ───────────────────────────────────────── */
+.citas-list{display:grid;gap:14px}
+.cita-card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:var(--card-shadow);display:flex;align-items:center;gap:16px;border-left:4px solid var(--azul)}
+.cita-card.pendiente{border-left-color:var(--dorado)}
+.cita-card.confirmada{border-left-color:var(--verde)}
+.cita-card.completada{border-left-color:var(--suave)}
+.cita-card.cancelada{border-left-color:var(--rojo);opacity:.7}
+.cita-fecha{text-align:center;min-width:52px;background:var(--fondo);border-radius:10px;padding:8px 6px;flex-shrink:0}
+.cita-fecha .dia{font-size:22px;font-weight:700;line-height:1;color:var(--azul)}
+.cita-fecha .mes{font-size:11px;text-transform:uppercase;color:var(--suave);letter-spacing:.06em}
+.cita-hora{font-size:12px;color:var(--suave);margin-top:2px}
+.cita-info{flex:1}
+.cita-est{font-size:15px;font-weight:600;margin-bottom:2px}
+.cita-motivo{font-size:13px;color:var(--suave)}
+.cita-estado{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.cita-estado.pendiente{background:rgba(201,168,76,.15);color:#946b00}
+.cita-estado.confirmada{background:rgba(51,126,89,.12);color:var(--verde)}
+.cita-estado.completada{background:rgba(122,139,148,.12);color:var(--suave)}
+.cita-estado.cancelada{background:rgba(198,90,73,.12);color:var(--rojo)}
+.cita-actions{display:flex;gap:6px;flex-shrink:0}
+.btn-cita{border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s}
+.btn-confirmar{background:rgba(51,126,89,.12);color:var(--verde)}
+.btn-confirmar:hover{background:rgba(51,126,89,.25)}
+.btn-completar{background:rgba(39,98,102,.12);color:var(--azul)}
+.btn-completar:hover{background:rgba(39,98,102,.25)}
+.btn-cancelar{background:rgba(198,90,73,.1);color:var(--rojo)}
+.btn-cancelar:hover{background:rgba(198,90,73,.2)}
+
+/* ── Loader / empty ──────────────────────────────── */
+.loader{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--suave);gap:8px;font-size:14px}
+.loader i{animation:spin 1s linear infinite;font-size:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-msg{text-align:center;padding:40px;color:var(--suave);font-size:14px}
+
+/* ── Toast ───────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── Responsive ──────────────────────────────────── */
+@media(max-width:680px){
+  .sidebar{display:none}
+  .main-content{padding:16px}
+  .chat-layout{grid-template-columns:1fr}
+  .chat-sidebar{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <img src="/static/kai_transparent.png" alt="KAI" class="brand-img" onerror="this.style.display='none'"/>
+    <div class="brand-txt">
+      <strong>KAI Acatlán</strong>
+      <span>Panel Psicólogo</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span id="hdr-name" class="hdr-name"></span>
+    <span class="hdr-badge">Psicólogo/a</span>
+    <button class="btn-logout" onclick="cerrarSesion()">
+      <i class='bx bx-log-out'></i> Cerrar sesión
+    </button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <button class="nav-btn on" id="nav-inicio" onclick="showPage('inicio')">
+        <i class='bx bxs-dashboard'></i> Inicio
+      </button>
+      <button class="nav-btn" id="nav-perfil" onclick="showPage('perfil')">
+        <i class='bx bxs-user-circle'></i> Mi perfil
+      </button>
+    </div>
+    <div class="nav-section" style="margin-top:12px">
+      <div class="nav-label">Estudiantes</div>
+      <button class="nav-btn" id="nav-estudiantes" onclick="showPage('estudiantes')">
+        <i class='bx bxs-group'></i> Mis estudiantes
+        <span class="badge hidden" id="badge-est">0</span>
+      </button>
+      <button class="nav-btn" id="nav-diario" onclick="showPage('diario')">
+        <i class='bx bxs-book-heart'></i> Diarios
+        <span class="badge hidden" id="badge-alertas">!</span>
+      </button>
+    </div>
+    <div class="nav-section" style="margin-top:12px">
+      <div class="nav-label">Comunicación</div>
+      <button class="nav-btn" id="nav-citas" onclick="showPage('citas')">
+        <i class='bx bxs-calendar-check'></i> Mis citas
+        <span class="badge hidden" id="badge-citas">0</span>
+      </button>
+      <button class="nav-btn" id="nav-chat" onclick="showPage('chat')">
+        <i class='bx bxs-chat'></i> Chat con usuarios
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── INICIO ── -->
+    <div class="page on" id="page-inicio">
+      <div class="page-title">¡Bienvenido/a 👋</div>
+      <div class="page-sub">Resumen de tu actividad de hoy</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Estudiantes asignados</div>
+          <div class="stat-val" id="stat-est">—</div>
+          <div class="stat-hint">Con citas o diario compartido</div>
+        </div>
+        <div class="stat-card verde">
+          <div class="stat-label">Citas pendientes</div>
+          <div class="stat-val" id="stat-citas">—</div>
+          <div class="stat-hint">Por confirmar o atender</div>
+        </div>
+        <div class="stat-card dorado">
+          <div class="stat-label">Diarios compartidos</div>
+          <div class="stat-val" id="stat-diarios">—</div>
+          <div class="stat-hint">Con acceso concedido</div>
+        </div>
+        <div class="stat-card rojo">
+          <div class="stat-label">Alertas de crisis</div>
+          <div class="stat-val" id="stat-alertas">—</div>
+          <div class="stat-hint">Requieren atención</div>
+        </div>
+      </div>
+
+      <!-- Alertas recientes -->
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:14px;color:var(--texto)">
+        <i class='bx bxs-bell-ring' style="color:var(--rojo)"></i> Entradas con alerta reciente
+      </h3>
+      <div id="alertas-recientes">
+        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando alertas…</div>
+      </div>
+    </div>
+
+    <!-- ── PERFIL ── -->
+    <div class="page" id="page-perfil">
+      <div class="page-title">Mi Perfil</div>
+      <div class="page-sub">Tus datos profesionales en KAI</div>
+
+      <div class="perfil-card">
+        <div class="perfil-avatar" id="pf-avatar">P</div>
+        <div class="perfil-info">
+          <h2 id="pf-nombre">—</h2>
+          <p id="pf-email" style="color:var(--suave)">—</p>
+          <p id="pf-carrera" style="margin-top:4px">—</p>
+          <span class="rol-badge" style="margin-top:8px;display:inline-block">Psicólogo/a</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:var(--card-shadow);max-width:500px">
+        <h4 style="font-size:14px;font-weight:600;margin-bottom:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em">Información de carrera</h4>
+        <div style="display:grid;gap:10px">
+          <div>
+            <div style="font-size:12px;color:var(--suave)">Especialidad / Carrera</div>
+            <div id="pf-carrera2" style="font-size:15px;font-weight:500;margin-top:2px">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--suave)">Correo institucional</div>
+            <div id="pf-email2" style="font-size:15px;font-weight:500;margin-top:2px">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ESTUDIANTES ── -->
+    <div class="page" id="page-estudiantes">
+      <div class="page-title">Mis Estudiantes</div>
+      <div class="page-sub">Usuarios asignados a tu cuidado</div>
+      <div id="lista-estudiantes">
+        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>
+      </div>
+    </div>
+
+    <!-- ── DIARIO ── -->
+    <div class="page" id="page-diario">
+      <div class="page-title">Diarios Compartidos</div>
+      <div class="page-sub">Solo entradas que los estudiantes te dieron acceso</div>
+
+      <div class="diario-filters">
+        <select class="filter-select" id="filtro-estudiante" onchange="filtrarDiario()">
+          <option value="">Todos los estudiantes</option>
+        </select>
+        <select class="filter-select" id="filtro-alerta" onchange="filtrarDiario()">
+          <option value="">Todas las entradas</option>
+          <option value="crisis">Solo alertas de crisis</option>
+        </select>
+      </div>
+
+      <div id="lista-diario">
+        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando diarios…</div>
+      </div>
+    </div>
+
+    <!-- ── CITAS ── -->
+    <div class="page" id="page-citas">
+      <div class="page-title">Mis Citas</div>
+      <div class="page-sub">Agenda con tus estudiantes</div>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <select class="filter-select" id="filtro-estado-cita" onchange="cargarCitas()">
+          <option value="">Todas las citas</option>
+          <option value="pendiente">Pendientes</option>
+          <option value="confirmada">Confirmadas</option>
+          <option value="completada">Completadas</option>
+          <option value="cancelada">Canceladas</option>
+        </select>
+      </div>
+      <div id="lista-citas">
+        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando citas…</div>
+      </div>
+    </div>
+
+    <!-- ── CHAT ── -->
+    <div class="page" id="page-chat">
+      <div class="page-title">Chat con Estudiantes</div>
+      <div class="page-sub">Comunicación directa en tiempo real</div>
+
+      <div class="chat-layout">
+        <!-- Lista de conversaciones -->
+        <div class="chat-sidebar">
+          <div class="chat-sidebar-hdr">
+            <h3>Conversaciones</h3>
+            <input class="chat-search" type="search" placeholder="Buscar estudiante…" id="chat-search" oninput="filtrarChatList()"/>
+          </div>
+          <div class="chat-list" id="chat-list">
+            <div class="loader"><i class='bx bx-loader-alt'></i></div>
+          </div>
+        </div>
+
+        <!-- Ventana de chat activa -->
+        <div class="chat-main" id="chat-main">
+          <div class="no-chat-sel">
+            <i class='bx bx-message-square-dots'></i>
+            <span>Selecciona un estudiante para chatear</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const API_BASE = 'http://10.110.0.13:8000/api';
+let token = localStorage.getItem('apfa_at') || '';
+let psico = null;
+let wsChat = null;
+let estudiantesCache = [];
+let diariosCache = [];
+let chatActivo = null; // { id, nombre }
+let mensajesActivos = []; // historial local de mensajes del chat activo
+
+// ── Helpers ──────────────────────────────────────────────
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    ...opts
+  });
+  if (res.status === 401) { cerrarSesion(); return null; }
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({ detail: 'Error ' + res.status }));
+    throw new Error(e.detail || 'Error ' + res.status);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+function dfmt(iso) {
+  return new Date(iso).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function timefmt(iso) {
+  return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+}
+
+// ── Navegación ────────────────────────────────────────────
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('page-' + id).classList.add('on');
+  document.getElementById('nav-' + id).classList.add('on');
+
+  if (id === 'estudiantes' && estudiantesCache.length === 0) cargarEstudiantes();
+  if (id === 'diario') cargarDiarios();
+  if (id === 'citas') cargarCitas();
+  if (id === 'chat') iniciarChat();
+  if (id === 'perfil') renderPerfil();
+}
+
+// ── Init ─────────────────────────────────────────────────
+
+;(async () => {
+  if (!token) { window.location.href = '/'; return; }
+
+  try {
+    psico = await apiFetch('/auth/me');
+    if (!psico) return;
+    const rol = (psico.rol || '').toLowerCase();
+    if (rol !== 'psicologo' && rol !== 'admin') {
+      alert('Acceso solo para psicólogos.');
+      window.location.href = '/';
+      return;
+    }
+  } catch (e) {
+    window.location.href = '/';
+    return;
+  }
+
+  // Llenar header
+  document.getElementById('hdr-name').textContent = psico.nombre || 'Psicólogo';
+
+  // Cargar stats
+  cargarStats();
+  cargarAlertasRecientes();
+})();
+
+// ── Logout ────────────────────────────────────────────────
+
+function cerrarSesion() {
+  const rt = localStorage.getItem('apfa_rt');
+  if (rt && token) {
+    fetch(API + '/auth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ refresh_token: rt })
+    }).catch(() => {});
+  }
+  if (wsChat) { wsChat.close(); wsChat = null; }
+  localStorage.removeItem('apfa_at');
+  localStorage.removeItem('apfa_rt');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/';
+}
+
+// ── Stats ─────────────────────────────────────────────────
+
+async function cargarStats() {
+  try {
+    const s = await apiFetch('/psicologo/stats');
+    if (!s) return;
+    document.getElementById('stat-est').textContent    = s.total_estudiantes_asignados ?? '0';
+    document.getElementById('stat-citas').textContent  = s.citas_pendientes ?? '0';
+    document.getElementById('stat-diarios').textContent= s.diarios_compartidos ?? '0';
+    document.getElementById('stat-alertas').textContent= s.alertas_crisis ?? '0';
+
+    // Badgets en sidebar
+    const bEst = document.getElementById('badge-est');
+    if (s.total_estudiantes_asignados > 0) {
+      bEst.textContent = s.total_estudiantes_asignados;
+      bEst.classList.remove('hidden');
+    }
+    const bAlt = document.getElementById('badge-alertas');
+    if (s.alertas_crisis > 0) {
+      bAlt.classList.remove('hidden');
+    }
+    const bCitas = document.getElementById('badge-citas');
+    if (s.citas_pendientes > 0) {
+      bCitas.textContent = s.citas_pendientes;
+      bCitas.classList.remove('hidden');
+    }
+  } catch (e) {
+    console.error('stats error', e);
+  }
+}
+
+// ── Alertas recientes ─────────────────────────────────────
+
+async function cargarAlertasRecientes() {
+  const el = document.getElementById('alertas-recientes');
+  try {
+    const data = await apiFetch('/psicologo/diarios?estudiante_id=');
+    if (!data) return;
+    const alertas = data.filter(d => d.alerta_crisis).slice(0, 5);
+    if (alertas.length === 0) {
+      el.innerHTML = '<div class="empty-msg">✅ Sin alertas de crisis recientes</div>';
+      return;
+    }
+    el.innerHTML = alertas.map(e => `
+      <div class="entrada-card alerta">
+        <div class="entrada-header">
+          <span class="entrada-autor">${e.estudiante?.nombre || 'Estudiante'}</span>
+          <span class="entrada-fecha">${dfmt(e.creada_en)}</span>
+        </div>
+        <div class="entrada-texto">${e.texto.substring(0, 180)}${e.texto.length > 180 ? '…' : ''}</div>
+        <span class="alerta-badge"><i class='bx bxs-error-circle'></i> Alerta de crisis</span>
+      </div>`).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="empty-msg">No se pudieron cargar las alertas.</div>';
+  }
+}
+
+// ── Perfil ────────────────────────────────────────────────
+
+function renderPerfil() {
+  if (!psico) return;
+  const ini = (psico.nombre || 'P').charAt(0).toUpperCase();
+  const av = document.getElementById('pf-avatar');
+  if (psico.avatar_url) {
+    av.innerHTML = `<img src="${psico.avatar_url}" alt="avatar"/>`;
+  } else {
+    av.textContent = ini;
+  }
+  document.getElementById('pf-nombre').textContent   = (psico.nombre || '') + ' ' + (psico.apellidos || '');
+  document.getElementById('pf-email').textContent    = psico.email || '—';
+  document.getElementById('pf-carrera').textContent  = psico.carrera || '—';
+  document.getElementById('pf-carrera2').textContent = psico.carrera || '—';
+  document.getElementById('pf-email2').textContent   = psico.email || '—';
+}
+
+// ── Estudiantes ───────────────────────────────────────────
+
+async function cargarEstudiantes() {
+  const el = document.getElementById('lista-estudiantes');
+  el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando estudiantes…</div>';
+  try {
+    const data = await apiFetch('/psicologo/mis-estudiantes');
+    if (!data) return;
+    estudiantesCache = data;
+
+    // Llenar filtro de diario
+    const sel = document.getElementById('filtro-estudiante');
+    sel.innerHTML = '<option value="">Todos los estudiantes</option>';
+    data.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id; opt.textContent = e.nombre + (e.apellidos ? ' ' + e.apellidos : '');
+      sel.appendChild(opt);
+    });
+
+    if (data.length === 0) {
+      el.innerHTML = '<div class="empty-msg">Aún no tienes estudiantes asignados.<br>Los estudiantes aparecerán aquí cuando tengas citas con ellos o compartan su diario contigo.</div>';
+      return;
+    }
+
+    el.innerHTML = `<div class="estudiantes-grid">${data.map(e => renderEstudianteCard(e)).join('')}</div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error al cargar estudiantes: ${e.message}</div>`;
+  }
+}
+
+function renderEstudianteCard(e) {
+  const ini = (e.nombre || '?').charAt(0).toUpperCase();
+  return `
+    <div class="estudiante-card" id="est-card-${e.id}">
+      <div class="est-header">
+        <div class="est-avatar">${ini}</div>
+        <div>
+          <div class="est-name">${e.nombre} ${e.apellidos || ''}</div>
+          <div class="est-email">${e.email}</div>
+        </div>
+      </div>
+      <div class="est-meta">
+        ${e.carrera ? `<span class="tag">${e.carrera}</span>` : ''}
+        ${e.semestre ? `<span class="tag">Sem. ${e.semestre}</span>` : ''}
+        <span class="tag"><span class="online-dot" id="dot-${e.id}"></span>Desconectado</span>
+      </div>
+      <button class="btn-chat-est" onclick="abrirChatCon('${e.id}', '${(e.nombre+' '+(e.apellidos||'')).trim()}')">
+        <i class='bx bx-chat'></i> Chatear
+      </button>
+    </div>`;
+}
+
+// ── Diario ────────────────────────────────────────────────
+
+async function cargarDiarios() {
+  const el = document.getElementById('lista-diario');
+  el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando diarios…</div>';
+  try {
+    const data = await apiFetch('/psicologo/diarios');
+    if (!data) return;
+    diariosCache = data;
+    renderDiarios(data);
+  } catch (e) {
+    el.innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error: ${e.message}</div>`;
+  }
+}
+
+function filtrarDiario() {
+  const estId  = document.getElementById('filtro-estudiante').value;
+  const alerta = document.getElementById('filtro-alerta').value;
+  let datos = diariosCache;
+  if (estId)       datos = datos.filter(d => d.estudiante?.id === estId);
+  if (alerta === 'crisis') datos = datos.filter(d => d.alerta_crisis);
+  renderDiarios(datos);
+}
+
+function renderDiarios(data) {
+  const el = document.getElementById('lista-diario');
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty-msg">📖 No hay entradas del diario para mostrar.<br>Los estudiantes deben compartir sus entradas para que aparezcan aquí.</div>';
+    return;
+  }
+  el.innerHTML = data.map(e => `
+    <div class="entrada-card ${e.alerta_crisis ? 'alerta' : ''}">
+      <div class="entrada-header">
+        <div>
+          <span class="entrada-autor">${e.estudiante?.nombre || 'Estudiante'}</span>
+          ${e.estudiante?.carrera ? `<span style="font-size:11px;color:var(--suave);margin-left:8px">${e.estudiante.carrera}</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="entrada-animo">${e.estado_animo || ''}</span>
+          <span class="entrada-fecha">${dfmt(e.creada_en)}</span>
+        </div>
+      </div>
+      <div class="entrada-texto">${e.texto}</div>
+      <div class="entrada-tags">
+        ${(e.etiquetas || []).map(t => `<span class="tag">${t}</span>`).join('')}
+        ${e.alerta_crisis ? `<span class="alerta-badge"><i class='bx bxs-error-circle'></i> Alerta de crisis</span>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ── Citas ────────────────────────────────────────────────
+
+async function cargarCitas() {
+  const el = document.getElementById('lista-citas');
+  const estado = document.getElementById('filtro-estado-cita')?.value || '';
+  el.innerHTML = '<div class="loader"><i class='bx bx-loader-alt'></i> Cargando citas…</div>';
+  try {
+    const path = '/psicologo/citas' + (estado ? '?estado=' + estado : '');
+    const data = await apiFetch(path);
+    if (!data) return;
+    if (data.length === 0) {
+      el.innerHTML = '<div class="empty-msg">📅 Sin citas registradas' + (estado ? ' con ese estado' : '') + '.</div>';
+      return;
+    }
+    el.innerHTML = '<div class="citas-list">' + data.map(cita => {
+      const dt   = new Date(cita.fecha_hora);
+      const dia  = dt.getDate();
+      const mes  = dt.toLocaleString('es-MX', { month: 'short' });
+      const hora = dt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+      const est  = cita.estudiante?.nombre || 'Estudiante';
+      const acc  = renderAccionesCita(cita);
+      return `
+        <div class="cita-card ${cita.estado}" id="cita-${cita.id}">
+          <div class="cita-fecha">
+            <div class="dia">${dia}</div>
+            <div class="mes">${mes}</div>
+            <div class="hora">${hora}</div>
+          </div>
+          <div class="cita-info">
+            <div class="cita-est">${est}</div>
+            <div class="cita-motivo">${cita.motivo || 'Sin motivo registrado'} · ${cita.modalidad || 'presencial'}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <span class="cita-estado ${cita.estado}">${cita.estado}</span>
+            <div class="cita-actions">${acc}</div>
+          </div>
+        </div>`;
+    }).join('') + '</div>';
+  } catch (e) {
+    el.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + e.message + '</div>';
+  }
+}
+
+function renderAccionesCita(cita) {
+  if (cita.estado === 'pendiente') return `
+    <button class="btn-cita btn-confirmar" onclick="actualizarCita('${cita.id}','confirmada')">Confirmar</button>
+    <button class="btn-cita btn-cancelar"  onclick="actualizarCita('${cita.id}','cancelada')">Cancelar</button>`;
+  if (cita.estado === 'confirmada') return `
+    <button class="btn-cita btn-completar" onclick="actualizarCita('${cita.id}','completada')">Completar</button>
+    <button class="btn-cita btn-cancelar"  onclick="actualizarCita('${cita.id}','cancelada')">Cancelar</button>`;
+  return '';
+}
+
+async function actualizarCita(citaId, nuevoEstado) {
+  try {
+    await apiFetch(`/admin/citas/${citaId}/estado?estado=${nuevoEstado}`, { method: 'PATCH' });
+    toast('Cita ' + nuevoEstado + ' correctamente');
+    cargarCitas();
+    cargarStats();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+// ── Chat WebSocket ────────────────────────────────────────
+
+function iniciarChat() {
+  // Cargar lista de estudiantes para el sidebar de chat
+  if (estudiantesCache.length === 0) {
+    apiFetch('/psicologo/mis-estudiantes').then(data => {
+      if (data) {
+        estudiantesCache = data;
+        renderChatList(data);
+      }
+    }).catch(() => {});
+  } else {
+    renderChatList(estudiantesCache);
+  }
+
+  // Conectar WebSocket si no está conectado
+  if (!wsChat || wsChat.readyState > 1) {
+    conectarWSChat();
+  }
+}
+
+function conectarWSChat() {
+  const wsUrl = (window.location.protocol === 'https:' ? 'wss' : 'ws')
+    + '://' + window.location.host + '/ws/chat?token=' + token;
+
+  wsChat = new WebSocket(wsUrl);
+
+  wsChat.onopen = () => console.log('Chat WS conectado');
+
+  wsChat.onmessage = (evt) => {
+    const data = JSON.parse(evt.data);
+    if (data.tipo === 'mensaje') {
+      // Mensaje entrante de un estudiante
+      if (chatActivo && data.remitente_id === chatActivo.id) {
+        agregarMensaje(data.contenido, 'theirs', data.timestamp);
+      } else {
+        // Notificar si es de otro
+        const est = estudiantesCache.find(e => e.id === data.remitente_id);
+        toast(`💬 ${est ? est.nombre : 'Estudiante'}: ${data.contenido.substring(0, 50)}`);
+        actualizarPreview(data.remitente_id, data.contenido);
+      }
+    }
+    if (data.tipo === 'estado_usuario') {
+      actualizarDotEstado(data.usuario_id, data.en_linea);
+      // Actualizar indicador en ventana de chat activa
+      if (chatActivo && data.usuario_id === chatActivo.id) {
+        const statusEl = document.getElementById('chat-status');
+        if (statusEl) {
+          statusEl.textContent = data.en_linea ? 'En línea' : 'Desconectado';
+          statusEl.style.color = data.en_linea ? 'var(--verde)' : 'var(--suave)';
+        }
+      }
+    }
+  };
+
+  wsChat.onclose = () => {
+    console.log('Chat WS desconectado');
+    // Reconectar tras 3s si sigue en la página
+    setTimeout(() => {
+      if (document.getElementById('page-chat').classList.contains('on')) {
+        conectarWSChat();
+      }
+    }, 3000);
+  };
+}
+
+function actualizarDotEstado(uid, enLinea) {
+  const dot = document.getElementById('dot-' + uid);
+  if (dot) {
+    dot.classList.toggle('on', enLinea);
+    dot.nextSibling.textContent = enLinea ? ' En línea' : ' Desconectado';
+  }
+}
+
+function actualizarPreview(uid, contenido) {
+  const item = document.querySelector(`.chat-item[data-id="${uid}"] .chat-item-preview`);
+  if (item) item.textContent = contenido;
+}
+
+function renderChatList(data) {
+  const el = document.getElementById('chat-list');
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty-msg" style="padding:20px;font-size:13px">Sin estudiantes asignados</div>';
+    return;
+  }
+  el.innerHTML = data.map(e => {
+    const ini = (e.nombre || '?').charAt(0).toUpperCase();
+    return `
+      <div class="chat-item" data-id="${e.id}" data-nombre="${e.nombre} ${e.apellidos||''}" onclick="abrirChatCon('${e.id}', '${(e.nombre+' '+(e.apellidos||'')).trim()}')">
+        <div class="chat-item-av">
+          ${ini}
+          <span class="dot" id="dot-chat-${e.id}"></span>
+        </div>
+        <div class="chat-item-info">
+          <div class="chat-item-name">${e.nombre} ${e.apellidos || ''}</div>
+          <div class="chat-item-preview" id="preview-${e.id}">${e.carrera || 'Estudiante'}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Consultar estado en línea de cada estudiante
+  data.forEach(e => {
+    if (wsChat && wsChat.readyState === 1) {
+      wsChat.send(JSON.stringify({ tipo: 'estado', usuario_id: e.id }));
+    }
+  });
+}
+
+function filtrarChatList() {
+  const q = document.getElementById('chat-search').value.toLowerCase();
+  document.querySelectorAll('.chat-item').forEach(item => {
+    const nom = item.dataset.nombre.toLowerCase();
+    item.style.display = nom.includes(q) ? '' : 'none';
+  });
+}
+
+function abrirChatCon(uid, nombre) {
+  // Navegar a la tab de chat si no estamos ahí
+  showPage('chat');
+
+  chatActivo = { id: uid, nombre };
+  mensajesActivos = [];
+
+  // Marcar activo en sidebar
+  document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+  const item = document.querySelector(`.chat-item[data-id="${uid}"]`);
+  if (item) item.classList.add('active');
+
+  // Render ventana
+  const main = document.getElementById('chat-main');
+  const ini = nombre.charAt(0).toUpperCase();
+  main.innerHTML = `
+    <div class="chat-top">
+      <div class="chat-top-av">${ini}</div>
+      <div>
+        <div class="chat-top-name">${nombre}</div>
+        <div class="chat-top-status" id="chat-status">Verificando estado…</div>
+      </div>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-input-bar">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escribe un mensaje…"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensaje()}"></textarea>
+      <button class="btn-send" onclick="enviarMensaje()"><i class='bx bxs-send'></i></button>
+    </div>`;
+
+  // Consultar si está en línea
+  if (wsChat && wsChat.readyState === 1) {
+    wsChat.send(JSON.stringify({ tipo: 'estado', usuario_id: uid }));
+  }
+}
+
+function agregarMensaje(contenido, lado, timestamp) {
+  const el = document.getElementById('chat-msgs');
+  if (!el) return;
+  const t = timestamp ? timefmt(timestamp) : timefmt(new Date().toISOString());
+  const div = document.createElement('div');
+  div.className = 'msg ' + lado;
+  div.innerHTML = `<div class="msg-bubble">${contenido}</div><div class="msg-time">${t}</div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function enviarMensaje() {
+  const input = document.getElementById('chat-input');
+  if (!input || !chatActivo) return;
+  const contenido = input.value.trim();
+  if (!contenido) return;
+  if (!wsChat || wsChat.readyState !== 1) {
+    toast('Sin conexión. Reconectando…');
+    conectarWSChat();
+    return;
+  }
+  wsChat.send(JSON.stringify({
+    tipo: 'mensaje',
+    destinatario_id: chatActivo.id,
+    contenido,
+  }));
+  agregarMensaje(contenido, 'mine', new Date().toISOString());
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Actualizar preview
+  const preview = document.getElementById('preview-' + chatActivo.id);
+  if (preview) preview.textContent = contenido;
+}
+
+// Auto-resize textarea
+document.addEventListener('input', e => {
+  if (e.target.id === 'chat-input') {
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+  }
+});
+</script>
+</body>
+</html>

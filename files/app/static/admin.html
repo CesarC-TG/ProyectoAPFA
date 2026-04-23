@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>KAI — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+<style>
+:root{--azul:#276266;--azul2:#418f94;--fondo:#F8F7F4;--borde:#E5E1D8;--verde:#337E59;--rojo:#C65A49;--dorado:#C9A84C;--blanco:#fff;--texto:#2F3E46;--suave:#7A8B94;--sh:0 2px 12px rgba(0,0,0,.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--fondo);color:var(--texto);font-family:'DM Sans',sans-serif;min-height:100dvh;display:flex;flex-direction:column}
+.hidden{display:none!important}
+/* Header */
+header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 14px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.4)}
+.brand-txt strong{display:block;color:#fff;font-size:15px;font-weight:600}
+.brand-txt span{display:block;font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-name{color:#fff;font-size:13px;font-weight:500}
+.badge-admin{background:rgba(255,255,255,.15);color:#fff;font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.btn-logout{background:rgba(198,90,73,.8);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;transition:background .2s}
+.btn-logout:hover{background:var(--rojo)}
+/* Layout */
+.layout{display:flex;flex:1;overflow:hidden}
+/* Sidebar */
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--borde);display:flex;flex-direction:column;padding:18px 0;flex-shrink:0}
+.nav-label{font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding:0 20px;margin:12px 0 4px}
+.nav-btn{width:100%;background:none;border:none;text-align:left;padding:9px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--texto);font-weight:500;transition:background .15s,color .15s;border-radius:0}
+.nav-btn i{font-size:18px;color:var(--suave);transition:color .15s}
+.nav-btn:hover,.nav-btn.on{background:rgba(39,98,102,.08);color:var(--azul)}
+.nav-btn:hover i,.nav-btn.on i{color:var(--azul)}
+.nav-btn .nbadge{margin-left:auto;background:var(--rojo);color:#fff;font-size:10px;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+/* Main */
+.main{flex:1;overflow-y:auto;padding:24px}
+/* Pages */
+.pg{display:none}.pg.on{display:block}
+.pg-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--azul);margin-bottom:4px}
+.pg-sub{font-size:14px;color:var(--suave);margin-bottom:24px}
+/* Cards */
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--sh)}
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.scard{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:var(--sh);border-top:3px solid var(--azul)}
+.scard.v{border-top-color:var(--verde)}.scard.d{border-top-color:var(--dorado)}.scard.r{border-top-color:var(--rojo)}
+.scard-lbl{font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:4px}
+.scard-val{font-size:30px;font-weight:700;color:var(--texto);line-height:1}
+/* Tabla usuarios */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-input{flex:1;min-width:180px;background:#fff;border:1px solid var(--borde);border-radius:8px;padding:8px 14px;font-size:13px;font-family:inherit}
+.search-input:focus{outline:none;border-color:var(--azul2)}
+.filter-sel{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;cursor:pointer}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--azul);color:#fff}.btn-primary:hover{background:var(--azul2)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-ghost{background:var(--fondo);color:var(--texto);border:1px solid var(--borde)}.btn-ghost:hover{border-color:var(--azul);color:var(--azul)}
+.btn-danger{background:rgba(198,90,73,.1);color:var(--rojo)}.btn-danger:hover{background:rgba(198,90,73,.2)}
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--borde)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--fondo)}
+th{text-align:left;padding:10px 14px;font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;font-weight:600;white-space:nowrap}
+td{padding:12px 14px;border-top:1px solid var(--fondo);vertical-align:middle}
+tr:hover td{background:rgba(39,98,102,.02)}
+.user-name{font-weight:600;font-size:13px}
+.user-email{font-size:11px;color:var(--suave);margin-top:1px}
+.user-phone{font-size:11px;color:var(--suave)}
+.rol-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;display:inline-block}
+.rb-admin{background:rgba(198,90,73,.1);color:var(--rojo)}
+.rb-psicologo{background:rgba(39,98,102,.1);color:var(--azul)}
+.rb-estudiante{background:rgba(51,126,89,.1);color:var(--verde)}
+.rol-select{border:1px solid var(--borde);border-radius:6px;padding:4px 8px;font-size:12px;font-weight:600;background:var(--fondo);cursor:pointer;font-family:inherit}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.sd-on{background:var(--verde)}.sd-off{background:var(--rojo)}
+/* Asignaciones */
+.asig-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:640px){.asig-grid{grid-template-columns:1fr}}
+.asig-form{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--sh)}
+.asig-form h3{font-size:15px;font-weight:600;margin-bottom:14px;color:var(--texto)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.field select,.field textarea{width:100%;border:1px solid var(--borde);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;background:#fff}
+.field select:focus,.field textarea:focus{outline:none;border-color:var(--azul2)}
+.asig-list{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--sh)}
+.asig-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--fondo)}
+.asig-item:last-child{border-bottom:none}
+.asig-av{width:34px;height:34px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.asig-info{flex:1;overflow:hidden}
+.asig-names{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.asig-arrow{font-size:16px;color:var(--azul2)}
+.asig-meta{font-size:11px;color:var(--suave);margin-top:1px}
+.btn-del-asig{background:none;border:none;color:var(--suave);cursor:pointer;padding:4px;border-radius:6px;transition:color .15s}
+.btn-del-asig:hover{color:var(--rojo)}
+/* Loader / empty */
+.loader{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--suave);gap:8px;font-size:14px}
+.loader i{animation:spin 1s linear infinite;font-size:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-msg{text-align:center;padding:36px;color:var(--suave);font-size:14px}
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;animation:fuA .25s ease}
+@keyframes fuA{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="/static/kai_transparent.png" alt="KAI" onerror="this.style.display='none'"/>
+    <div class="brand-txt"><strong>KAI Acatlán</strong><span>Panel Admin</span></div>
+  </div>
+  <div class="hdr-right">
+    <span id="hdr-name" class="hdr-name"></span>
+    <span class="badge-admin">Admin</span>
+    <button class="btn-logout" onclick="cerrarSesion()"><i class='bx bx-log-out'></i> Cerrar sesión</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="nav-label">Panel</div>
+    <button class="nav-btn on" id="nb-inicio"       onclick="pg('inicio')">      <i class='bx bxs-dashboard'></i>    Inicio</button>
+    <button class="nav-btn"    id="nb-stats"        onclick="pg('stats')">       <i class='bx bx-bar-chart-alt-2'></i>Estadísticas</button>
+    <div class="nav-label">Gestión</div>
+    <button class="nav-btn"    id="nb-usuarios"     onclick="pg('usuarios')">    <i class='bx bxs-group'></i>        Usuarios<span class="nbadge hidden" id="nb-cnt">0</span></button>
+    <button class="nav-btn"    id="nb-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>    Asignaciones</button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ── INICIO ── -->
+    <div class="pg on" id="pg-inicio">
+      <div class="pg-title">Bienvenido, <span id="adm-nombre-title">Admin</span> 👋</div>
+      <div class="pg-sub">Resumen del sistema KAI · FES Acatlán</div>
+      <div class="stats-grid">
+        <div class="scard">   <div class="scard-lbl">Estudiantes</div><div class="scard-val" id="si-est">—</div></div>
+        <div class="scard v"> <div class="scard-lbl">Psicólogos</div><div class="scard-val" id="si-psi">—</div></div>
+        <div class="scard d"> <div class="scard-lbl">Chats / semana</div><div class="scard-val" id="si-cht">—</div></div>
+        <div class="scard r"> <div class="scard-lbl">Alertas activas</div><div class="scard-val" id="si-alt">—</div></div>
+        <div class="scard">   <div class="scard-lbl">Entradas hoy</div><div class="scard-val" id="si-hoy">—</div></div>
+        <div class="scard v"> <div class="scard-lbl">Diarios comp.</div><div class="scard-val" id="si-cmp">—</div></div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:14px;font-weight:600">Estado del sistema</div>
+          <div style="font-size:12px;color:var(--suave)">Última actualización: <span id="si-ts">—</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="cargarStats()"><i class='bx bx-refresh'></i> Actualizar</button>
+      </div>
+    </div>
+
+    <!-- ── ESTADÍSTICAS ── -->
+    <div class="pg" id="pg-stats">
+      <div class="pg-title">Estadísticas</div>
+      <div class="pg-sub">Métricas detalladas del sistema</div>
+      <div class="stats-grid">
+        <div class="scard">   <div class="scard-lbl">Total estudiantes</div><div class="scard-val" id="st-est">—</div></div>
+        <div class="scard v"> <div class="scard-lbl">Total psicólogos</div><div class="scard-val" id="st-psi">—</div></div>
+        <div class="scard d"> <div class="scard-lbl">Sesiones chat / sem.</div><div class="scard-val" id="st-cht">—</div></div>
+        <div class="scard r"> <div class="scard-lbl">Alertas SOS activas</div><div class="scard-val" id="st-alt">—</div></div>
+        <div class="scard">   <div class="scard-lbl">Entradas diario hoy</div><div class="scard-val" id="st-hoy">—</div></div>
+        <div class="scard v"> <div class="scard-lbl">Diarios compartidos</div><div class="scard-val" id="st-cmp">—</div></div>
+      </div>
+      <div style="text-align:right;margin-top:-10px;margin-bottom:20px">
+        <button class="btn btn-ghost btn-sm" onclick="cargarStats()"><i class='bx bx-refresh'></i> Actualizar</button>
+      </div>
+    </div>
+
+    <!-- ── USUARIOS ── -->
+    <div class="pg" id="pg-usuarios">
+      <div class="pg-title">Usuarios</div>
+      <div class="pg-sub">Gestión de todos los usuarios del sistema</div>
+      <div class="toolbar">
+        <input class="search-input" type="search" id="usr-search" placeholder="Buscar por nombre, correo…" oninput="filtrarUsuarios()"/>
+        <select class="filter-sel" id="usr-rol" onchange="cargarUsuarios()">
+          <option value="">Todos los roles</option>
+          <option value="estudiante">Estudiante</option>
+          <option value="psicologo">Psicólogo</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="cargarUsuarios()"><i class='bx bx-refresh'></i></button>
+      </div>
+      <div class="tbl-wrap">
+        <div id="usr-tabla"><div class="loader"><i class='bx bx-loader-alt'></i> Cargando usuarios…</div></div>
+      </div>
+    </div>
+
+    <!-- ── ASIGNACIONES ── -->
+    <div class="pg" id="pg-asignaciones">
+      <div class="pg-title">Asignaciones</div>
+      <div class="pg-sub">Asignar estudiantes a psicólogos según disponibilidad</div>
+      <div class="asig-grid">
+
+        <!-- Formulario -->
+        <div class="asig-form">
+          <h3><i class='bx bxs-user-plus' style="color:var(--azul)"></i> Nueva asignación</h3>
+          <div class="field">
+            <label>Psicólogo</label>
+            <select id="asig-psico">
+              <option value="">— Selecciona un psicólogo —</option>
+            </select>
+          </div>
+          <div id="asig-psico-info" style="background:var(--fondo);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--suave);display:none">
+            <span id="asig-psico-est">0</span> estudiantes actuales
+          </div>
+          <div class="field">
+            <label>Estudiante</label>
+            <select id="asig-est">
+              <option value="">— Selecciona un estudiante —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Notas (opcional)</label>
+            <textarea id="asig-notas" rows="2" placeholder="Motivo de asignación…"></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="crearAsignacion()">
+            <i class='bx bx-link'></i> Crear asignación
+          </button>
+        </div>
+
+        <!-- Lista de asignaciones -->
+        <div class="asig-list">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <h3 style="font-size:15px;font-weight:600">Asignaciones activas</h3>
+            <button class="btn btn-ghost btn-sm" onclick="cargarAsignaciones()"><i class='bx bx-refresh'></i></button>
+          </div>
+          <div id="asig-lista"><div class="loader"><i class='bx bx-loader-alt'></i></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const API = window.location.origin + '/api';
+let token = localStorage.getItem('apfa_at') || '';
+let adminUser = null;
+let _usuariosCache = [];
+let _psicologosCache = [];
+
+// ── Helpers ────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    ...opts
+  });
+  if (res.status === 401) { cerrarSesion(); return null; }
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({ detail: 'Error ' + res.status }));
+    throw new Error(e.detail || 'Error ' + res.status);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function toast(msg) {
+  const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 2800);
+}
+
+// ── Navegación ──────────────────────────────────────────────
+function pg(id) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('pg-' + id).classList.add('on');
+  document.getElementById('nb-' + id).classList.add('on');
+  if (id === 'usuarios')     cargarUsuarios();
+  if (id === 'asignaciones') { cargarAsignaciones(); cargarSelectsPsicologosYEstudiantes(); }
+  if (id === 'stats')        cargarStats();
+}
+
+// ── Init ───────────────────────────────────────────────────
+window.onload = async () => {
+  if (!token) { window.location.href = '/'; return; }
+  try {
+    adminUser = await apiFetch('/auth/me');
+    if (!adminUser) return;
+    if ((adminUser.rol || '').toLowerCase() !== 'admin') {
+      alert('Acceso solo para administradores.');
+      cerrarSesion(); return;
+    }
+    document.getElementById('hdr-name').textContent = adminUser.nombre || 'Admin';
+    document.getElementById('adm-nombre-title').textContent = adminUser.nombre || 'Admin';
+  } catch { window.location.href = '/'; return; }
+  cargarStats();
+};
+
+// ── Cerrar sesión ──────────────────────────────────────────
+function cerrarSesion() {
+  const rt = localStorage.getItem('apfa_rt');
+  if (rt && token) {
+    fetch(API + '/auth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ refresh_token: rt })
+    }).catch(() => {});
+  }
+  ['apfa_at','apfa_rt','token','user'].forEach(k => localStorage.removeItem(k));
+  window.location.href = '/';
+}
+
+// ── Stats ──────────────────────────────────────────────────
+async function cargarStats() {
+  try {
+    const s = await apiFetch('/admin/stats');
+    if (!s) return;
+    const ids = [['si-est','st-est',s.total_estudiantes],['si-psi','st-psi',s.total_psicologos],
+                 ['si-cht','st-cht',s.sesiones_chat_semana],['si-alt','st-alt',s.alertas_activas],
+                 ['si-hoy','st-hoy',s.entradas_hoy],['si-cmp','st-cmp',s.entradas_compartidas]];
+    ids.forEach(([a,b,v]) => {
+      const va = document.getElementById(a), vb = document.getElementById(b);
+      if (va) va.textContent = v ?? '—';
+      if (vb) vb.textContent = v ?? '—';
+    });
+    const ts = new Date().toLocaleString('es-MX');
+    const el = document.getElementById('si-ts'); if(el) el.textContent = ts;
+    // badge usuarios
+    const nb = document.getElementById('nb-cnt');
+    if (nb && s.total_estudiantes > 0) { nb.textContent = s.total_estudiantes; nb.classList.remove('hidden'); }
+  } catch(e) { toast('Error stats: ' + e.message); }
+}
+
+// ── Usuarios ───────────────────────────────────────────────
+async function cargarUsuarios() {
+  const el = document.getElementById('usr-tabla');
+  el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando…</div>';
+  const rol = document.getElementById('usr-rol').value;
+  try {
+    const data = await apiFetch('/admin/usuarios' + (rol ? '?rol=' + rol : ''));
+    if (!data) return;
+    _usuariosCache = data;
+    renderTablaUsuarios(data);
+  } catch(e) {
+    el.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + e.message + '</div>';
+  }
+}
+
+function filtrarUsuarios() {
+  const q = document.getElementById('usr-search').value.toLowerCase();
+  renderTablaUsuarios(_usuariosCache.filter(u =>
+    (u.nombre||'').toLowerCase().includes(q) ||
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.rol||'').toLowerCase().includes(q)
+  ));
+}
+
+function renderTablaUsuarios(data) {
+  const el = document.getElementById('usr-tabla');
+  if (!data.length) { el.innerHTML = '<div class="empty-msg">Sin usuarios encontrados.</div>'; return; }
+  const rb = r => `<span class="rol-badge rb-${r}">${r}</span>`;
+  let html = `<table><thead><tr>
+    <th>Usuario</th><th>Teléfono</th><th>Carrera</th><th>Rol</th><th>Estado</th><th>Cambiar rol</th>
+  </tr></thead><tbody>`;
+  data.forEach(u => {
+    html += `<tr>
+      <td>
+        <div class="user-name">${u.nombre||''} ${u.apellidos||''}</div>
+        <div class="user-email">${u.email}</div>
+      </td>
+      <td><span class="user-phone">${u.telefono||'—'}</span></td>
+      <td style="font-size:12px;color:var(--suave)">${u.carrera||'—'}</td>
+      <td>${rb(u.rol)}</td>
+      <td><span class="status-dot ${u.activo?'sd-on':'sd-off'}"></span>${u.activo?'Activo':'Inactivo'}</td>
+      <td>
+        <select class="rol-select" onchange="cambiarRol('${u.id}',this)" ${u.id===adminUser?.id?'disabled title="No puedes cambiar tu propio rol"':''}>
+          <option value="estudiante" ${u.rol==='estudiante'?'selected':''}>Estudiante</option>
+          <option value="psicologo"  ${u.rol==='psicologo'?'selected':''}>Psicólogo</option>
+          <option value="admin"      ${u.rol==='admin'?'selected':''}>Admin</option>
+        </select>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function cambiarRol(uid, sel) {
+  const prev = sel.value;
+  sel.disabled = true;
+  try {
+    await apiFetch('/admin/usuarios/' + uid + '/rol?nuevo_rol=' + sel.value, { method: 'PATCH' });
+    toast('Rol actualizado a ' + sel.value);
+    await cargarUsuarios();
+  } catch(e) {
+    toast('Error: ' + e.message);
+    sel.value = prev;
+    sel.disabled = false;
+  }
+}
+
+// ── Asignaciones ───────────────────────────────────────────
+async function cargarSelectsPsicologosYEstudiantes() {
+  try {
+    const [psicos, todos] = await Promise.all([
+      apiFetch('/admin/psicologos-disponibles'),
+      apiFetch('/admin/usuarios?rol=estudiante'),
+    ]);
+    _psicologosCache = psicos || [];
+
+    const sPsico = document.getElementById('asig-psico');
+    const sEst   = document.getElementById('asig-est');
+    sPsico.innerHTML = '<option value="">— Selecciona un psicólogo —</option>';
+    sEst.innerHTML   = '<option value="">— Selecciona un estudiante —</option>';
+
+    (_psicologosCache).forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.nombre + (p.apellidos?' '+p.apellidos:'') + ' (' + p.estudiantes_actuales + ' asignados)';
+      sPsico.appendChild(opt);
+    });
+
+    (todos||[]).forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.nombre + (e.apellidos?' '+e.apellidos:'') + ' — ' + e.email;
+      sEst.appendChild(opt);
+    });
+  } catch(e) { toast('Error cargando listas: ' + e.message); }
+}
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'asig-psico') {
+    const pid = e.target.value;
+    const info = document.getElementById('asig-psico-info');
+    const span = document.getElementById('asig-psico-est');
+    if (!pid) { info.style.display = 'none'; return; }
+    const p = _psicologosCache.find(x => x.id === pid);
+    if (p) {
+      span.textContent = p.estudiantes_actuales;
+      info.style.display = 'block';
+    }
+  }
+});
+
+async function cargarAsignaciones() {
+  const el = document.getElementById('asig-lista');
+  el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i></div>';
+  try {
+    const data = await apiFetch('/admin/asignaciones');
+    if (!data) return;
+    if (!data.length) { el.innerHTML = '<div class="empty-msg">Sin asignaciones activas.</div>'; return; }
+    el.innerHTML = data.map(a => `
+      <div class="asig-item" id="asig-${a.id}">
+        <div class="asig-av">${(a.psicologo?.nombre||'P').charAt(0).toUpperCase()}</div>
+        <div class="asig-info">
+          <div class="asig-names">
+            <span style="font-weight:600;color:var(--azul)">${a.psicologo?.nombre||'—'}</span>
+            <span class="asig-arrow">→</span>
+            <span>${a.estudiante?.nombre||'—'}</span>
+          </div>
+          <div class="asig-meta">${a.psicologo?.email||''} · ${a.estudiante?.email||''}</div>
+          ${a.notas ? '<div class="asig-meta" style="font-style:italic">'+a.notas+'</div>' : ''}
+        </div>
+        <button class="btn-del-asig" onclick="eliminarAsignacion('${a.id}')" title="Eliminar asignación">
+          <i class='bx bx-x-circle'></i>
+        </button>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + e.message + '</div>';
+  }
+}
+
+async function crearAsignacion() {
+  const pid   = document.getElementById('asig-psico').value;
+  const eid   = document.getElementById('asig-est').value;
+  const notas = document.getElementById('asig-notas').value.trim();
+  if (!pid || !eid) { toast('Selecciona psicólogo y estudiante'); return; }
+  try {
+    const r = await apiFetch('/admin/asignaciones', {
+      method: 'POST',
+      body: JSON.stringify({ psicologo_id: pid, estudiante_id: eid, notas: notas || null })
+    });
+    toast(r?.mensaje || 'Asignación creada');
+    document.getElementById('asig-psico').value = '';
+    document.getElementById('asig-est').value   = '';
+    document.getElementById('asig-notas').value = '';
+    document.getElementById('asig-psico-info').style.display = 'none';
+    await Promise.all([cargarAsignaciones(), cargarSelectsPsicologosYEstudiantes()]);
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+async function eliminarAsignacion(id) {
+  if (!confirm('¿Eliminar esta asignación?')) return;
+  try {
+    await apiFetch('/admin/asignaciones/' + id, { method: 'DELETE' });
+    toast('Asignación eliminada');
+    cargarAsignaciones();
+    cargarSelectsPsicologosYEstudiantes();
+  } catch(e) { toast('Error: ' + e.message); }
+}
+</script>
+</body>
+</html>

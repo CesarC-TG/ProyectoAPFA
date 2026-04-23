@@ -1,0 +1,41 @@
+# ── Web framework ────────────────────────────────────────
+fastapi
+uvicorn[standard]
+python-multipart      # para uploads de archivos
+
+# ── Base de datos ─────────────────────────────────────────
+sqlalchemy
+asyncpg                # driver PostgreSQL asíncrono
+aiosqlite              # driver SQLite asíncrono (desarrollo)
+alembic                # migraciones de base de datos
+
+# ── Validación y configuración ───────────────────────────
+pydantic
+pydantic-settings
+email-validator
+
+# ── Seguridad ────────────────────────────────────────────
+PyJWT
+bcrypt
+python-jose[cryptography]   # alternativa a PyJWT si se necesitan más algoritmos
+
+# ── HTTP cliente (Google OAuth) ──────────
+httpx
+
+# ── WebSockets ───────────────────────────────────────────
+websockets
+
+# ── Redis (rate-limiting y caché en producción) ──────────
+redis
+
+# ── Utilidades ───────────────────────────────────────────
+python-dotenv
+
+# ── Desarrollo / Testing ─────────────────────────────────
+pytest
+pytest-asyncio
+httpx                 # cliente de prueba para FastAPI
+factory-boy             # fixtures de prueba
+
+# ────── Google Gemini────────────────────────
+google-genai

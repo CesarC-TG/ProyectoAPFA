@@ -1,0 +1,100 @@
+version: "3.9"
+
+# ── ApoYo FES Acatlán — Stack de desarrollo completo ─────
+# Uso: docker compose up -d
+# Logs: docker compose logs -f api
+
+services:
+
+  # ── API FastAPI ────────────────────────────────────────
+  api:
+    build:
+      context: .
+      target: production
+    container_name: apoyofes_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://apoyofes:${POSTGRES_PASSWORD:-devpassword}@db:5432/apoyofes_db
+      REDIS_URL:    redis://redis:6379/0
+      ENVIRONMENT:  development
+      DEBUG:        "true"
+    volumes:
+      - ./uploads:/app/uploads          # persistir uploads
+      - ./app:/app/app                  # hot-reload en desarrollo
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── PostgreSQL ─────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: apoyofes_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       apoyofes_db
+      POSTGRES_USER:     apoyofes
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apoyofes -d apoyofes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: apoyofes_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── Alembic migrations (corre y sale) ─────────────────
+  migrate:
+    build:
+      context: .
+      target: production
+    container_name: apoyofes_migrate
+    command: alembic upgrade head
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://apoyofes:${POSTGRES_PASSWORD:-devpassword}@db:5432/apoyofes_db
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - migrate    # solo corre con: docker compose --profile migrate up migrate
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: apoyofes_network

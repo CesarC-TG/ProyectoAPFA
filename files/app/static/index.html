@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>KAI — Bienestar FES Acatlán</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&family=Lora:ital@1&display=swap" rel="stylesheet"/>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+
+
+
+
+.hc-ico i { font-size: 32px; color: var(--azul2); }
+.bnav-btn .ico { font-size: 24px; margin-bottom: 2px; }
+:root {
+  /* Los nuevos colores del gatito KAI */
+  --azul: #276266;   /* El color petróleo oscuro del logo */
+  --azul2: #418f94;  /* Un tono más claro para cuando pasas el mouse */
+  --fondo: #F8F7F4;  /* El cremita súper suave del fondo de tu imagen */
+  --borde: #E5E1D8;  /* Un borde sutil para que las tarjetas resalten */
+  
+  /* Colores de apoyo suavizados para que no rompan la paz visual */
+  --dorado: #C9A84C; 
+  --verde: #337E59;  
+  --rojo: #C65A49;   
+  --morado: #7A5B9C; 
+  --blanco: #FFFFFF;
+  --texto: #2F3E46;  
+  --suave: #7A8B94;  
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--fondo);color:var(--texto);font-family:'DM Sans',sans-serif;min-height:100dvh;display:flex;flex-direction:column}
+input,textarea,select,button{font-family:inherit}
+.hidden{display:none!important}
+.loader-msg{text-align:center;padding:36px;color:var(--suave);font-size:14px}
+.empty-state{text-align:center;padding:52px 20px}
+.empty-state .ico{font-size:46px;margin-bottom:14px;color:var(--azul)} /* Estilo minimalista para el icono vacio */
+.empty-state p{font-size:14px;color:var(--suave);line-height:1.55}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:11px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+/* Header */
+header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+.brand-img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;border: 2px solid #fff;} /* Ajustado para el nuevo logo circular */
+.brand-txt strong{display:block;color:#fff;font-size:16px;font-weight:600}
+.brand-txt span{display:block;font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+.hbtn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:7px 14px;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:.2s}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+
+/* Nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--blanco);border-top:1px solid var(--borde);display:flex;z-index:150}
+.bnav-btn{flex:1;padding:10px 4px 8px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--suave);font-weight:500;transition:.2s}
+.bnav-btn .ico{font-size:20px; color: var(--suave); fill: currentColor;} /* Color suave por defecto */
+.bnav-btn.on{color:var(--azul)}
+.bnav-btn.on .ico{color:var(--azul2); fill: currentColor;} /* Color azul2 cuando está activo */
+.bnav-btn.sos-btn{color:var(--rojo)}
+.bnav-btn.sos-btn .ico{color: var(--rojo); fill: currentColor;}
+
+/* Pages */
+.page{display:none;padding:20px 20px 100px;max-width:560px;margin:0 auto}
+.page.on{display:block}
+.page-title{font-family:'Fraunces',serif;font-size:24px;color:var(--azul);margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--suave);margin-bottom:20px}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--suave);margin-bottom:12px}
+
+/* Auth overlay */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:300;align-items:flex-end;justify-content:center}
+.overlay.on{display:flex}
+.modal{background:var(--blanco);border-radius:26px 26px 0 0;padding:26px 22px 40px;width:100%;max-width:520px;animation:slideUp .3s ease}
+.modal-handle{width:36px;height:4px;background:var(--borde);border-radius:4px;margin:0 auto 22px}
+.modal-title{font-family:'Fraunces',serif;font-size:22px;color:var(--azul);margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--suave);margin-bottom:20px;line-height:1.5}
+.tabs{display:flex;gap:3px;background:var(--fondo);padding:3px;border-radius:11px;margin-bottom:18px}
+.tab{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--suave);transition:.2s}
+.tab.on{background:var(--blanco);color:var(--texto);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--suave);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--borde);border-radius:11px;font-size:14px;outline:none;background:var(--blanco);color:var(--texto);transition:.2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--azul2)}
+.field textarea{resize:vertical;min-height:90px;font-family:'Lora',serif;line-height:1.65;font-style:italic}
+.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:13px;color:var(--rojo);margin-bottom:13px}
+.info-box{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;font-size:12px;color:#1D4ED8;margin-bottom:13px;line-height:1.5}
+.ok-box{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:10px 12px;font-size:13px;color:var(--verde);margin-bottom:13px}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 18px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.2s;width:100%}
+.btn-azul{background:var(--azul);color:#fff}.btn-azul:hover{background:var(--azul2)}.btn-azul:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:var(--blanco);border:1.5px solid var(--borde);color:var(--texto)}.btn-ghost:hover{border-color:var(--azul2)}
+.btn-rojo{background:var(--rojo);color:#fff}.btn-rojo:hover{opacity:.88}
+.btn-verde{background:var(--verde);color:#fff}
+.btn-sm{padding:7px 14px;font-size:13px;width:auto;border-radius:10px}
+
+/* Card */
+.card{background:var(--blanco);border:1px solid var(--borde);border-radius:18px;padding:17px 19px;margin-bottom:13px}
+
+/* Home */
+.hero-badge{display:inline-block;background:var(--dorado);color:var(--azul);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 12px;border-radius:50px;margin-bottom:14px}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(26px,7vw,36px);line-height:1.2;color:var(--azul);margin-bottom:10px}
+.hero-title em{color:var(--dorado);font-style:italic}
+.hero-sub{font-size:15px;color:var(--suave);line-height:1.6;margin-bottom:22px}
+/* El gatito en el banner gigante pintado de blanco */
+.chatbot-banner { background: linear-gradient(135deg, var(--azul), var(--azul2)); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: .2s; box-shadow: 0 6px 18px rgba(0,0,0,.15); margin-bottom: 20px; }
+.chatbot-banner:hover { transform: translateY(-2px); }
+.cb-icon { width: 48px; height: 48px; background: rgba(255,255,255,.15); border-radius: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.kai-banner-ico { width: 32px; height: 32px; object-fit: contain; filter: brightness(0) invert(1); }
+.cb-txt strong { display: block; color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.cb-txt span { font-size: 12px; color: rgba(255,255,255,.8); }
+.cb-arrow { margin-left: auto; color: rgba(255,255,255,.6); font-size: 22px; }
+.chatbot-banner:hover{transform:translateY(-2px)}
+.cb-icon{width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+/* Reemplazo del emoji del chatbot por el minimalista */
+.cb-icon svg { color: #fff; fill: currentColor; width: 24px; height: 24px; }
+.cb-txt strong{display:block;color:#fff;font-size:15px;font-weight:600;margin-bottom:2px}
+.cb-txt span{font-size:12px;color:rgba(255,255,255,.8)}
+.cb-arrow{margin-left:auto;color:rgba(255,255,255,.6);font-size:22px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px}
+.home-card{background:var(--blanco);border:1px solid var(--borde);border-radius:16px;padding:17px;cursor:pointer;transition:.2s}
+.home-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.07)}
+.hc-ico{font-size:24px;margin-bottom:9px; color: var(--azul2);} /* Ícono minimalista de color */
+.hc-ico svg { fill: currentColor; width: 24px; height: 24px;}
+.hc-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.hc-sub{font-size:12px;color:var(--suave);line-height:1.4}
+
+/* Diario */
+.nuevo-panel{background:var(--blanco);border:1px solid var(--borde);border-radius:18px;padding:18px;margin-bottom:16px}
+.mood-row{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 13px}
+.mood-btn{width:37px;height:37px;border-radius:50%;border:2px solid var(--borde);background:var(--blanco);font-size:18px;cursor:pointer;transition:.2s}
+.mood-btn.sel,.mood-btn:hover{border-color:var(--azul);transform:scale(1.12)}
+.share-banner{background:var(--blanco);border:1px solid var(--borde);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:15px}
+/* Minimalismo para candado */
+#share-ico { color: var(--suave); font-size: 20px;}
+#share-ico.on { color: var(--verde);}
+.toggle{position:relative;width:44px;height:25px;flex-shrink:0;margin-left:auto}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--borde);border-radius:50px;cursor:pointer;transition:.3s}
+.slider::before{content:'';position:absolute;width:19px;height:19px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.slider{background:var(--verde)}
+.toggle input:checked+.slider::before{transform:translateX(19px)}
+.entrada-card{background:var(--blanco);border:1px solid var(--borde);border-radius:16px;padding:15px 17px;margin-bottom:11px}
+.ec-top{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.ec-fecha{font-size:11px;color:var(--suave);margin-left:auto}
+.ec-crisis{font-size:11px;font-weight:600;color:var(--rojo);background:#FEF2F2;padding:2px 8px;border-radius:50px}
+.ec-body{font-family:'Lora',serif;font-style:italic;font-size:14px;line-height:1.65;color:var(--texto)}
+.ec-body.short{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ec-foot{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
+.badge-green{font-size:11px;color:var(--verde);background:#E8F5EE;padding:2px 9px;border-radius:50px;font-weight:600}
+.link-btn{background:none;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:4px}
+.link-btn.azul{color:var(--azul)}.link-btn.rojo{color:var(--rojo)}
+
+/* FAB psicólogo */
+.psico-bubble{position:fixed;bottom:80px;right:18px;z-index:140;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.psico-fab{width:54px;height:54px;background:var(--azul);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(0,63,138,.3);border:none;color:#fff;transition:.2s}
+/* Minimalismo para FAB */
+.psico-fab svg { fill: currentColor; width: 22px; height: 22px;}
+.psico-fab:hover{background:var(--azul2);transform:scale(1.05)}
+.psico-menu{background:var(--blanco);border:1px solid var(--borde);border-radius:14px;padding:6px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.psico-menu-btn{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--texto);transition:.2s;white-space:nowrap;width:100%;text-align:left}
+/* Minimalismo para menu */
+.psico-menu-btn .ico { color: var(--azul); font-size: 16px;}
+.psico-menu-btn:hover{background:var(--fondo)}
+
+/* Chatbot */
+.condition-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.cond-btn{background:var(--blanco);border:2px solid var(--borde);border-radius:13px;padding:13px;cursor:pointer;transition:.2s;text-align:left}
+.cond-btn:hover,.cond-btn.sel{border-color:var(--azul);background:#EBF3FF}
+.cond-ico{font-size:20px;margin-bottom:5px; color: var(--azul2);} /* Ícono minimalista de color */
+.cond-ico svg { fill: currentColor; width: 20px; height: 20px;}
+.cond-name{font-size:12px;font-weight:600}
+.cond-desc{font-size:11px;color:var(--suave);margin-top:2px;line-height:1.3}
+.chat-wrap{background:var(--blanco);border:1px solid var(--borde);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;height:calc(100dvh - 290px);min-height:280px}
+.msgs{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:9px}
+.bbl{max-width:76%;padding:10px 13px;border-radius:15px;font-size:14px;line-height:1.55}
+.bbl.user{background:var(--azul);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.bbl.bot{background:var(--fondo);color:var(--texto);align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--borde)}
+.b-time{font-size:10px;opacity:.5;margin-top:3px}
+.chat-in{display:flex;gap:7px;padding:11px;border-top:1px solid var(--borde);background:var(--blanco)}
+.chat-field{flex:1;border:1.5px solid var(--borde);border-radius:11px;padding:8px 12px;font-size:14px;outline:none;resize:none;background:var(--fondo);transition:.2s}
+.chat-field:focus{border-color:var(--azul2);background:var(--blanco)}
+.send-btn{padding:9px 15px;border-radius:11px;background:var(--azul);color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:.2s}
+.send-btn:hover{background:var(--azul2)}
+.typing-dots{display:flex;gap:4px;padding:10px 13px;background:var(--fondo);border:1px solid var(--borde);border-radius:15px;border-bottom-left-radius:4px;align-self:flex-start}
+.dot{width:6px;height:6px;background:var(--suave);border-radius:50%;animation:blink .7s infinite}
+.dot:nth-child(2){animation-delay:.13s}.dot:nth-child(3){animation-delay:.26s}
+@keyframes blink{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* SOS */
+.sos-hero{background:linear-gradient(160deg,var(--rojo),#E74C3C);border-radius:18px;padding:24px;text-align:center;color:#fff;margin-bottom:18px}
+/* Minimalismo para héroe SOS */
+.sos-anim{font-size:48px;display:block;margin-bottom:10px;animation:pulse 2s infinite; color: #fff;}
+.sos-anim svg { fill: currentColor; width: 48px; height: 48px; }
+.sos-hero h2{font-family:'Fraunces',serif;font-size:22px;margin-bottom:6px}
+.sos-hero p{font-size:13px;opacity:.88;line-height:1.5}
+.sos-big-btn{border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:13px;border:none;cursor:pointer;transition:.15s;width:100%;margin-bottom:10px;text-align:left}
+.sos-big-btn:active{transform:scale(.97)}
+.sos-big-btn.llamar{background:var(--rojo);color:#fff;box-shadow:0 5px 16px rgba(192,57,43,.28)}
+.sos-big-btn.sms{background:var(--azul);color:#fff;box-shadow:0 5px 16px rgba(0,63,138,.22)}
+.sos-big-btn.ubicacion{background:var(--verde);color:#fff;box-shadow:0 5px 16px rgba(0,107,60,.22)}
+.sos-big-btn.fes{background:var(--blanco);color:var(--texto);border:1.5px solid var(--borde)}
+.sos-big-btn.adicciones{background:var(--morado);color:#fff;box-shadow:0 5px 16px rgba(107,63,160,.22)}
+.sbb-icon{width:48px;height:48px;border-radius:13px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+/* Minimalismo para iconos de botones grandes SOS */
+.sbb-icon svg { color: #fff; fill: currentColor; width: 22px; height: 22px; }
+.sos-big-btn.fes .sbb-icon{background:#EBF1FF}
+.sos-big-btn.fes .sbb-icon svg { color: var(--azul);}
+.sbb-txt strong{display:block;font-size:14px;font-weight:700;margin-bottom:2px}
+.sbb-txt span{font-size:12px;opacity:.82}
+.sos-big-btn.fes .sbb-txt span{color:var(--suave)}
+.sbb-arr{margin-left:auto;font-size:18px;opacity:.65}
+.linea-card{background:var(--blanco);border:1px solid var(--borde);border-radius:14px;padding:13px 15px;margin-bottom:9px;display:flex;align-items:center;gap:11px}
+.lc-icon{font-size:20px;width:30px;text-align:center;flex-shrink:0; color: var(--rojo);} /* Minimalista rojo */
+.lc-info{flex:1}
+.lc-info strong{display:block;font-size:13px;font-weight:600;margin-bottom:2px}
+.lc-info span{font-size:12px;color:var(--suave)}
+.lc-tel{font-size:12px;font-weight:700;color:var(--rojo);flex-shrink:0}
+
+/* Panel SOS extra */
+.panel-extra{display:none;background:var(--blanco);border:1.5px solid var(--borde);border-radius:16px;padding:16px;margin-bottom:12px}
+.panel-extra.on{display:block}
+.panel-extra h3{font-size:14px;font-weight:600;margin-bottom:11px}
+.sms-opt{display:flex;align-items:center;gap:11px;padding:11px;background:var(--fondo);border-radius:11px;margin-bottom:7px;text-decoration:none;color:var(--texto);transition:.2s}
+.sms-opt:hover{background:#EBF1FF}
+/* Minimalismo para opciones SMS */
+.sms-opt .ico { color: var(--rojo); font-size: 20px;}
+.sms-opt .ico.verde { color: var(--verde);}
+.sms-opt .ico.gris { color: var(--suave);}
+.sms-opt strong{display:block;font-size:13px;font-weight:600}
+.sms-opt span{font-size:11px;color:var(--suave)}
+.loc-info{font-size:12px;background:var(--fondo);border-radius:9px;padding:9px 11px;margin-bottom:11px;font-family:monospace;word-break:break-all;color:var(--texto)}
+.loc-btns{display:flex;gap:7px}
+.btn-copy{flex:1;padding:9px;background:var(--azul);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-wa{flex:1;padding:9px;background:#25D366;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px}
+/* Minimalismo para boton wa */
+.btn-wa svg { fill: currentColor; width: 14px; height: 14px;}
+
+/* Adicciones */
+.adiccion-card{background:var(--blanco);border:1px solid var(--borde);border-radius:15px;padding:14px 16px;margin-bottom:9px;display:flex;align-items:center;gap:12px}
+.ac-icon{font-size:20px;width:34px;text-align:center;flex-shrink:0; color: var(--morado);} /* Minimalista morado */
+.ac-info{flex:1}
+.ac-info strong{display:block;font-size:13px;font-weight:600;margin-bottom:2px}
+.ac-info span{font-size:11px;color:var(--suave);line-height:1.4}
+.ac-tel{padding:7px 12px;background:var(--morado);color:#fff;border-radius:9px;font-size:12px;font-weight:600;flex-shrink:0;white-space:nowrap}
+
+/* Recursos */
+.rec-card{background:var(--blanco);border:1px solid var(--borde);border-radius:16px;padding:16px 17px;margin-bottom:11px;transition:.2s}
+.rec-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.rec-tipo{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--azul2);background:#EBF3FF;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:7px}
+.rec-ico{font-size:20px;margin-bottom:6px; color: var(--azul2);} /* Minimalista de color */
+.rec-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.rec-desc{font-size:13px;color:var(--suave);line-height:1.5}
+.rec-tel{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12px;font-weight:600;color:var(--verde)}
+
+/* Perfil */
+.perfil-hero{background:var(--azul);border-radius:18px;padding:22px;text-align:center;margin-bottom:18px;color:#fff}
+.avatar-big{width:68px;height:68px;background:var(--dorado);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--azul);margin:0 auto 11px;font-family:'Fraunces',serif}
+/* Reemplazo del emoji vacio del perfil */
+.avatar-big.empty { color: #fff; border: 2px dashed rgba(255,255,255,.4); background: none; }
+.avatar-big.empty svg { fill: currentColor; width: 32px; height: 32px; }
+.perfil-name{font-family:'Fraunces',serif;font-size:20px;margin-bottom:3px}
+.perfil-email{font-size:12px;opacity:.72}
+.perfil-rol{font-size:10px;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:50px;display:inline-block;margin-top:5px;text-transform:uppercase;letter-spacing:.07em}
+.danger-zone{border:1.5px solid #FECACA;border-radius:15px;padding:16px;background:#FEF2F2}
+.danger-zone h4{font-size:14px;font-weight:600;color:var(--rojo);margin-bottom:5px}
+.danger-zone p{font-size:12px;color:var(--suave);margin-bottom:13px;line-height:1.5}
+
+/* Chat psico */
+.chat-psico-header{background:var(--azul);border-radius:15px;padding:15px;display:flex;align-items:center;gap:11px;margin-bottom:14px;color:#fff}
+.psico-avatar{width:42px;height:42px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+/* Minimalismo para avatar psico */
+.psico-avatar svg { fill: currentColor; width: 20px; height: 20px; color: #fff; }
+.psico-info strong{display:block;font-size:14px;font-weight:600}
+.psico-info span{font-size:11px;opacity:.75}
+.online-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;margin-left:auto;flex-shrink:0}
+.call-bar{display:flex;gap:7px;margin-bottom:11px}
+.call-btn-bar{flex:1;padding:10px;border-radius:11px;border:none;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.2s}
+.call-btn-bar.video{background:var(--azul);color:#fff}
+.call-btn-bar.phone{background:var(--verde);color:#fff}
+/* Minimalismo para iconos de llamada */
+.call-btn-bar svg { fill: currentColor; width: 14px; height: 14px; }
+
+/* Estilo para el gatito transparente en la barra de navegación */
+.kai-ui-ico {
+  width: 24px;  
+  height: 24px;
+  object-fit: contain;
+  margin-bottom: 2px;
+  transition: filter 0.2s ease; 
+}
+
+/* Magia: Cuando el botón está activo, convertimos el teal en azul/blanco */
+.bnav-btn.on .kai-ui-ico,
+.bnav-btn:hover .kai-ui-ico {
+  filter: brightness(0) invert(1);
+}
+/* --- Nueva regla para que el gatito NO se haga blanco --- */
+.bnav-btn.on .kai-cat-img,
+.bnav-btn:hover .kai-cat-img {
+  /* Anulamos la inversión de color */
+  filter: none; 
+  /* Agregamos un ligero oscurecimiento para resaltarlo (opcional) */
+  filter: brightness(0.8); 
+  /* O puedes usar una sombra de color para resaltarlo:
+  filter: drop-shadow(0 0 5px rgba(0, 128, 128, 0.5)); */
+}
+
+
+/* ── Panel Admin ───────────────── */
+.adm-stat-box{background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:12px 14px;text-align:center}
+.adm-stat-lbl{font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.adm-stat-val{font-size:26px;font-weight:700;color:var(--azul)}
+.adm-stat-val.adm-rojo{color:var(--rojo)}
+.adm-panel{padding:16px;border-radius:14px;border:1px solid var(--borde)}
+.adm-tab-btn.activo{border:2px solid var(--azul)!important;background:rgba(39,98,102,.06)!important}
+/* Tabla usuarios admin */
+.adm-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.adm-tbl th{text-align:left;padding:8px 10px;font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--borde)}
+.adm-tbl td{padding:10px;border-bottom:1px solid var(--fondo);vertical-align:middle}
+.adm-tbl tr:last-child td{border-bottom:none}
+.rol-select{border:1px solid var(--borde);border-radius:6px;padding:4px 6px;font-size:11px;font-weight:600;color:var(--texto);background:var(--fondo);cursor:pointer}
+.rol-select.admin{color:var(--rojo);border-color:rgba(198,90,73,.3)}
+.rol-select.psicologo{color:var(--azul);border-color:rgba(39,98,102,.3)}
+.rol-select.estudiante{color:var(--verde);border-color:rgba(51,126,89,.3)}
+.adm-user-name{font-weight:600;font-size:13px}
+.adm-user-email{font-size:11px;color:var(--suave);margin-top:1px;word-break:break-all}
+/* Modal Olvidé contraseña */
+.reset-box{background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:14px 16px;margin-top:12px}
+.reset-box p{font-size:13px;color:var(--suave);margin-bottom:10px}
+.reset-result{font-size:12px;padding:8px 12px;border-radius:8px;margin-top:8px;display:none}
+.reset-result.ok{background:rgba(51,126,89,.1);color:var(--verde)}
+.reset-result.err{background:rgba(198,90,73,.1);color:var(--rojo)}
+/* Login teléfono tabs */
+.login-mode-tabs{display:flex;gap:6px;margin-bottom:14px}
+.lm-tab{flex:1;background:var(--fondo);border:1px solid var(--borde);border-radius:8px;padding:7px;font-size:12px;font-weight:600;color:var(--suave);cursor:pointer;text-align:center;transition:all .15s}
+.lm-tab.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+/* ── Recursos ────────────────────────────────────────── */
+.rec-page-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--azul);margin-bottom:4px}
+.rec-page-sub{font-size:13px;color:var(--suave);margin-bottom:18px}
+
+/* Filtros */
+.rec-filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.rec-filters::-webkit-scrollbar{display:none}
+.rec-filter-btn{flex-shrink:0;border:1.5px solid var(--borde);background:var(--blanco);border-radius:50px;padding:7px 15px;font-size:12px;font-weight:600;color:var(--suave);cursor:pointer;white-space:nowrap;transition:all .18s;display:flex;align-items:center;gap:5px}
+.rec-filter-btn:hover{border-color:var(--azul);color:var(--azul)}
+.rec-filter-btn.on{background:var(--azul);border-color:var(--azul);color:#fff}
+
+/* Búsqueda */
+.rec-search-wrap{position:relative;margin-bottom:18px}
+.rec-search-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--suave);font-size:17px;pointer-events:none}
+.rec-search{width:100%;background:var(--blanco);border:1.5px solid var(--borde);border-radius:12px;padding:10px 14px 10px 38px;font-size:13px;font-family:inherit;transition:border-color .18s}
+.rec-search:focus{outline:none;border-color:var(--azul2)}
+
+/* Grid de tarjetas */
+.rec-grid{display:grid;grid-template-columns:1fr;gap:13px}
+
+/* Tarjeta recurso */
+.rec-card{background:var(--blanco);border:1.5px solid var(--borde);border-radius:18px;overflow:hidden;transition:transform .18s,box-shadow .18s;cursor:pointer;position:relative}
+.rec-card:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.09)}
+.rec-card-header{padding:16px 16px 12px;display:flex;gap:12px;align-items:flex-start}
+.rec-icon-wrap{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ri-respiracion{background:rgba(64,143,148,.12)}
+.ri-meditacion{background:rgba(122,91,156,.12)}
+.ri-ejercicio{background:rgba(51,126,89,.12)}
+.ri-lectura{background:rgba(201,168,76,.12)}
+.ri-video{background:rgba(198,90,73,.12)}
+.ri-clinica{background:rgba(39,98,102,.12)}
+.ri-linea_crisis{background:rgba(198,90,73,.12)}
+.rec-card-body{flex:1;min-width:0}
+.rec-tipo-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:5px}
+.rtb-respiracion{background:rgba(64,143,148,.1);color:var(--azul2)}
+.rtb-meditacion{background:rgba(122,91,156,.1);color:var(--morado)}
+.rtb-ejercicio{background:rgba(51,126,89,.1);color:var(--verde)}
+.rtb-lectura{background:rgba(201,168,76,.1);color:#8a6200}
+.rtb-video{background:rgba(198,90,73,.1);color:var(--rojo)}
+.rtb-clinica{background:rgba(39,98,102,.1);color:var(--azul)}
+.rtb-linea_crisis{background:rgba(198,90,73,.15);color:var(--rojo)}
+.rec-title{font-size:14px;font-weight:600;color:var(--texto);line-height:1.35;margin-bottom:4px}
+.rec-desc{font-size:12px;color:var(--suave);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rec-meta{display:flex;gap:10px;align-items:center;padding:0 16px 14px;flex-wrap:wrap}
+.rec-dur{font-size:11px;color:var(--suave);display:flex;align-items:center;gap:3px}
+.rec-24h{font-size:10px;font-weight:700;background:rgba(51,126,89,.1);color:var(--verde);padding:2px 7px;border-radius:20px}
+.rec-tel-badge{font-size:11px;font-weight:600;color:var(--verde);display:flex;align-items:center;gap:4px;text-decoration:none}
+.rec-link-badge{font-size:11px;font-weight:600;color:var(--azul);display:flex;align-items:center;gap:4px;text-decoration:none}
+
+/* Detalle del recurso (expandible) */
+.rec-detail{background:var(--fondo);border-top:1px solid var(--borde);padding:0;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s ease}
+.rec-detail.open{max-height:800px;padding:14px 16px}
+.rec-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.rec-step-num{width:22px;height:22px;border-radius:50%;background:var(--azul);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rec-step-txt{font-size:13px;color:var(--texto);line-height:1.5}
+.rec-benefit{display:inline-flex;align-items:center;gap:5px;background:rgba(51,126,89,.08);color:var(--verde);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin:2px}
+.rec-info-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--borde);font-size:13px}
+.rec-info-row:last-child{border-bottom:none}
+.rec-info-row i{font-size:16px;color:var(--azul);flex-shrink:0}
+.rec-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--suave);margin:12px 0 6px}
+.rec-cta-btn{width:100%;border:none;padding:11px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:12px;font-family:inherit;transition:background .18s}
+.rec-cta-tel{background:rgba(51,126,89,.12);color:var(--verde)}.rec-cta-tel:hover{background:rgba(51,126,89,.22)}
+.rec-cta-link{background:rgba(39,98,102,.1);color:var(--azul)}.rec-cta-link:hover{background:rgba(39,98,102,.2)}
+.rec-expand-btn{position:absolute;bottom:10px;right:14px;background:none;border:none;color:var(--suave);font-size:14px;cursor:pointer;padding:4px;line-height:1}
+.rec-expand-btn i{transition:transform .25s}
+.rec-expand-btn.open i{transform:rotate(180deg)}
+
+/* Estado vacío / error */
+.rec-empty{text-align:center;padding:48px 20px}
+.rec-empty-ico{font-size:42px;margin-bottom:12px}
+.rec-empty-msg{font-size:14px;color:var(--suave);line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand" onclick="go('home')">
+    <img src="/static/Kai_logo.jpeg" alt="Logo APFA" class="brand-img">
+    
+    <div class="brand-txt">
+      <strong>APFA</strong> <span>FES Acatlán · UNAM</span>
+    </div>
+  </div>
+  <button class="hbtn" id="hdr-btn" onclick="hdrAction()"><span class="ico" style="font-size: 14px; margin-right: 4px; color: #fff;">👤</span> <span id="hdr-name">Ingresar</span></button>
+</header>
+
+<div class="page on" id="p-home">
+  <div class="hero-badge">Bienestar Estudiantil · UNAM</div>
+  <h1 class="hero-title">Tu espacio seguro en <em>FES Acatlán</em></h1>
+  <p class="hero-sub">Apoyo emocional, recursos de salud mental y herramientas para estudiantes. Aquí no estás solo/a.</p>
+ <div class="chatbot-banner" onclick="go('chatbot')">
+    <div class="cb-icon">
+        <img src="/static/kai_transparent.png" class="kai-banner-ico" alt="KAI">
+    </div>
+    <div class="cb-txt"><strong>Habla con KAI</strong><span>Apoyo personalizado según tu situación</span></div>
+    <span class="cb-arrow">›</span>
+  </div>
+  <p class="section-label">Herramientas disponibles</p>
+  <div class="grid-2">
+  <div class="home-card" onclick="go('diario')"><div class="hc-ico"><i class='bx bx-book-open'></i></div><div class="hc-title">Diario personal</div><div class="hc-sub">Escribe tus pensamientos</div></div>
+  <div class="home-card" onclick="go('recursos')"><div class="hc-ico"><i class='bx bx-spa'></i></div><div class="hc-title">Recursos</div><div class="hc-sub">Técnicas y clínicas</div></div>
+  <div class="home-card" onclick="go('sos')"><div class="hc-ico"><i class='bx bx-first-aid'></i></div><div class="hc-title">SOS Emergencias</div><div class="hc-sub">Líneas de crisis</div></div>
+  <div class="home-card" onclick="go('adicciones')"><div class="hc-ico"><i class='bx bx-brain'></i></div><div class="hc-title">Adicciones</div><div class="hc-sub">Centros de ayuda</div></div>
+  </div>
+</div>
+
+
+<div class="page" id="p-diario">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div><div class="page-title">Mi Diario</div><div class="page-sub" style="margin:0">Tu espacio privado de expresión</div></div>
+    <button class="btn btn-azul btn-sm" onclick="toggleNueva()">+ Nueva</button>
+  </div>
+  <div class="share-banner">
+    <span class="ico" id="share-ico">🔒</span>
+    <div><strong style="font-size:13px;display:block">Compartir con psicólogo/a</strong><span style="font-size:12px;color:var(--suave)">El equipo de Psicopedagogía FES podrá ver tus entradas</span></div>
+    <label class="toggle"><input type="checkbox" id="shareToggle" onchange="toggleCompartir()"/><span class="slider"></span></label>
+  </div>
+  <div id="nueva-panel" class="nuevo-panel hidden">
+    <div class="field"><label>¿Cómo te sientes?</label>
+      <div class="mood-row">
+        <button class="mood-btn" data-v="😄" onclick="selMood(this)">😄</button>
+        <button class="mood-btn" data-v="😊" onclick="selMood(this)">😊</button>
+        <button class="mood-btn" data-v="😐" onclick="selMood(this)">😐</button>
+        <button class="mood-btn" data-v="😔" onclick="selMood(this)">😔</button>
+        <button class="mood-btn" data-v="😰" onclick="selMood(this)">😰</button>
+        <button class="mood-btn" data-v="😤" onclick="selMood(this)">😤</button>
+        <button class="mood-btn" data-v="😞" onclick="selMood(this)">😞</button>
+      </div>
+    </div>
+    <div class="field"><label>Escribe libremente</label><textarea id="etexto" placeholder="Escribe lo que llevas dentro… sin filtros, sin juicios." rows="5"></textarea></div>
+    <div style="display:flex;gap:7px;margin-top:5px">
+      <button class="btn btn-azul btn-sm" onclick="guardarEntrada()">Guardar entrada</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleNueva()">Cancelar</button>
+    </div>
+  </div>
+  <p class="section-label">Entradas guardadas</p>
+  <div id="entradas-list"></div>
+  <div class="psico-bubble" id="psico-bubble" style="display:none">
+    <div class="psico-menu hidden" id="psico-menu">
+      <button class="psico-menu-btn" onclick="go('chat-psico')"><span class="ico">💬</span> Chat con psicólogo/a</button>
+      <a class="psico-menu-btn" href="tel:5556231666"><span class="ico">📞</span> Llamar a Psicopedagogía</a>
+    </div>
+    <button class="psico-fab" onclick="togglePsicoMenu()" title="Contactar psicólogo">
+        <svg viewBox="0 0 100 100"><path d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 80c-19.3 0-35-15.7-35-35s15.7-35 35-35 35 15.7 35 35-15.7 35-35 35zm15-45c0 8.3-6.7 15-15 15s-15-6.7-15-15 6.7-15 15-15 15 6.7 15 15zm20 30H15c0-11 9-20 20-20h30c11 0 20 9 20 20z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="page" id="p-chatbot">
+  <div class="page-title">KAI</div>
+  <div class="page-sub">Asistente de bienestar personalizado</div>
+  <div id="condition-selector">
+    <p class="section-label">¿Con qué te puedo apoyar hoy?</p>
+    <div class="condition-grid" id="cond-grid"></div>
+    <button class="btn btn-azul" onclick="iniciarChat()">Iniciar conversación →</button>
+  </div>
+  <div id="chat-area" class="hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+      <span style="font-size:13px;color:var(--suave)" id="cond-label"></span>
+      <button class="btn btn-ghost btn-sm" onclick="resetChat()">Cambiar tema</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="msgs" id="chat-msgs"></div>
+      <div class="chat-in">
+        <textarea class="chat-field" id="chat-input" rows="1" placeholder="Escribe tu mensaje…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <button class="send-btn" onclick="sendMsg()">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="p-sos">
+  <div class="sos-hero">
+    <span class="sos-anim">
+        <svg viewBox="0 0 100 100"><path d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 80c-19.3 0-35-15.7-35-35s15.7-35 35-35 35 15.7 35 35-15.7 35-35 35zm15-50H35v10h30V35zm-5 25H40v10h25V60z" fill="currentColor"/></svg>
+    </span>
+    <h2>¿Necesitas ayuda ahora?</h2>
+    <p>Estás en el lugar correcto. Usa los botones de abajo para contactar ayuda de inmediato.</p>
+  </div>
+  <a class="sos-big-btn llamar" href="tel:8002900024"><div class="sbb-icon">📞</div><div class="sbb-txt"><strong>Llamar a crisis</strong><span>SAPTEL · 800 290 0024 · 24 hrs</span></div><span class="sbb-arr">›</span></a>
+  <button class="sos-big-btn sms" onclick="togglePanel('sms-panel')"><div class="sbb-icon">💬</div><div class="sbb-txt"><strong>Enviar SMS de ayuda</strong><span>Mensaje a línea de crisis</span></div><span class="sbb-arr">›</span></button>
+  <div class="panel-extra" id="sms-panel">
+    <h3>📱 ¿A quién enviar el SMS?</h3>
+    <a class="sms-opt" href="sms:8002900024?body=Necesito ayuda, estoy en crisis"><span class="ico">🆘</span><div><strong>SAPTEL · Línea de crisis</strong><span>800 290 0024</span></div></a>
+    <a class="sms-opt" href="sms:558009112000?body=Necesito apoyo emocional urgente"><span class="ico verde">💚</span><div><strong>IMSS · Salud mental</strong><span>55 800 911 2000</span></div></a>
+    <a class="sms-opt" href="sms:?body=Necesito ayuda urgente. Mi ubicación: "><span class="ico gris">👤</span><div><strong>Contacto de confianza</strong><span>Elige de tu lista de contactos</span></div></a>
+  </div>
+  <button class="sos-big-btn ubicacion" onclick="togglePanel('loc-panel');obtenerUbicacion()"><div class="sbb-icon">📍</div><div class="sbb-txt"><strong>Compartir mi ubicación</strong><span>Link de Google Maps actualizado</span></div><span class="sbb-arr">›</span></button>
+  <div class="panel-extra" id="loc-panel">
+    <h3>📍 Tu ubicación actual</h3>
+    <div class="loc-info" id="loc-info">Obteniendo ubicación…</div>
+    <div class="loc-btns">
+      <button class="btn-copy" onclick="copiarUbicacion()">📋 Copiar link</button>
+      <a class="btn-wa" id="wa-link" href="#">
+          <svg viewBox="0 0 100 100"><path d="M85 15C76 6 63.3 0 50 0 22.4 0 0 22.4 0 50c0 8.8 2.3 17.4 6.7 25l-7.1 26L26 94c7.3 4 15.6 6.1 24 6.1 27.6 0 50-22.4 50-50 0-13.4-5.2-26-15-35.1zm-35 81c-7.6 0-15-2-21.6-5.8l-1.5-.9-16 4.2 4.3-15.6-.9-1.5C6.1 63.8 4.1 57 4.1 50 4.1 24.7 24.7 4.1 50 4.1c12.3 0 23.8 4.8 32.5 13.5C91.2 26.2 96 37.7 96 50 96 75.3 75.4 96 50 96zm22.5-18.9c-1.2-.6-7.3-3.6-8.5-4s-2-1.2-2.8 0c-.8 1.2-3.1 4-3.8 4.8s-1.4.9-2.6.3c-1.2-.6-5.1-1.9-9.7-6-3.6-3.2-6-7.2-6.7-8.4s0-1.8.6-2.4c.5-.5 1.2-1.4 1.8-2 .6-.6.8-1.1 1.2-1.8s.2-1.4-.1-2c-.3-.6-2.8-6.7-3.8-9.1-1-2.4-2-2-2.8-2s-1.6 0-2.4.3c-.8.3-2.6 1.4-2.6 3.6 0 2.2 1.6 4.3 1.8 4.5.2.2 3.1 4.7 7.5 6.6 1 .4 1.8.7 2.4.9 1 .3 2 .3 2.8.2.8-.1 2.6-1.1 3-2 .4-.9.4-1.7.3-2-.1-.3-.4-.5-1-.8z" fill="currentColor"/></svg>
+          WhatsApp
+      </a>
+    </div>
+  </div>
+  <button class="sos-big-btn fes" onclick="llamarFES()"><div class="sbb-icon">🏛</div><div class="sbb-txt"><strong>Psicopedagogía FES Acatlán</strong><span>Lun–Vie · 8am–8pm · Edificio D, PB</span></div><span class="sbb-arr" style="color:var(--suave)">›</span></button>
+  <button class="sos-big-btn adicciones" onclick="go('adicciones')"><div class="sbb-icon">🧠</div><div class="sbb-txt"><strong>Centros de adicciones</strong><span>CONADIC, CIJ y más centros</span></div><span class="sbb-arr">›</span></button>
+  <p class="section-label" style="margin-top:18px">Líneas de emergencia</p>
+  <div id="lineas-list"></div>
+</div>
+
+</section>
+
+<div class="page" id="p-adicciones">
+  <div class="page-title">Centros de Adicciones</div>
+  <div class="page-sub">Ayuda profesional para rehabilitación</div>
+  <div class="card" style="background:rgba(107,63,160,.06);border-color:rgba(107,63,160,.18)"><p style="font-size:13px;color:#4a1780;line-height:1.6">Buscar ayuda para una adicción es un acto de valentía. Estos centros ofrecen atención confidencial, muchos con cobertura pública o gratuita.</p></div>
+  <p class="section-label">Líneas de orientación 24hrs</p>
+  <div class="adiccion-card"><span class="ac-icon">📞</span><div class="ac-info"><strong>CONADIC — Línea de la Vida</strong><span>Orientación 24 hrs sobre adicciones y treatmento. Sin costo.</span></div><a class="ac-tel" href="tel:8009112000">800 911 2000</a></div>
+  <div class="adiccion-card"><span class="ac-icon">🏥</span><div class="ac-info"><strong>CIJ — Centro de Integración Juvenil</strong><span>Treatmento ambulatorio · Acatlán: 55 5563 4330</span></div><a class="ac-tel" href="tel:5555634330">55 5563 4330</a></div>
+  <div class="adiccion-card"><span class="ac-icon">💊</span><div class="ac-info"><strong>UNEME-CAPA</strong><span>Unidades especializadas en adicciones · CDMX gratuito</span></div><a class="ac-tel" href="tel:8002900024">800 290 0024</a></div>
+  <div class="adiccion-card"><span class="ac-icon">🌿</span><div class="ac-info"><strong>AA — Alcohólicos Anónimos</strong><span>Grupos de apoyo en toda la CDMX · Gratuito y anónimo</span></div><a class="ac-tel" href="tel:5555748651">55 5574 8651</a></div>
+  <div class="adiccion-card"><span class="ac-icon">🤝</span><div class="ac-info"><strong>NA — Narcóticos Anónimos</strong><span>Grupos de 12 pasos · Anónimo y gratuito</span></div><a class="ac-tel" href="tel:5555614090">55 5614 0903</a></div>
+  <div class="adiccion-card"><span class="ac-icon">🔬</span><div class="ac-info"><strong>CDIS — Clínicas IMSS</strong><span>Desintoxicación · Requiere derechohabiencia IMSS</span></div><a class="ac-tel" href="tel:8006232323">800 623 2323</a></div>
+  <p class="section-label" style="margin-top:18px">En FES Acatlán</p>
+  <div class="card"><h4 style="font-size:13px;font-weight:600;margin-bottom:6px">Psicopedagogía FES Acatlán</h4><p style="font-size:12px;color:var(--suave);line-height:1.6">El Departamento de Psicopedagogía ofrece orientación y canalización a centros de adicciones. Lun–Vie 8am–8pm · Edificio D, PB · <a href="tel:5556231666" style="color:var(--azul2);font-weight:600">55 5623 1666</a></p></div>
+</div>
+
+<div class="page" id="p-recursos">
+  <div class="rec-page-title">Recursos de Apoyo</div>
+  <div class="rec-page-sub">Técnicas, ejercicios y apoyo profesional para tu bienestar</div>
+
+  <!-- Búsqueda -->
+  <div class="rec-search-wrap">
+    <i class='bx bx-search'></i>
+    <input class="rec-search" type="search" id="rec-buscar" placeholder="Buscar recursos…" oninput="filtrarRecursos()"/>
+  </div>
+
+  <!-- Filtros por categoría -->
+  <div class="rec-filters" id="rec-filters">
+    <button class="rec-filter-btn on" data-tipo="" onclick="setRecFiltro(this, '')">
+      🌿 Todos
+    </button>
+    <button class="rec-filter-btn" data-tipo="respiracion" onclick="setRecFiltro(this, 'respiracion')">
+      🌬️ Respiración
+    </button>
+    <button class="rec-filter-btn" data-tipo="meditacion" onclick="setRecFiltro(this, 'meditacion')">
+      🧘 Meditación
+    </button>
+    <button class="rec-filter-btn" data-tipo="ejercicio" onclick="setRecFiltro(this, 'ejercicio')">
+      🏃 Ejercicio
+    </button>
+    <button class="rec-filter-btn" data-tipo="lectura" onclick="setRecFiltro(this, 'lectura')">
+      📖 Lectura
+    </button>
+    <button class="rec-filter-btn" data-tipo="video" onclick="setRecFiltro(this, 'video')">
+      🎬 Video
+    </button>
+    <button class="rec-filter-btn" data-tipo="clinica" onclick="setRecFiltro(this, 'clinica')">
+      🏥 Clínicas
+    </button>
+    <button class="rec-filter-btn" data-tipo="linea_crisis" onclick="setRecFiltro(this, 'linea_crisis')">
+      📞 Crisis
+    </button>
+  </div>
+
+  <!-- Lista de recursos -->
+  <div class="rec-grid" id="rec-list">
+    <div class="loader-msg">Cargando recursos…</div>
+  </div>
+</div>
+
+<div class="page" id="p-perfil">
+  <div class="perfil-hero">
+    <div class="avatar-big" id="perf-av">U</div>
+    <h2 class="perfil-name" id="perf-name">Usuario</h2>
+    <p class="perfil-email" id="perf-email">correo@dominio.com</p>
+    <span class="perfil-rol" id="perf-rol">Estudiante</span>
+  </div>
+
+  <section id="seccion-admin" style="display:none; margin-bottom:20px;">
+    <p class="section-label">Panel Administrativo</p>
+    <!-- Botones de navegación del panel -->
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div class="home-card adm-tab-btn" id="adm-btn-stats" onclick="adminTab('stats')">
+        <div class="hc-ico"><i class='bx bx-stats'></i></div>
+        <div class="hc-title">Estadísticas</div>
+      </div>
+      <div class="home-card adm-tab-btn" id="adm-btn-usuarios" onclick="adminTab('usuarios')">
+        <div class="hc-ico"><i class='bx bx-group'></i></div>
+        <div class="hc-title">Usuarios</div>
+      </div>
+    </div>
+
+    <!-- Panel de ESTADÍSTICAS -->
+    <div id="adm-panel-stats" class="card adm-panel" style="display:none; margin-top:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="margin:0;font-size:15px;">Estadísticas del sistema</h3>
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="adminTab(null)">✕ Cerrar</button>
+      </div>
+      <div id="adm-stats-content" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="adm-stat-box"><div class="adm-stat-lbl">Estudiantes</div><div class="adm-stat-val" id="adm-s-est">--</div></div>
+        <div class="adm-stat-box"><div class="adm-stat-lbl">Psicólogos</div><div class="adm-stat-val" id="adm-s-psico">--</div></div>
+        <div class="adm-stat-box"><div class="adm-stat-lbl">Chats semana</div><div class="adm-stat-val" id="adm-s-chat">--</div></div>
+        <div class="adm-stat-box"><div class="adm-stat-lbl">Alertas activas</div><div class="adm-stat-val adm-rojo" id="adm-s-alertas">--</div></div>
+        <div class="adm-stat-box"><div class="adm-stat-lbl">Entradas hoy</div><div class="adm-stat-val" id="adm-s-hoy">--</div></div>
+        <div class="adm-stat-box"><div class="adm-stat-lbl">Compartidas</div><div class="adm-stat-val" id="adm-s-comp">--</div></div>
+      </div>
+      <p style="font-size:11px;color:var(--suave);margin-top:10px;text-align:right;">Act: <span id="adm-s-ts">—</span></p>
+      <button class="btn btn-azul" style="width:100%;margin-top:6px;font-size:13px;" onclick="cargarStatsAdmin()"><i class='bx bx-refresh'></i> Actualizar</button>
+      <a href="/admin.html" style="display:block;text-align:center;margin-top:8px;font-size:12px;color:var(--azul);text-decoration:underline;">Abrir panel admin completo →</a>
+    </div>
+
+    <!-- Panel de USUARIOS con cambio de rol -->
+    <div id="adm-panel-usuarios" class="card adm-panel" style="display:none; margin-top:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="margin:0;font-size:15px;">Usuarios del sistema</h3>
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="adminTab(null)">✕ Cerrar</button>
+        <a href="/admin.html" style="font-size:11px;color:var(--azul);text-decoration:underline;white-space:nowrap">Panel completo →</a>
+      </div>
+      <input type="search" id="adm-buscar" placeholder="Buscar por nombre o correo…"
+        style="width:100%;border:1px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:10px;background:var(--fondo);"
+        oninput="filtrarTablaAdmin()" />
+      <div id="adm-tabla-usuarios" style="overflow-x:auto; font-size:13px;">
+        <p style="color:var(--suave);text-align:center;padding:20px;">Cargando...</p>
+      </div>
+    </div>
+  </section>
+
+  <button class="btn btn-rojo" onclick="cerrarSesion()">Cerrar Sesión</button>
+</div>
+
+<div class="page" id="p-chat-psico">
+  <div class="page-title">Chat con psicólogo/a</div>
+  <div class="page-sub">Atención directa del equipo de FES Acatlán</div>
+  <div class="chat-psico-header">
+    <div class="psico-avatar">
+        <svg viewBox="0 0 100 100"><path d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 80c-19.3 0-35-15.7-35-35s15.7-35 35-35 35 15.7 35 35-15.7 35-35 35zm15-45c0 8.3-6.7 15-15 15s-15-6.7-15-15 6.7-15 15-15 15 6.7 15 15zm20 30H15c0-11 9-20 20-20h30c11 0 20 9 20 20z" fill="currentColor"/></svg>
+    </div>
+    <div class="psico-info"><strong>Psicólogo/a FES Acatlán</strong><span>Psicopedagogía · Edificio D</span></div>
+    <div class="online-dot"></div>
+  </div>
+  <div class="call-bar">
+    <button class="call-btn-bar video" onclick="alert('Videollamada en desarrollo. Por ahora llama al 55 5623 1666')">📹 Videollamada</button>
+    <a class="call-btn-bar phone" href="tel:5556231666">📞 Llamar</a>
+  </div>
+  <div class="info-box">Para atención real llama a <strong>55 5623 1666</strong> Lun–Vie 8am–8pm. Este chat envía tus mensajes al equipo de apoyo.</div>
+  <div class="chat-wrap">
+    <div class="msgs" id="psico-msgs">
+      <div class="bbl bot">Hola, soy el equipo de Psicopedagogía de FES Acatlán. ¿En qué te puedo apoyar hoy?<div class="b-time">Ahora</div></div>
+    </div>
+    <div class="chat-in">
+      <textarea class="chat-field" id="psico-input" rows="1" placeholder="Escribe tu mensaje…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendPsico()}"></textarea>
+      <button class="send-btn" onclick="sendPsico()">↑</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="auth-modal" onclick="closeOut(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Acceder a KAI</div>
+    <div class="tabs"><button class="tab on" onclick="sTab(0)">Iniciar sesión</button><button class="tab" onclick="sTab(1)">Registrarse</button></div>
+    <div id="auth-err" class="err-box hidden"></div>
+
+    <!-- ── PESTAÑA LOGIN ── -->
+    <div id="auth-t0">
+      <!-- Selector email / teléfono -->
+      <div class="login-mode-tabs">
+        <div class="lm-tab on" id="lmt-email" onclick="setLoginMode('email')">📧 Correo</div>
+        <div class="lm-tab"    id="lmt-tel"   onclick="setLoginMode('tel')">📱 Teléfono</div>
+      </div>
+      <!-- Modo email -->
+      <div id="login-email-fields">
+        <div class="field"><label>Correo institucional</label><input type="email" id="l-email" placeholder="usuario@pcpuma.acatlan.unam.mx"/></div>
+      </div>
+      <!-- Modo teléfono -->
+      <div id="login-tel-fields" class="hidden">
+        <div class="field"><label>Número de teléfono</label><input type="tel" id="l-tel" placeholder="Ej. 5512345678"/></div>
+      </div>
+      <div class="field"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn btn-azul" id="lbtn" onclick="doLogin()" style="width:100%;margin-bottom:10px;">Iniciar sesión</button>
+      <!-- Olvidé mi contraseña -->
+      <button type="button" onclick="toggleReset()" style="background:none;border:none;color:var(--azul);font-size:12px;text-decoration:underline;cursor:pointer;width:100%;text-align:center;">¿Olvidé mi contraseña?</button>
+      <div id="reset-box" class="reset-box hidden">
+        <p>Ingresa tu <strong>correo</strong> o teléfono registrado y recibirás una contraseña temporal.</p>
+        <div class="login-mode-tabs" style="margin-bottom:10px;">
+          <div class="lm-tab on" id="rst-tab-email" onclick="setResetMode('email')">📧 Correo</div>
+          <div class="lm-tab"    id="rst-tab-tel"   onclick="setResetMode('tel')">📱 Teléfono</div>
+        </div>
+        <div id="rst-email-field" class="field" style="margin-bottom:8px;">
+          <input type="email" id="reset-email" placeholder="usuario@pcpuma.acatlan.unam.mx" style="width:100%"/>
+        </div>
+        <div id="rst-tel-field" class="field hidden" style="margin-bottom:8px;">
+          <input type="tel" id="reset-tel" placeholder="Ej. 5512345678" style="width:100%"/>
+        </div>
+        <button class="btn btn-azul" id="reset-btn" onclick="solicitarReset()" style="width:100%;font-size:13px;">Recuperar contraseña</button>
+        <div id="reset-result" class="reset-result"></div>
+      </div>
+    </div>
+
+    <!-- ── PESTAÑA REGISTRO ── -->
+    <div id="auth-t1" class="hidden">
+      <div class="field"><label>Nombre completo</label><input type="text" id="r-nombre" placeholder="Tu nombre"/></div>
+      <div class="field"><label>Correo institucional</label><input type="email" id="r-email" placeholder="usuario@comunidad.unam.mx"/></div>
+      <div class="field"><label>Teléfono (para recuperar contraseña)</label><input type="tel" id="r-tel" placeholder="Ej. 5512345678"/></div>
+      <div class="field"><label>Contraseña (mín. 8 caracteres)</label><input type="password" id="r-pass" placeholder="Crea una contraseña segura" onkeydown="if(event.key==='Enter')doRegistro()"/></div>
+      <div class="field"><label>Carrera (opcional)</label><input type="text" id="r-carrera" placeholder="Ej. Matemáticas Aplicadas"/></div>
+      <div class="info-box">Al registrarte aceptas la política de privacidad de la UNAM. Tus datos son confidenciales.</div>
+      <button class="btn btn-azul" id="rbtn" onclick="doRegistro()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="bnav-btn on" onclick="go('home')"><i class='bx bx-home-alt ico'></i>Inicio</button>
+  <button class="bnav-btn" onclick="go('diario')"><i class='bx bx-book-heart ico'></i>Diario</button>
+  <button class="bnav-btn" onclick="go('chatbot')">
+    <img src="/static/kai_transparent.png" class="kai-ui-ico kai-cat-img" alt="KAI">
+    KAI
+  </button>
+  <button class="bnav-btn" onclick="go('recursos')"><i class='bx bx-leaf ico'></i>Recursos</button>
+  <button class="bnav-btn sos-btn" onclick="go('sos')"><i class='bx bx-support ico'></i>SOS</button>
+</nav>
+
+
+<script>
+const API=window.location.origin+'/api'
+// Recuperamos el token y el usuario del almacenamiento local
+let token = localStorage.getItem('apfa_at') || '';
+let user = null;
+
+// Intentamos restaurar la sesión del usuario si existe
+const savedUser = localStorage.getItem('user');
+if (savedUser) {
+    try {
+        user = JSON.parse(savedUser);
+    } catch(e) {
+        console.error("Error al restaurar usuario:", e);
+    }
+}
+
+// Tus otras variables se mantienen igual
+let chatSesion=null, moodSel=null, condSel=null, urlLoc='', shareActivo=false, expandidas={}, psicoOpen=false;
+
+const DOMAINS=['pcpuma.acatlan.unam.mx','comunidad.unam.mx']
+
+async function api(path,opts={}){
+  const r=await fetch(API+path,{headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}, ...opts})
+  if(r.status===204)return null
+  const d=await r.json()
+  if(!r.ok)throw new Error(d.detail||'Error '+r.status)
+  return d
+}
+function dfmt(iso){return new Date(iso).toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+function toast(msg){const e=document.createElement('div');e.className='toast';e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),2600)}
+
+const PAGEMAP={home:'p-home',diario:'p-diario',chatbot:'p-chatbot',sos:'p-sos',adicciones:'p-adicciones',recursos:'p-recursos',perfil:'p-perfil','chat-psico':'p-chat-psico'}
+const NAVMAP=['home','diario','chatbot','recursos','sos']
+
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'))
+  document.getElementById(PAGEMAP[page])?.classList.add('on')
+  document.querySelectorAll('.bnav-btn').forEach((b,i)=>b.classList.toggle('on',NAVMAP[i]===page))
+  document.getElementById('psico-bubble').style.display=page==='diario'?'':'none'
+  psicoOpen=false; document.getElementById('psico-menu').classList.add('hidden')
+  if(page==='diario')loadDiario()
+  if(page==='recursos')loadRecursos()
+  if(page==='sos')loadLineas()
+  if(page==='perfil')renderPerfil()
+  window.scrollTo(0,0)
+}
+
+// Auth
+function sTab(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===j));document.getElementById('auth-t0').classList.toggle('hidden',i!==0);document.getElementById('auth-t1').classList.toggle('hidden',i!==1);document.getElementById('auth-err').classList.add('hidden')}
+function abrirAuth(){document.getElementById('auth-modal').classList.add('on')}
+function cerrarAuth(){document.getElementById('auth-modal').classList.remove('on')}
+function closeOut(e){if(e.target===document.getElementById('auth-modal'))cerrarAuth()}
+function hdrAction(){user?go('perfil'):abrirAuth()}
+function validaDominio(email){return DOMAINS.some(d=>email.toLowerCase().endsWith('@'+d))}
+function showAErr(msg){const e=document.getElementById('auth-err');e.textContent=msg;e.classList.remove('hidden')}
+
+// ── Modo de login: email o teléfono ──────────────────
+let loginMode = 'email';
+function setLoginMode(m) {
+  loginMode = m;
+  document.getElementById('lmt-email').classList.toggle('on', m === 'email');
+  document.getElementById('lmt-tel').classList.toggle('on', m === 'tel');
+  document.getElementById('login-email-fields').classList.toggle('hidden', m !== 'email');
+  document.getElementById('login-tel-fields').classList.toggle('hidden', m !== 'tel');
+}
+
+function toggleReset() {
+  const box = document.getElementById('reset-box');
+  box.classList.toggle('hidden');
+}
+
+let resetMode = 'email';
+function setResetMode(m) {
+  resetMode = m;
+  document.getElementById('rst-tab-email').classList.toggle('on', m === 'email');
+  document.getElementById('rst-tab-tel').classList.toggle('on', m === 'tel');
+  document.getElementById('rst-email-field').classList.toggle('hidden', m !== 'email');
+  document.getElementById('rst-tel-field').classList.toggle('hidden', m !== 'tel');
+}
+
+async function solicitarReset() {
+  const res = document.getElementById('reset-result');
+  const btn = document.getElementById('reset-btn');
+  res.style.display = 'none';
+
+  let body, validacion;
+  if (resetMode === 'email') {
+    const email = document.getElementById('reset-email').value.trim();
+    if (!email) { res.textContent = 'Ingresa tu correo.'; res.className = 'reset-result err'; res.style.display = 'block'; return; }
+    body = { email };
+    validacion = 'correo';
+  } else {
+    const tel = document.getElementById('reset-tel').value.trim();
+    if (!tel) { res.textContent = 'Ingresa tu teléfono.'; res.className = 'reset-result err'; res.style.display = 'block'; return; }
+    body = { telefono: tel };
+    validacion = 'teléfono';
+  }
+
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    const r = await api('/auth/recuperar-password', { method: 'POST', body: JSON.stringify(body) });
+    res.textContent = r.mensaje;
+    res.className = 'reset-result ok';
+    res.style.display = 'block';
+  } catch(e) {
+    res.textContent = e.message;
+    res.className = 'reset-result err';
+    res.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Recuperar contraseña';
+  }
+}
+
+async function doLogin(){
+    const pass = document.getElementById('l-pass').value;
+    const b = document.getElementById('lbtn');
+
+    if (loginMode === 'tel') {
+      const tel = document.getElementById('l-tel').value.trim();
+      if (!tel || !pass) return showAErr('Completa todos los campos');
+      b.disabled = true; b.textContent = 'Entrando...';
+      try { onAuth(await api('/auth/login-telefono', { method:'POST', body: JSON.stringify({ telefono: tel, password: pass }) })); }
+      catch(x) { showAErr(x.message); }
+      finally { b.disabled = false; b.textContent = 'Iniciar sesión'; }
+      return;
+    }
+
+    const email = document.getElementById('l-email').value.trim();
+    if (!email || !pass) return showAErr('Completa todos los campos');
+    if (!validaDominio(email)) return showAErr('Solo se permiten correos @pcpuma.acatlan.unam.mx o @comunidad.unam.mx');
+    b.disabled = true; b.textContent = 'Entrando...';
+    try { onAuth(await api('/auth/login', { method:'POST', body: JSON.stringify({ email, password: pass }) })); }
+    catch(x) { showAErr(x.message); }
+    finally { b.disabled = false; b.textContent = 'Iniciar sesión'; }
+}
+
+async function doRegistro(){
+  const nombre  = document.getElementById('r-nombre').value.trim();
+  const email   = document.getElementById('r-email').value.trim();
+  const pass    = document.getElementById('r-pass').value;
+  const carrera = document.getElementById('r-carrera').value.trim();
+  const tel     = document.getElementById('r-tel').value.trim();
+  if(!nombre||!email||!pass) return showAErr('Completa los campos obligatorios');
+  if(!validaDominio(email))  return showAErr('Solo se permiten correos @pcpuma.acatlan.unam.mx o @comunidad.unam.mx');
+  if(pass.length<8)          return showAErr('La contraseña debe tener al menos 8 caracteres');
+  const b = document.getElementById('rbtn'); b.disabled=true; b.textContent='Creando cuenta…';
+  const body = { nombre, email, password: pass, ...(carrera?{carrera}:{}), ...(tel?{telefono:tel}:{}) };
+  try { onAuth(await api('/auth/registro',{method:'POST',body:JSON.stringify(body)})); }
+  catch(x){ showAErr(x.message); }
+  finally { b.disabled=false; b.textContent='Crear cuenta'; }
+}
+
+function onAuth(r) {
+    // 1. Guardar tokens
+    token = r.access_token;
+    localStorage.setItem('apfa_at', token);
+    localStorage.setItem('token', token);
+    if (r.refresh_token) localStorage.setItem('apfa_rt', r.refresh_token);
+    // 2. Guardar usuario
+    user = r.usuario;
+    localStorage.setItem('user', JSON.stringify(user));
+    // 3. UI y cerrar modal
+    actualizarUI();
+    if (typeof cerrarAuth === 'function') cerrarAuth();
+    // 4. Redirigir según rol
+    const rol = (user && user.rol) ? user.rol.toLowerCase() : '';
+    if (rol === 'admin') {
+        window.location.href = '/admin.html';
+    } else if (rol === 'psicologo') {
+        window.location.href = '/psicologo.html';
+    } else {
+        go('home');
+        toast('¡Bienvenido/a, ' + (user.nombre || 'Usuario') + '!');
+    }
+}
+
+function actualizarUI() {
+    const elName = document.getElementById('hdr-name');
+    const panelAdmin = document.getElementById('seccion-admin');
+
+    if (user) {
+        // 1. Nombre en el botón del header
+        elName.textContent = user.nombre ? user.nombre.split(' ')[0] : 'Perfil';
+
+        // 2. Mostrar u ocultar el panel (validando 'admin' en minúsculas)
+        if (panelAdmin) {
+            if (user.rol && user.rol.toLowerCase() === 'admin') {
+                panelAdmin.style.display = 'block';
+            } else {
+                panelAdmin.style.display = 'none';
+            }
+        }
+        
+        // 3. Llenar los datos del perfil si existen los campos
+        if(document.getElementById('perf-name')) document.getElementById('perf-name').textContent = user.nombre;
+        if(document.getElementById('perf-email')) document.getElementById('perf-email').textContent = user.correo || user.email;
+        if(document.getElementById('perf-rol')) document.getElementById('perf-rol').textContent = user.rol;
+
+    } else {
+        elName.textContent = 'Ingresar';
+        if (panelAdmin) panelAdmin.style.display = 'none';
+    }
+}
+
+// ── Panel Admin: tabs ────────────────────────────────
+let _usuariosCache = [];
+
+function adminTab(cual) {
+  const ps = document.getElementById('adm-panel-stats');
+  const pu = document.getElementById('adm-panel-usuarios');
+  const bs = document.getElementById('adm-btn-stats');
+  const bu = document.getElementById('adm-btn-usuarios');
+  ps.style.display = 'none'; pu.style.display = 'none';
+  bs.classList.remove('activo'); bu.classList.remove('activo');
+  if (cual === 'stats')    { ps.style.display = 'block'; bs.classList.add('activo'); cargarStatsAdmin(); }
+  if (cual === 'usuarios') { pu.style.display = 'block'; bu.classList.add('activo'); cargarUsuariosAdmin(); }
+}
+
+async function cargarStatsAdmin() {
+  try {
+    const s = await api('/admin/stats');
+    document.getElementById('adm-s-est').textContent     = s.total_estudiantes    ?? '--';
+    document.getElementById('adm-s-psico').textContent   = s.total_psicologos     ?? '--';
+    document.getElementById('adm-s-chat').textContent    = s.sesiones_chat_semana ?? '--';
+    document.getElementById('adm-s-alertas').textContent = s.alertas_activas      ?? '--';
+    document.getElementById('adm-s-hoy').textContent     = s.entradas_hoy         ?? '--';
+    document.getElementById('adm-s-comp').textContent    = s.entradas_compartidas ?? '--';
+    document.getElementById('adm-s-ts').textContent      = new Date().toLocaleTimeString('es-MX');
+  } catch(e) { toast('Error stats: ' + e.message); }
+}
+
+async function cargarUsuariosAdmin(q='') {
+  const el = document.getElementById('adm-tabla-usuarios');
+  el.innerHTML = '<p style="text-align:center;padding:16px;color:var(--suave);">Cargando…</p>';
+  try {
+    const data = await api('/admin/usuarios' + (q ? '?buscar=' + encodeURIComponent(q) : ''));
+    _usuariosCache = data;
+    renderTablaUsuarios(data);
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--rojo);padding:12px;">Error: ' + e.message + '</p>';
+  }
+}
+
+function filtrarTablaAdmin() {
+  const q = document.getElementById('adm-buscar').value.toLowerCase();
+  const filtrado = _usuariosCache.filter(u =>
+    (u.nombre||'').toLowerCase().includes(q) ||
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.rol||'').toLowerCase().includes(q)
+  );
+  renderTablaUsuarios(filtrado);
+}
+
+function renderTablaUsuarios(data) {
+  const el = document.getElementById('adm-tabla-usuarios');
+  if (!data || data.length === 0) {
+    el.innerHTML = '<p style="text-align:center;padding:20px;color:var(--suave);">Sin resultados.</p>';
+    return;
+  }
+  const rolColor = r => ({ admin:'admin', psicologo:'psicologo', estudiante:'estudiante' }[r] || '');
+  let html = '<table class="adm-tbl"><thead><tr><th>Usuario</th><th>Teléfono</th><th>Rol</th></tr></thead><tbody>';
+  data.forEach(u => {
+    html += `<tr>
+      <td>
+        <div class="adm-user-name">${u.nombre||''} ${u.apellidos||''}</div>
+        <div class="adm-user-email">${u.email}</div>
+        ${u.carrera ? '<div style="font-size:10px;color:var(--suave)">'+u.carrera+'</div>' : ''}
+      </td>
+      <td style="font-size:12px;color:var(--suave)">${u.telefono||'—'}</td>
+      <td>
+        <select class="rol-select ${rolColor(u.rol)}" onchange="cambiarRol('${u.id}',this)" data-uid="${u.id}">
+          <option value="estudiante" ${u.rol==='estudiante'?'selected':''}>Estudiante</option>
+          <option value="psicologo"  ${u.rol==='psicologo'?'selected':''}>Psicólogo</option>
+          <option value="admin"      ${u.rol==='admin'?'selected':''}>Admin</option>
+        </select>
+        <div style="margin-top:4px">
+          <span style="font-size:10px;color:${u.activo?'var(--verde)':'var(--rojo)'}">
+            ${u.activo ? '● Activo' : '● Inactivo'}
+          </span>
+        </div>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function cambiarRol(uid, sel) {
+  const nuevoRol = sel.value;
+  sel.disabled = true;
+  try {
+    await api('/admin/usuarios/' + uid + '/rol?nuevo_rol=' + nuevoRol, { method: 'PATCH' });
+    sel.className = 'rol-select ' + nuevoRol;
+    toast('Rol actualizado a ' + nuevoRol);
+  } catch(e) {
+    toast('Error: ' + e.message);
+    // revertir
+    await cargarUsuariosAdmin();
+  } finally {
+    sel.disabled = false;
+  }
+}
+
+// Alias legacy (por si algo la llama)
+function gestionarUsuarios() { adminTab('usuarios'); }
+
+async function cerrarSesion(){
+    // 1. Intentar invalidar el refresh token en el servidor
+    const rt = localStorage.getItem('apfa_rt');
+    if (rt) {
+        try {
+            await fetch(API + '/auth/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ refresh_token: rt })
+            });
+        } catch(e) {}
+    }
+    // 2. Limpiar almacenamiento local
+    localStorage.removeItem('apfa_at');
+    localStorage.removeItem('apfa_rt');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    token = '';
+    user = null;
+    // 3. Redirigir al inicio
+    window.location.href = "/";
+}
+
+async function eliminarCuenta(){
+  if(!confirm('⚠️ ¿Eliminar tu cuenta? Esta acción es IRREVERSIBLE.'))return
+  if(!confirm('¿Confirmas la eliminación permanente de todos tus datos?'))return
+  try{await api('/auth/logout-all',{method:'POST'})}catch{}
+  localStorage.clear();token='';user=null;actualizarUI();go('home');toast('Cuenta eliminada')
+}
+
+// Perfil
+function renderPerfil(){
+  const noAuth=document.getElementById('perfil-no-auth'),auth=document.getElementById('perfil-auth')
+  if(!user){noAuth.classList.remove('hidden');auth.classList.add('hidden');return}
+  noAuth.classList.add('hidden');auth.classList.remove('hidden')
+  document.getElementById('perfil-av').classList.remove('empty') // Quitar estado vacio
+  document.getElementById('perfil-av').textContent=user.nombre.charAt(0).toUpperCase()
+  document.getElementById('perfil-nombre').textContent=user.nombre+(user.apellidos?' '+user.apellidos:'')
+  document.getElementById('perfil-email').textContent=user.email
+  document.getElementById('perfil-rol').textContent=user.rol
+  document.getElementById('edit-nombre').value=user.nombre||''
+  document.getElementById('edit-carrera').value=user.carrera||''
+  document.getElementById('edit-semestre').value=user.semestre||''
+}
+
+async function guardarPerfil(){
+  const nombre=document.getElementById('edit-nombre').value.trim(),carrera=document.getElementById('edit-carrera').value.trim(),semestre=parseInt(document.getElementById('edit-semestre').value)||undefined
+  const err=document.getElementById('edit-err'),ok=document.getElementById('edit-ok')
+  err.classList.add('hidden');ok.classList.add('hidden')
+  const b=document.getElementById('save-btn');b.disabled=true;b.textContent='Guardando…'
+  try{const r=await api('/auth/me',{method:'PATCH',body:JSON.stringify({nombre,carrera,semestre})});user=r;renderPerfil();ok.classList.remove('hidden')}
+  catch(x){err.textContent=x.message;err.classList.remove('hidden')}
+  finally{b.disabled=false;b.textContent='Guardar cambios'}
+}
+
+// Diario
+function toggleNueva(){
+  const p=document.getElementById('nueva-panel'),open=p.classList.contains('hidden')
+  p.classList.toggle('hidden')
+  if(open){moodSel=null;document.getElementById('etexto').value='';document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'))}
+}
+function selMood(btn){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');moodSel=btn.dataset.v}
+function toggleCompartir(){shareActivo=document.getElementById('shareToggle').checked;document.getElementById('share-ico').textContent=shareActivo?'🔓':'🔒'; document.getElementById('share-ico').classList.toggle('on', shareActivo);}
+
+async function guardarEntrada(){
+  const texto=document.getElementById('etexto').value.trim()
+  if(!texto)return toast('Escribe algo antes de guardar')
+  if(!token){abrirAuth();return}
+  try{await api('/diario/',{method:'POST',body:JSON.stringify({texto,estado_animo:moodSel,etiquetas:[],compartida:shareActivo})});toggleNueva();loadDiario();toast('Entrada guardada ✓')}
+  catch(x){toast(x.message)}
+}
+
+async function loadDiario(){
+  const el=document.getElementById('entradas-list')
+  if(!token){el.innerHTML='<div class="empty-state"><div class="ico">🔒</div><p>Inicia sesión para ver y guardar tu diario.</p></div><button class="btn btn-azul" onclick="abrirAuth()" style="max-width:280px;margin:0 auto">Iniciar sesión</button>';return}
+  el.innerHTML='<div class="loader-msg">Cargando…</div>'
+  try{
+    const r=await api('/diario/?por_pagina=30')
+    if(!r.entradas.length){el.innerHTML='<div class="empty-state"><div class="ico">📖</div><p>Aún no tienes entradas.<br>Escribe tu primera hoy.</p></div>';return}
+    el.innerHTML=r.entradas.map(e=>`
+      <div class="entrada-card">
+        <div class="ec-top">${e.estado_animo?`<span style="font-size:20px">${e.estado_animo}</span>`:''}${e.alerta_crisis?'<span class="ec-crisis">Alerta</span>':''}<span class="ec-fecha">${dfmt(e.creada_en)}</span></div>
+        <div class="ec-body ${expandidas[e.id]?'':'short'}">${e.texto}</div>
+        <div class="ec-foot"><div>${e.compartida?'<span class="badge-green">👁 Visible al psicólogo</span>':''}</div>
+        <div style="display:flex;gap:9px"><button class="link-btn azul" onclick="toggleExp('${e.id}')">${expandidas[e.id]?'Ver menos':'Ver más'}</button><button class="link-btn rojo" onclick="eliminarEntrada('${e.id}')">Eliminar</button></div></div>
+      </div>`).join('')
+  }catch{el.innerHTML='<div class="loader-msg">Error cargando entradas.</div>'}
+}
+function toggleExp(id){expandidas[id]=!expandidas[id];loadDiario()}
+async function eliminarEntrada(id){
+  if(!confirm('¿Eliminar esta entrada?'))return
+  try{await api('/diario/'+id,{method:'DELETE'});loadDiario();toast('Entrada eliminada')}catch{toast(x.message)}
+}
+function togglePsicoMenu(){psicoOpen=!psicoOpen;document.getElementById('psico-menu').classList.toggle('hidden',!psicoOpen)}
+
+// Chatbot
+// Minimalismo de iconos para temas del bot
+const RICONS={general:'💬',tdah:'⚡',autismo:'🌈',ansiedad:'😰',depresion:'🌧',tca:'🍃',duelo:'💙',adiccion:'🧠'}
+
+const CONDS=[
+  {id:'general',ico:'💬',name:'Apoyo general',desc:'Estrés, emociones, bienestar'},
+  {id:'tdah',ico:'⚡',name:'TDAH',desc:'Atención, concentración, impulsividad'},
+  {id:'autismo',ico:'🌈',name:'Espectro autista',desc:'TEA, comunicación, sensibilidad'},
+  {id:'ansiedad',ico:'😰',name:'Ansiedad',desc:'Pánico, preocupación, nerviosismo'},
+  {id:'depresion',ico:'🌧',name:'Depresión',desc:'Tristeza profunda, desmotivación'},
+  {id:'tca',ico:'🍃',name:'Trastornos aliment.',desc:'TCA, imagen corporal'},
+  {id:'duelo',ico:'💙',name:'Duelo',desc:'Pérdidas, procesos de duelo'},
+  {id:'adiccion',ico:'🧠',name:'Adicciones',desc:'Sustancias, comportamentales'},
+]
+function renderConds(){document.getElementById('cond-grid').innerHTML=CONDS.map(c=>`<div class="cond-btn${condSel===c.id?' sel':''}" onclick="selCond('${c.id}')"><div class="cond-ico">${c.ico}</div><div class="cond-name">${c.name}</div><div class="cond-desc">${c.desc}</div></div>`).join('')}
+function selCond(id){condSel=id;renderConds()}
+const WELCOME={
+  tdah:'¡Hola! 👋 Entiendo que vivir con TDAH puede ser desafiante en la universidad. ¿Qué está siendo más difícil para ti últimamente: la concentración, los plazos, o algo más?',
+  autismo:'Hola 👋 Cada persona en el espectro tiene experiencias únicas. ¿Hay algo en tu vida universitaria o personal sobre lo que te gustaría hablar hoy?',
+  ansiedad:'Hola 👋 Un ejercicio rápido primero: inhala 4 segundos, aguanta 4, exhala 8. ¿Cómo te sientes en este momento? Cuéntame.',
+  depresion:'Hola 👋 Gracias por estar aquí. No tienes que estar "bien" para hablar. ¿Cómo has estado en estos días?',
+  tca:'Hola 👋 Es valiente hablar de esto. Puedo ofrecerte apoyo y orientarte a recursos especializados. ¿Qué te trajo aquí hoy?',
+  duelo:'Hola 👋 El duelo es uno de los procesos más difíciles. No hay forma "correcta" de vivirlo. Estoy aquí para escucharte. ¿Quieres contarme qué estás viviendo?',
+  adiccion:'Hola 👋 Reconocer que necesitas apoyo es un acto de valentía. ¿Por dónde quieres empezar?',
+  general:'Hola, soy KAI 👋 Estoy aquí para acompañarte. ¿Cómo te sientes hoy?'
+}
+function iniciarChat(){
+  if(!condSel){toast('Selecciona un tema primero');return}
+  document.getElementById('condition-selector').classList.add('hidden')
+  document.getElementById('chat-area').classList.remove('hidden')
+  const c=CONDS.find(x=>x.id===condSel)
+  document.getElementById('cond-label').textContent=c.ico+' '+c.name
+  document.getElementById('chat-msgs').innerHTML=''
+  chatSesion=null; addBubble(WELCOME[condSel]||WELCOME.general,'bot','chat-msgs')
+}
+function resetChat(){document.getElementById('condition-selector').classList.remove('hidden');document.getElementById('chat-area').classList.add('hidden');condSel=null;renderConds()}
+async function sendMsg(){
+  if(!token){abrirAuth();return}
+  const inp=document.getElementById('chat-input'),txt=inp.value.trim();if(!txt)return;inp.value=''
+  addBubble(txt,'user','chat-msgs');const td=addTyping('chat-msgs')
+  try{const r=await api('/chatbot/mensaje',{method:'POST',body:JSON.stringify({contenido:txt,sesion_id:chatSesion})});chatSesion=r.sesion_chat_id||chatSesion;td.remove();addBubble(r.contenido,'bot','chat-msgs')}
+  catch{td.remove();addBubble('Tuve un problema técnico. Si necesitas ayuda urgente llama a SAPTEL: 800 290 0024','bot','chat-msgs')}
+}
+function addBubble(txt,type,cid){const h=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});const d=document.createElement('div');d.className='bbl '+type;d.innerHTML=txt.replace(/\n/g,'<br>')+`<div class="b-time">${h}</div>`;const c=document.getElementById(cid);c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
+function addTyping(cid){const d=document.createElement('div');d.className='typing-dots';d.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';const c=document.getElementById(cid);c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
+function sendPsico(){const inp=document.getElementById('psico-input'),txt=inp.value.trim();if(!txt)return;inp.value='';addBubble(txt,'user','psico-msgs');setTimeout(()=>addBubble('Gracias por compartirlo. Para atención directa agenda una cita presencial o llama: 55 5623 1666 Lun–Vie 8am–8pm.','bot','psico-msgs'),1200)}
+
+// SOS
+function togglePanel(id){const el=document.getElementById(id),open=el.classList.contains('on');document.querySelectorAll('.panel-extra').forEach(p=>p.classList.remove('on'));if(!open)el.classList.add('on')}
+function obtenerUbicacion(){
+  const info=document.getElementById('loc-info');info.textContent='Obteniendo ubicación…'
+  if(!navigator.geolocation){info.textContent='Tu navegador no soporta geolocalización.';return}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude.toFixed(6),lon=pos.coords.longitude.toFixed(6)
+    urlLoc=`https://www.google.com/maps?q=${lat},${lon}`;info.textContent=urlLoc
+    document.getElementById('wa-link').href=`https://wa.me/?text=${encodeURIComponent('🆘 Necesito ayuda. Mi ubicación: '+urlLoc)}`
+  },()=>{info.textContent='No se pudo obtener la ubicación. Verifica permisos del navegador.'})
+}
+function copiarUbicacion(){if(!urlLoc){toast('Primero obtén tu ubicación');return}navigator.clipboard.writeText(urlLoc).then(()=>toast('✅ Ubicación copiada')).catch(()=>toast('Copia: '+urlLoc))}
+function llamarFES(){if(confirm('¿Llamar a Psicopedagogía FES Acatlán?\n📞 55 5623 1666\nLun–Vie · 8am–8pm'))window.location.href='tel:5556231666'}
+async function loadLineas(){
+  const el=document.getElementById('lineas-list')
+  try{const r=await api('/sos/lineas/');el.innerHTML=r.map(l=>`<div class="linea-card"><span class="lc-icon">${l.icono}</span><div class="lc-info"><strong>${l.nombre}</strong><span>${l.descripcion}${l.disponible_24h?' · <b>24h</b>':''}</span></div><a class="lc-tel" href="${l.telefono_href}">${l.telefono}</a></div>`).join('')}
+  catch{el.innerHTML='<div class="loader-msg">No se pudieron cargar las líneas.</div>'}
+}
+
+// Recursos
+// ── Recursos ─────────────────────────────────────────
+let _recCache = [];
+let _recFiltroTipo = '';
+
+const REC_ICONS = {
+  respiracion:  '🌬️',
+  meditacion:   '🧘',
+  ejercicio:    '🏃',
+  lectura:      '📖',
+  video:        '🎬',
+  clinica:      '🏥',
+  linea_crisis: '📞',
+};
+
+const REC_LABELS = {
+  respiracion:  'Respiración',
+  meditacion:   'Meditación',
+  ejercicio:    'Ejercicio',
+  lectura:      'Lectura',
+  video:        'Video',
+  clinica:      'Clínica',
+  linea_crisis: 'Línea de crisis',
+};
+
+async function loadRecursos() {
+  const el = document.getElementById('rec-list');
+  el.innerHTML = '<div class="loader-msg" style="padding:40px;text-align:center;color:var(--suave)">Cargando recursos…</div>';
+  try {
+    // Endpoint público — funciona con o sin token
+    const url = API + '/recursos/' + (_recFiltroTipo ? '?tipo=' + _recFiltroTipo : '');
+    const res  = await fetch(url, { headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
+    if (!res.ok) throw new Error('Error ' + res.status);
+    const data = await res.json();
+    _recCache = data;
+    renderRecursos(data);
+  } catch(e) {
+    el.innerHTML = `<div class="rec-empty"><div class="rec-empty-ico">💚</div><div class="rec-empty-msg">No se pudieron cargar los recursos.<br><small>${e.message}</small></div></div>`;
+  }
+}
+
+function setRecFiltro(btn, tipo) {
+  document.querySelectorAll('.rec-filter-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  _recFiltroTipo = tipo;
+  loadRecursos();
+}
+
+function filtrarRecursos() {
+  const q = document.getElementById('rec-buscar').value.toLowerCase();
+  if (!q) { renderRecursos(_recCache); return; }
+  renderRecursos(_recCache.filter(r =>
+    (r.titulo||'').toLowerCase().includes(q) ||
+    (r.descripcion||'').toLowerCase().includes(q) ||
+    (r.tipo||'').toLowerCase().includes(q)
+  ));
+}
+
+function renderRecursos(data) {
+  const el = document.getElementById('rec-list');
+  if (!data || data.length === 0) {
+    el.innerHTML = `<div class="rec-empty">
+      <div class="rec-empty-ico">🌱</div>
+      <div class="rec-empty-msg">No hay recursos disponibles en esta categoría.<br>Prueba con otro filtro.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = data.map(r => buildRecursoCard(r)).join('');
+}
+
+function buildRecursoCard(r) {
+  const tipo   = r.tipo || 'lectura';
+  const icon   = REC_ICONS[tipo] || '📌';
+  const label  = REC_LABELS[tipo] || tipo;
+  const dur    = r.duracion_minutos ? `<span class="rec-dur"><i class='bx bx-time-five'></i>${r.duracion_minutos} min</span>` : '';
+  const badge24 = r.disponible_24h ? `<span class="rec-24h">24 h</span>` : '';
+  const telBadge = r.telefono
+    ? `<a class="rec-tel-badge" href="tel:${r.telefono.replace(/\s/g,'')}"><i class='bx bx-phone'></i>${r.telefono}</a>`
+    : '';
+  const linkBadge = r.url_externo
+    ? `<a class="rec-link-badge" href="${r.url_externo}" target="_blank" rel="noopener"><i class='bx bx-link-external'></i>Ver recurso</a>`
+    : '';
+
+  const detail = buildRecursoDetail(r);
+
+  return `<div class="rec-card" id="rcard-${r.id}">
+    <div class="rec-card-header">
+      <div class="rec-icon-wrap ri-${tipo}">${icon}</div>
+      <div class="rec-card-body">
+        <span class="rec-tipo-badge rtb-${tipo}">${label}</span>
+        <div class="rec-title">${r.titulo}</div>
+        <div class="rec-desc">${r.descripcion || ''}</div>
+      </div>
+    </div>
+    <div class="rec-meta">
+      ${dur}${badge24}${telBadge}${linkBadge}
+    </div>
+    ${detail ? `
+    <button class="rec-expand-btn" id="expbtn-${r.id}" onclick="toggleRecDetail('${r.id}')">
+      <i class='bx bx-chevron-down'></i>
+    </button>
+    <div class="rec-detail" id="rdetail-${r.id}">
+      ${detail}
+    </div>` : ''}
+  </div>`;
+}
+
+function buildRecursoDetail(r) {
+  let html = '';
+  const con = r.contenido;
+  if (!con) {
+    // Sin contenido JSON: mostrar info básica si hay teléfono/dirección
+    if (r.telefono || r.direccion || r.horario) {
+      html += '<div class="rec-section-label">Información de contacto</div>';
+      if (r.telefono) html += `<div class="rec-info-row"><i class='bx bx-phone'></i><span>${r.telefono}</span></div>`;
+      if (r.direccion) html += `<div class="rec-info-row"><i class='bx bx-map'></i><span>${r.direccion}</span></div>`;
+      if (r.horario) html += `<div class="rec-info-row"><i class='bx bx-time'></i><span>${r.horario}</span></div>`;
+      if (r.telefono) html += `<a class="rec-cta-btn rec-cta-tel" href="tel:${r.telefono.replace(/\s/g,'')}"><i class='bx bx-phone-call'></i>Llamar ahora</a>`;
+    }
+    return html;
+  }
+
+  // Pasos
+  if (con.pasos && con.pasos.length) {
+    html += '<div class="rec-section-label">Cómo hacerlo</div>';
+    con.pasos.forEach((p, i) => {
+      const emoji = (con.emoji_pasos || [])[i] || '';
+      html += `<div class="rec-step">
+        <div class="rec-step-num">${i + 1}</div>
+        <div class="rec-step-txt">${emoji ? emoji + ' ' : ''}${p}</div>
+      </div>`;
+    });
+  }
+
+  // Ejercicios
+  if (con.ejercicios && con.ejercicios.length) {
+    html += '<div class="rec-section-label">Ejercicios</div>';
+    con.ejercicios.forEach(e => {
+      html += `<div class="rec-info-row"><i class='bx bx-run'></i><span><strong>${e.nombre}</strong> — ${e.duracion}${e.descanso && e.descanso !== '0 s' ? ' · descanso ' + e.descanso : ''}</span></div>`;
+    });
+  }
+
+  // Posturas (yoga)
+  if (con.posturas && con.posturas.length) {
+    html += '<div class="rec-section-label">Posturas</div>';
+    con.posturas.forEach(p => {
+      html += `<div class="rec-info-row"><i class='bx bx-body'></i><span><strong>${p.nombre}</strong> — ${p.tiempo}</span></div>`;
+    });
+  }
+
+  // Secciones de lectura
+  if (con.secciones && con.secciones.length) {
+    con.secciones.forEach(s => {
+      html += `<div class="rec-section-label">${s.titulo}</div>`;
+      html += `<div style="font-size:13px;color:var(--texto);line-height:1.6;margin-bottom:8px">${s.texto}</div>`;
+    });
+    if (con.cita) {
+      html += `<div style="border-left:3px solid var(--azul);padding:8px 12px;font-style:italic;font-size:13px;color:var(--suave);margin:10px 0">${con.cita}</div>`;
+    }
+  }
+
+  // Puntos clave (video)
+  if (con.puntos_clave && con.puntos_clave.length) {
+    html += '<div class="rec-section-label">Puntos clave</div>';
+    con.puntos_clave.forEach(p => {
+      html += `<div class="rec-step"><div class="rec-step-num">✓</div><div class="rec-step-txt">${p}</div></div>`;
+    });
+  }
+
+  // Temas (video)
+  if (con.temas && con.temas.length) {
+    html += '<div class="rec-section-label">Temas tratados</div>';
+    con.temas.forEach(t => {
+      html += `<div class="rec-info-row"><i class='bx bx-play-circle'></i><span>${t}</span></div>`;
+    });
+  }
+
+  // Beneficios
+  if (con.beneficios && con.beneficios.length) {
+    html += '<div class="rec-section-label">Beneficios</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">';
+    con.beneficios.forEach(b => { html += `<span class="rec-benefit">✓ ${b}</span>`; });
+    html += '</div>';
+  }
+
+  // Servicios (clínica)
+  if (con.servicios && con.servicios.length) {
+    html += '<div class="rec-section-label">Servicios disponibles</div>';
+    con.servicios.forEach(s => {
+      html += `<div class="rec-info-row"><i class='bx bxs-check-circle'></i><span>${s}</span></div>`;
+    });
+  }
+  if (con.requisitos) html += `<div class="rec-info-row"><i class='bx bx-info-circle'></i><span>${con.requisitos}</span></div>`;
+  if (con.costo)      html += `<div class="rec-info-row"><i class='bx bx-money'></i><span><strong>Costo:</strong> ${con.costo}</span></div>`;
+
+  // Info de tipo_apoyo (líneas de crisis)
+  if (con.tipo_apoyo) html += `<div class="rec-info-row"><i class='bx bx-heart'></i><span>${con.tipo_apoyo}</span></div>`;
+  if (con.costo && !con.servicios) html += `<div class="rec-info-row"><i class='bx bx-money'></i><span>${con.costo}</span></div>`;
+
+  // Info de contacto (clínicas y líneas)
+  if (r.telefono || r.direccion || r.horario) {
+    html += '<div class="rec-section-label">Contacto</div>';
+    if (r.telefono) html += `<div class="rec-info-row"><i class='bx bx-phone'></i><span>${r.telefono}</span></div>`;
+    if (r.direccion) html += `<div class="rec-info-row"><i class='bx bx-map'></i><span>${r.direccion}</span></div>`;
+    if (r.horario) html += `<div class="rec-info-row"><i class='bx bx-time'></i><span>${r.horario}</span></div>`;
+  }
+
+  // CTAs
+  if (r.telefono) html += `<a class="rec-cta-btn rec-cta-tel" href="tel:${r.telefono.replace(/\s/g,'')}"><i class='bx bx-phone-call'></i>Llamar</a>`;
+  if (r.url_externo) html += `<a class="rec-cta-btn rec-cta-link" href="${r.url_externo}" target="_blank" rel="noopener"><i class='bx bx-link-external'></i>Abrir recurso</a>`;
+
+  return html;
+}
+
+function toggleRecDetail(id) {
+  const det = document.getElementById('rdetail-' + id);
+  const btn = document.getElementById('expbtn-' + id);
+  if (!det) return;
+  const open = det.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+// Cuando el HTML termine de cargar, actualizamos la interfaz y verificamos el rol
+// ── Init único ─────────────────────────────────────────
+;(async () => {
+  renderConds();
+  if (token) {
+    try {
+      user = await api('/auth/me');
+      actualizarUI();
+      // Sin redirección automática — el usuario ve su perfil en el index
+    } catch {
+      localStorage.removeItem('apfa_at');
+      localStorage.removeItem('apfa_rt');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      token = '';
+      user = null;
+    }
+  }
+  go('home');
+})();
+
+function verEstadisticas() { adminTab('stats'); }
+</script>
+</body>
+</html>
