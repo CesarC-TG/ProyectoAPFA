@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timedelta, timezone
 import secrets, string
-from app.models import VerificacionRegistro 
+from app.models import VerificacionRegistro  
 
 from app.database import get_db
 from app.models import Usuario, SesionUsuario, RolUsuario
@@ -16,6 +16,7 @@ from app.schemas import (
     UsuarioCrear, LoginRequest, LoginTelefonoRequest,
     GoogleAuthRequest, PasswordResetRequest, PasswordResetEmailRequest,
     TokenResponse, RefreshTokenRequest, MensajeRespuesta, UsuarioRespuesta,
+    SolicitarVerificacionRequest, VerificarCodigoRequest,
 )
 from app.service.auth_service import (
     hashear_password, verificar_password,
@@ -26,6 +27,7 @@ from app.service.auth_service import (
     _emitir_tokens_y_sesion,
 )
 from app.config import settings
+from app.service.notificacion_service import enviar_email
 
 router = APIRouter()
 
@@ -174,12 +176,42 @@ async def recuperar_password(
     # TODO producción: enviar email real con smtplib/sendgrid o SMS con Twilio
     # send_email(usuario.email, f"Tu contraseña temporal KAI: {nueva_pass}")
 
-    # DEV — devolver la contraseña en el mensaje para facilitar pruebas
-    via = f"correo {usuario.email}" if datos.email else f"teléfono registrado"
-    return {
-        "mensaje": f"✅ Contraseña temporal generada para {via}. "
-                   f"[DEV] Nueva contraseña: {nueva_pass}"
-    }
+    # Enviar email con la contraseña temporal
+    email_enviado = False
+    try:
+        html = f"""
+<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f8f7f4">
+  <div style="background:#276266;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+    <h2 style="color:#fff;margin:0">🔑 Contraseña temporal</h2>
+    <p style="color:rgba(255,255,255,.8);margin:6px 0 0;font-size:13px">KAI · ApoYo FES Acatlán</p>
+  </div>
+  <p style="color:#555">Hola <strong>{usuario.nombre}</strong>,</p>
+  <p style="color:#555">Solicitaste recuperar tu contraseña.</p>
+  <div style="background:#fff;border-radius:10px;padding:20px;text-align:center;margin:20px 0;border:2px dashed #276266">
+    <p style="margin:0;font-size:12px;color:#888">Tu nueva contraseña temporal:</p>
+    <p style="font-size:30px;font-weight:700;color:#276266;letter-spacing:4px;margin:10px 0">{nueva_pass}</p>
+  </div>
+  <p style="color:#555;font-size:13px">Inicia sesión con esta contraseña y cámbiala desde tu perfil.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:20px 0"/>
+  <p style="color:#aaa;font-size:11px">Si no solicitaste este cambio, ignora este correo.<br/>Equipo KAI · FES Acatlán, UNAM</p>
+</div>"""
+        txt = f"Hola {usuario.nombre},Tu contraseña temporal para KAI es: {nueva_pass}Ingresa y cámbiala desde tu perfil.— Equipo KAI FES Acatlán"
+        await enviar_email(
+            destinatario=usuario.email,
+            asunto="🔑 Tu contraseña temporal — KAI FES Acatlán",
+            cuerpo=txt,
+            html=html,
+        )
+        email_enviado = True
+    except Exception as e:
+        print(f"[WARN] Email no enviado a {usuario.email}: {e}")
+
+    if email_enviado:
+        return {"mensaje": f"✅ Te enviamos una contraseña temporal a {usuario.email}. Revisa tu bandeja (y spam)."}
+    else:
+        # Fallback visible para desarrollo si SMTP no está configurado
+        via = f"correo {usuario.email}" if datos.email else "teléfono registrado"
+        return {"mensaje": f"✅ Contraseña generada para {via}. [Configura SMTP en .env para envío automático] Contraseña temporal: {nueva_pass}"}
 
 
 # ── Google OAuth ───────────────────────────────────────────
@@ -284,76 +316,86 @@ async def cerrar_todas_sesiones(
 async def obtener_mi_perfil(usuario: Usuario = Depends(get_current_user)):
     return usuario
 
-# ── Solicitar verificación de correo ──────────────────────
- 
+# ── Solicitar verificación por email ──────────────────────
+
+from sqlalchemy import update
+
 @router.post("/solicitar-verificacion", response_model=MensajeRespuesta)
 async def solicitar_verificacion(
-    datos,   # SolicitarVerificacionRequest
-    db,      # AsyncSession
+    datos: SolicitarVerificacionRequest,
+    db:    AsyncSession = Depends(get_db),
 ):
     """
-    Genera un código de 6 dígitos, lo guarda en BD con TTL de 3 min,
-    e idealmente lo envía por correo/SMS.
-    En modo DEV lo devuelve en el mensaje para facilitar pruebas.
+    Genera un código de 6 dígitos, lo guarda en BD con TTL de 10 min
+    y lo envía por email usando Resend.
     """
-    from datetime import datetime, timedelta, timezone
- 
     email = datos.email.strip().lower()
- 
-    # Solo correos institucionales
+
     if not email.endswith('@pcpuma.acatlan.unam.mx'):
-        raise Exception("Solo se aceptan correos @pcpuma.acatlan.unam.mx")
- 
-    # Generar código de 6 dígitos
-    import random
-    codigo = str(random.randint(100000, 999999))
- 
+        raise HTTPException(status_code=400, detail="Solo se aceptan correos @pcpuma.acatlan.unam.mx")
+
+    result = await db.execute(select(Usuario).where(Usuario.email == email))
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Este correo ya tiene una cuenta registrada.")
+
     # Invalidar códigos previos del mismo email
-    from sqlalchemy import select, update
-    from app.models import VerificacionRegistro
     await db.execute(
         update(VerificacionRegistro)
         .where(VerificacionRegistro.email == email, VerificacionRegistro.usado == False)
         .values(usado=True)
     )
- 
-    # Guardar nuevo código
+
+    codigo = str(random.randint(100000, 999999))
+
     verif = VerificacionRegistro(
         email     = email,
         codigo    = codigo,
-        expira_en = datetime.now(timezone.utc) + timedelta(minutes=3),
+        expira_en = datetime.utcnow() + timedelta(minutes=10),
     )
     db.add(verif)
     await db.commit()
- 
-    # TODO producción: enviar email real con smtplib/sendgrid
-    send_email(email, subject="Tu código APFA", body=VERIFICATION_TEMPLATE.format(
-        nombre=datos.nombre, codigo=codigo))
- 
-    # DEV — devolver el código en el mensaje
-    return {
-        "mensaje": f"Código enviado a {email}. [DEV] Código: {codigo}"
-    }
- 
- 
-# ── Verificar código ──────────────────────────────────────
- 
+
+    html = f"""
+<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f8f7f4">
+  <div style="background:#276266;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+    <h2 style="color:#fff;margin:0">Verificación de cuenta</h2>
+    <p style="color:rgba(255,255,255,.8);margin:6px 0 0;font-size:13px">APFA · FES Acatlán</p>
+  </div>
+  <p style="color:#555">Hola <strong>{datos.nombre}</strong>,</p>
+  <p style="color:#555">Tu código de verificación para crear tu cuenta es:</p>
+  <div style="background:#fff;border-radius:10px;padding:20px;text-align:center;margin:20px 0;border:2px dashed #276266">
+    <p style="font-size:38px;font-weight:700;color:#276266;letter-spacing:8px;margin:0">{codigo}</p>
+    <p style="margin:8px 0 0;font-size:12px;color:#888">Válido por 10 minutos</p>
+  </div>
+  <p style="color:#555;font-size:13px">Si no solicitaste este código, ignora este mensaje.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:20px 0"/>
+  <p style="color:#aaa;font-size:11px">Equipo APFA · FES Acatlán, UNAM</p>
+</div>"""
+
+    try:
+        await enviar_email(
+            destinatario=email,
+            asunto="Tu código de verificación — APFA FES Acatlán",
+            cuerpo=f"Hola {datos.nombre}, tu código de verificación es: {codigo}. Válido por 10 minutos.",
+            html=html,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"No se pudo enviar el correo: {e}")
+
+    return {"mensaje": f"Código enviado a {email}. Revisa tu bandeja de entrada (y spam)."}
+
+
+# ── Verificar código ───────────────────────────────────────
+
 @router.post("/verificar-codigo", response_model=MensajeRespuesta)
 async def verificar_codigo(
-    datos,   # VerificarCodigoRequest
-    db,      # AsyncSession
+    datos: VerificarCodigoRequest,
+    db:    AsyncSession = Depends(get_db),
 ):
-    """
-    Valida que el código de 6 dígitos sea correcto y no haya expirado.
-    """
-    from datetime import datetime, timezone
-    from sqlalchemy import select
-    from app.models import VerificacionRegistro
- 
+    """Valida que el código de 6 dígitos sea correcto y no haya expirado."""
     email  = datos.email.strip().lower()
     codigo = datos.codigo.strip()
- 
-    # Buscar el código más reciente no usado
+
     result = await db.execute(
         select(VerificacionRegistro)
         .where(
@@ -365,17 +407,18 @@ async def verificar_codigo(
         .limit(1)
     )
     verif = result.scalar_one_or_none()
- 
+
     if not verif:
-        raise Exception("Código incorrecto. Verifica e intenta de nuevo.")
- 
-    if datetime.now(timezone.utc) > verif.expira_en:
+        raise HTTPException(status_code=400, detail="Código incorrecto. Verifica e intenta de nuevo.")
+
+    ahora = datetime.now(timezone.utc)
+    expira = verif.expira_en if verif.expira_en.tzinfo else verif.expira_en.replace(tzinfo=timezone.utc)
+    if ahora > expira:
         verif.usado = True
         await db.commit()
-        raise Exception("El código ha expirado. Solicita uno nuevo.")
- 
-    # Marcar como usado (se usará al completar el registro)
+        raise HTTPException(status_code=400, detail="El código ha expirado. Solicita uno nuevo.")
+
     verif.usado = True
     await db.commit()
- 
+
     return {"mensaje": "Código verificado correctamente."}

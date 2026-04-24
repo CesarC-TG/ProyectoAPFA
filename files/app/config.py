@@ -75,8 +75,11 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 60
     RATE_LIMIT_BURST:      int = 20   # ráfaga permitida
 
+    # ── Resend (email transaccional) ──────────────────────
+    RESEND_API_KEY: str = ""   # obtener en resend.com
+
     # ── IA ────────────────────────────────────────────────
-    GEMINI_API_KEY: str = "AIzaSyD1hGL5tUHU5vcSTat1foCREkuSf9xohC4"
+    GEMINI_API_KEY: str = ""
 # ── Alertas internas ──────────────────────────────────
     ADMIN_ALERT_EMAIL: str = ""   # email que recibe alertas SOS
 

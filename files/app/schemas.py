@@ -297,10 +297,10 @@ class AsignacionRespuesta(BaseModel):
 PasswordResetEmailRequest = PasswordResetRequest
 
 class SolicitarVerificacionRequest(BaseModel):
-     email: str
-     nombre: str
+    email: str
+    nombre: str
 
 class VerificarCodigoRequest(BaseModel):
-     email: str
-     codigo: str
+    email: str
+    codigo: str
  

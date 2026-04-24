@@ -67,3 +67,23 @@ def _enviar_smtp(msg, destinatario: str):
         srv.starttls()
         srv.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
         srv.sendmail(settings.EMAIL_FROM, destinatario, msg.as_string())
+
+
+async def enviar_email_resend(destinatario: str, asunto: str, html: str, texto: str = ""):
+    """Envía email usando Resend. Requiere RESEND_API_KEY en .env"""
+    if not settings.RESEND_API_KEY:
+        raise RuntimeError("Resend no configurado. Define RESEND_API_KEY en tu archivo .env")
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _enviar_resend, destinatario, asunto, html, texto)
+
+
+def _enviar_resend(destinatario: str, asunto: str, html: str, texto: str):
+    import resend
+    resend.api_key = settings.RESEND_API_KEY
+    resend.Emails.send({
+        "from": f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM}>",
+        "to": [destinatario],
+        "subject": asunto,
+        "html": html,
+        "text": texto or asunto,
+    })

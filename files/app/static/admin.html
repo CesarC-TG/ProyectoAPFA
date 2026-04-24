@@ -122,8 +122,10 @@ tr:hover td{background:rgba(39,98,102,.02)}
     <button class="nav-btn on" id="nb-inicio"       onclick="pg('inicio')">      <i class='bx bxs-dashboard'></i>    Inicio</button>
     <button class="nav-btn"    id="nb-stats"        onclick="pg('stats')">       <i class='bx bx-bar-chart-alt-2'></i>Estadísticas</button>
     <div class="nav-label">Gestión</div>
-    <button class="nav-btn"    id="nb-usuarios"     onclick="pg('usuarios')">    <i class='bx bxs-group'></i>        Usuarios<span class="nbadge hidden" id="nb-cnt">0</span></button>
-    <button class="nav-btn"    id="nb-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>    Asignaciones</button>
+    <button class="nav-btn"    id="nb-usuarios"     onclick="pg('usuarios')">    <i class='bx bxs-group'></i>         Usuarios<span class="nbadge hidden" id="nb-cnt">0</span></button>
+    <button class="nav-btn"    id="nb-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>     Asignaciones</button>
+    <button class="nav-btn"    id="nb-actividad"    onclick="pg('actividad')">   <i class='bx bxs-bar-chart-alt-2'></i>Actividad</button>
+    <button class="nav-btn"    id="nb-emergencias"  onclick="pg('emergencias')"> <i class='bx bxs-phone'></i>          Emergencias</button>
   </nav>
 
   <main class="main">
@@ -152,25 +154,29 @@ tr:hover td{background:rgba(39,98,102,.02)}
     <!-- ── ESTADÍSTICAS ── -->
     <div class="pg" id="pg-stats">
       <div class="pg-title">Estadísticas</div>
-      <div class="pg-sub">Métricas detalladas del sistema</div>
+      <div class="pg-sub">Métricas del sistema · <span id="stats-ts" style="color:var(--suave);font-size:12px">—</span></div>
       <div class="stats-grid">
         <div class="scard">   <div class="scard-lbl">Total estudiantes</div><div class="scard-val" id="st-est">—</div></div>
         <div class="scard v"> <div class="scard-lbl">Total psicólogos</div><div class="scard-val" id="st-psi">—</div></div>
-        <div class="scard d"> <div class="scard-lbl">Sesiones chat / sem.</div><div class="scard-val" id="st-cht">—</div></div>
+        <div class="scard d"> <div class="scard-lbl">Chats / semana</div><div class="scard-val" id="st-cht">—</div></div>
         <div class="scard r"> <div class="scard-lbl">Alertas SOS activas</div><div class="scard-val" id="st-alt">—</div></div>
         <div class="scard">   <div class="scard-lbl">Entradas diario hoy</div><div class="scard-val" id="st-hoy">—</div></div>
         <div class="scard v"> <div class="scard-lbl">Diarios compartidos</div><div class="scard-val" id="st-cmp">—</div></div>
       </div>
-      <div style="text-align:right;margin-top:-10px;margin-bottom:20px">
-        <button class="btn btn-ghost btn-sm" onclick="cargarStats()"><i class='bx bx-refresh'></i> Actualizar</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+        <button class="btn btn-primary" onclick="cargarStats()"><i class='bx bx-refresh'></i> Actualizar</button>
+        <button class="btn btn-ghost" onclick="pg('actividad')"><i class='bx bxs-bar-chart-alt-2'></i> Ver actividad</button>
+        <button class="btn btn-ghost" onclick="pg('usuarios')"><i class='bx bxs-group'></i> Gestionar usuarios</button>
       </div>
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:12px"><i class='bx bxs-error-circle' style="color:var(--rojo)"></i> Eventos SOS recientes</h3>
+      <div id="sos-recientes-adm"><div class="loader"><i class='bx bx-loader-alt'></i></div></div>
     </div>
 
-    <!-- ── USUARIOS ── -->
-    <div class="pg" id="pg-usuarios">
+        <div class="pg" id="pg-usuarios">
       <div class="pg-title">Usuarios</div>
       <div class="pg-sub">Gestión de todos los usuarios del sistema</div>
       <div class="toolbar">
+        <button class="btn btn-primary" onclick="abrirModalCrear()"><i class='bx bx-user-plus'></i> Nuevo usuario</button>
         <input class="search-input" type="search" id="usr-search" placeholder="Buscar por nombre, correo…" oninput="filtrarUsuarios()"/>
         <select class="filter-sel" id="usr-rol" onchange="cargarUsuarios()">
           <option value="">Todos los roles</option>
@@ -229,7 +235,85 @@ tr:hover td{background:rgba(39,98,102,.02)}
       </div>
     </div>
 
+
+  <!-- ── ACTIVIDAD ── -->
+  <div class="pg" id="pg-actividad">
+    <div class="pg-title">Actividad de Usuarios</div>
+    <div class="pg-sub">Último acceso, uso de SOS y estado general de estudiantes</div>
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="scard r"><div class="scard-lbl">Sin entrar +14d</div><div class="scard-val" id="adm-act-crit">—</div></div>
+      <div class="scard d"><div class="scard-lbl">Alerta 7-14d</div><div class="scard-val" id="adm-act-ale">—</div></div>
+      <div class="scard v"><div class="scard-lbl">Activos</div><div class="scard-val" id="adm-act-ok">—</div></div>
+      <div class="scard r"><div class="scard-lbl">SOS 30d</div><div class="scard-val" id="adm-act-sos">—</div></div>
+    </div>
+    <div class="toolbar">
+      <select class="filter-sel" id="adm-act-filtro" onchange="filtrarActividadAdmin()">
+        <option value="">Todos los estados</option>
+        <option value="critico">🔴 Sin entrar +14 días</option>
+        <option value="alerta">🟡 Sin entrar 7-14 días</option>
+        <option value="activo">🟢 Activos</option>
+        <option value="sin_registro">⚪ Sin registro</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="cargarActividadAdmin()"><i class='bx bx-refresh'></i></button>
+    </div>
+    <div id="adm-act-tabla"><div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div></div>
+  </div>
+
+  <!-- ── EMERGENCIAS ── -->
+  <div class="pg" id="pg-emergencias">
+    <div class="pg-title">Números de Emergencia</div>
+    <div class="pg-sub">Líneas de crisis que aparecen en la app · Se guardan automáticamente</div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn btn-primary" onclick="abrirFormEmerg()"><i class='bx bx-plus'></i> Agregar línea</button>
+    </div>
+    <div id="form-emerg" class="card hidden" style="margin-bottom:18px">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:14px" id="form-emerg-tit">Nueva línea</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Icono (emoji)</label><input id="fe-icono" type="text" placeholder="🆘" style="width:100%"/></div>
+        <div class="field"><label>Tipo</label>
+          <select id="fe-tipo" style="width:100%;padding:8px;border:1px solid var(--borde);border-radius:8px;font-size:13px">
+            <option value="llamada">📞 Llamada</option><option value="sms">💬 SMS</option><option value="web">🌐 Web</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1"><label>Nombre</label><input id="fe-nombre" type="text" placeholder="SAPTEL — Línea de Crisis" style="width:100%"/></div>
+        <div class="field"><label>Teléfono / URL</label><input id="fe-tel" type="text" placeholder="800-290-0024" style="width:100%"/></div>
+        <div class="field"><label>Descripción</label><input id="fe-desc" type="text" placeholder="Apoyo 24/7" style="width:100%"/></div>
+        <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:20px"><input type="checkbox" id="fe-24h" style="width:16px;height:16px"/><label for="fe-24h" style="text-transform:none;font-size:13px">Disponible 24h</label></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-primary" onclick="guardarEmerg()">Guardar</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('form-emerg').classList.add('hidden')">Cancelar</button>
+      </div>
+    </div>
+    <div id="lista-emerg"><div class="loader"><i class='bx bx-loader-alt'></i></div></div>
+  </div>
+
   </main>
+</div>
+
+<!-- ── MODAL CREAR/EDITAR USUARIO ── -->
+<div id="modal-usr" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center" onclick="if(event.target===this)cerrarModalUsr()">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:min(480px,94vw);max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px" id="modal-usr-tit">Nuevo usuario</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Nombre</label><input id="mu-nombre" type="text" placeholder="Nombre" style="width:100%"/></div>
+      <div class="field"><label>Apellidos</label><input id="mu-apellidos" type="text" placeholder="Apellidos" style="width:100%"/></div>
+      <div class="field" style="grid-column:1/-1"><label>Correo</label><input id="mu-email" type="email" placeholder="usuario@pcpuma.acatlan.unam.mx" style="width:100%"/></div>
+      <div class="field"><label>Teléfono</label><input id="mu-tel" type="tel" placeholder="5512345678" style="width:100%"/></div>
+      <div class="field"><label>Carrera</label><input id="mu-carrera" type="text" placeholder="Ej. Matemáticas" style="width:100%"/></div>
+      <div class="field"><label>Contraseña<span id="mu-pass-hint" style="color:var(--suave);font-weight:400"> (vacío = no cambiar)</span></label><input id="mu-pass" type="password" placeholder="Mín. 8 caracteres" style="width:100%"/></div>
+      <div class="field"><label>Rol</label>
+        <select id="mu-rol" style="width:100%;padding:8px;border:1px solid var(--borde);border-radius:8px;font-size:13px">
+          <option value="estudiante">Estudiante</option><option value="psicologo">Psicólogo</option><option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div id="modal-usr-err" style="display:none;color:var(--rojo);font-size:13px;padding:8px;background:rgba(198,90,73,.08);border-radius:8px;margin-top:10px"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" onclick="guardarUsuarioModal()" style="flex:1" id="modal-usr-btn">Guardar</button>
+      <button class="btn btn-ghost" onclick="cerrarModalUsr()">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -267,12 +351,14 @@ function pg(id) {
   document.getElementById('nb-' + id).classList.add('on');
   if (id === 'usuarios')     cargarUsuarios();
   if (id === 'asignaciones') { cargarAsignaciones(); cargarSelectsPsicologosYEstudiantes(); }
-  if (id === 'stats')        cargarStats();
+  if (id === 'stats')        { cargarStats(); }
+  if (id === 'actividad')    cargarActividadAdmin();
+  if (id === 'emergencias')  cargarEmergencias();
 }
 
 // ── Init ───────────────────────────────────────────────────
 window.onload = async () => {
-  if (!token) { window.location.href = '/'; return; }
+  if (!token) { window.location.href = '/login.html'; return; }
   try {
     adminUser = await apiFetch('/auth/me');
     if (!adminUser) return;
@@ -282,8 +368,16 @@ window.onload = async () => {
     }
     document.getElementById('hdr-name').textContent = adminUser.nombre || 'Admin';
     document.getElementById('adm-nombre-title').textContent = adminUser.nombre || 'Admin';
-  } catch { window.location.href = '/'; return; }
+  } catch { window.location.href = '/login.html'; return; }
   cargarStats();
+  // Navegar a la sección que se pidió desde el perfil
+  // Navegar a sección: sessionStorage o hash URL
+  const target = sessionStorage.getItem('kai_admin_target') || window.location.hash.replace('#','');
+  if (target) {
+    sessionStorage.removeItem('kai_admin_target');
+    const valid = ['inicio','stats','usuarios','asignaciones','actividad','emergencias'];
+    if (valid.includes(target)) setTimeout(() => pg(target), 150);
+  }
 };
 
 // ── Cerrar sesión ──────────────────────────────────────────
@@ -297,7 +391,7 @@ function cerrarSesion() {
     }).catch(() => {});
   }
   ['apfa_at','apfa_rt','token','user'].forEach(k => localStorage.removeItem(k));
-  window.location.href = '/';
+  window.location.href = '/login.html';
 }
 
 // ── Stats ──────────────────────────────────────────────────
@@ -314,11 +408,40 @@ async function cargarStats() {
       if (vb) vb.textContent = v ?? '—';
     });
     const ts = new Date().toLocaleString('es-MX');
-    const el = document.getElementById('si-ts'); if(el) el.textContent = ts;
-    // badge usuarios
+    const elTs = document.getElementById('si-ts');   if(elTs) elTs.textContent = ts;
+    const stTs = document.getElementById('stats-ts'); if(stTs) stTs.textContent = 'Actualizado: ' + ts;
     const nb = document.getElementById('nb-cnt');
     if (nb && s.total_estudiantes > 0) { nb.textContent = s.total_estudiantes; nb.classList.remove('hidden'); }
   } catch(e) { toast('Error stats: ' + e.message); }
+  // Cargar SOS recientes si la página está visible
+  cargarSOSRecientes();
+}
+
+async function cargarSOSRecientes() {
+  const el = document.getElementById('sos-recientes-adm');
+  if (!el) return;
+  try {
+    const data = await apiFetch('/admin/sos-actividad?dias=7');
+    if (!data) return;
+    if (!data.length) {
+      el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--suave);font-size:13px">✅ Sin eventos SOS en los últimos 7 días</div>';
+      return;
+    }
+    el.innerHTML = data.slice(0,10).map(e => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--fondo)">
+        <div style="width:36px;height:36px;border-radius:50%;background:${e.atendido?'rgba(51,126,89,.1)':'rgba(198,90,73,.1)'};color:${e.atendido?'var(--verde)':'var(--rojo)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">
+          ${e.atendido?'✓':'🆘'}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${e.usuario?.nombre||'Anónimo'}</div>
+          <div style="font-size:11px;color:var(--suave)">${e.tipo} · ${new Date(e.creado_en).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+          ${e.descripcion ? `<div style="font-size:11px;color:var(--suave)">${e.descripcion.substring(0,60)}${e.descripcion.length>60?'…':''}</div>` : ''}
+        </div>
+        <span style="font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;${e.atendido?'background:rgba(51,126,89,.1);color:var(--verde)':'background:rgba(198,90,73,.1);color:var(--rojo)'}">${e.atendido?'Atendido':'Pendiente'}</span>
+      </div>`).join('');
+  } catch(e2) {
+    if (el) el.innerHTML = '<div style="color:var(--suave);font-size:13px;padding:12px">No disponible</div>';
+  }
 }
 
 // ── Usuarios ───────────────────────────────────────────────
@@ -350,24 +473,22 @@ function renderTablaUsuarios(data) {
   if (!data.length) { el.innerHTML = '<div class="empty-msg">Sin usuarios encontrados.</div>'; return; }
   const rb = r => `<span class="rol-badge rb-${r}">${r}</span>`;
   let html = `<table><thead><tr>
-    <th>Usuario</th><th>Teléfono</th><th>Carrera</th><th>Rol</th><th>Estado</th><th>Cambiar rol</th>
+    <th>Usuario</th><th>Teléfono</th><th>Rol</th><th>Estado</th><th>Acciones</th>
   </tr></thead><tbody>`;
   data.forEach(u => {
+    const esYo = u.id === adminUser?.id;
+    const ud = JSON.stringify(u).replace(/"/g,'&quot;');
     html += `<tr>
-      <td>
-        <div class="user-name">${u.nombre||''} ${u.apellidos||''}</div>
-        <div class="user-email">${u.email}</div>
+      <td><div class="user-name">${u.nombre||''} ${u.apellidos||''}</div>
+          <div class="user-email">${u.email}</div>
+          ${u.carrera?`<div style="font-size:10px;color:var(--suave)">${u.carrera}</div>`:''}
       </td>
       <td><span class="user-phone">${u.telefono||'—'}</span></td>
-      <td style="font-size:12px;color:var(--suave)">${u.carrera||'—'}</td>
       <td>${rb(u.rol)}</td>
       <td><span class="status-dot ${u.activo?'sd-on':'sd-off'}"></span>${u.activo?'Activo':'Inactivo'}</td>
-      <td>
-        <select class="rol-select" onchange="cambiarRol('${u.id}',this)" ${u.id===adminUser?.id?'disabled title="No puedes cambiar tu propio rol"':''}>
-          <option value="estudiante" ${u.rol==='estudiante'?'selected':''}>Estudiante</option>
-          <option value="psicologo"  ${u.rol==='psicologo'?'selected':''}>Psicólogo</option>
-          <option value="admin"      ${u.rol==='admin'?'selected':''}>Admin</option>
-        </select>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick='editarUsuario(${ud})' title="Editar">✏️</button>
+        ${!esYo?`<button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}','${(u.nombre||'').replace(/'/g,'')}')" title="Desactivar">🗑️</button>`:''}
       </td>
     </tr>`;
   });
@@ -488,6 +609,236 @@ async function eliminarAsignacion(id) {
     cargarAsignaciones();
     cargarSelectsPsicologosYEstudiantes();
   } catch(e) { toast('Error: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════
+// CRUD USUARIOS
+// ════════════════════════════════════════════════════
+let _editUsrId = null;
+
+function abrirModalCrear() {
+  _editUsrId = null;
+  document.getElementById('modal-usr-tit').textContent = 'Nuevo usuario';
+  document.getElementById('modal-usr-btn').textContent = 'Crear usuario';
+  document.getElementById('mu-pass-hint').textContent  = '';
+  ['mu-nombre','mu-apellidos','mu-email','mu-tel','mu-carrera','mu-pass'].forEach(id => {
+    const el = document.getElementById(id); if(el){ el.value=''; el.disabled=false; }
+  });
+  document.getElementById('mu-rol').value = 'estudiante';
+  document.getElementById('modal-usr-err').style.display = 'none';
+  document.getElementById('modal-usr').style.display = 'flex';
+}
+
+function editarUsuario(u) {
+  _editUsrId = u.id;
+  document.getElementById('modal-usr-tit').textContent = 'Editar usuario';
+  document.getElementById('modal-usr-btn').textContent = 'Guardar cambios';
+  document.getElementById('mu-pass-hint').textContent  = ' (vacío = no cambiar)';
+  document.getElementById('mu-nombre').value    = u.nombre    || '';
+  document.getElementById('mu-apellidos').value = u.apellidos || '';
+  document.getElementById('mu-email').value     = u.email     || '';
+  document.getElementById('mu-email').disabled  = true;
+  document.getElementById('mu-tel').value       = u.telefono  || '';
+  document.getElementById('mu-carrera').value   = u.carrera   || '';
+  document.getElementById('mu-pass').value      = '';
+  document.getElementById('mu-rol').value       = u.rol       || 'estudiante';
+  document.getElementById('modal-usr-err').style.display = 'none';
+  document.getElementById('modal-usr').style.display = 'flex';
+}
+
+function cerrarModalUsr() {
+  document.getElementById('modal-usr').style.display = 'none';
+  document.getElementById('mu-email').disabled = false;
+}
+
+async function guardarUsuarioModal() {
+  const errEl = document.getElementById('modal-usr-err');
+  errEl.style.display = 'none';
+  const nombre   = document.getElementById('mu-nombre').value.trim();
+  const email    = document.getElementById('mu-email').value.trim();
+  const password = document.getElementById('mu-pass').value;
+  const body = {
+    nombre,
+    apellidos: document.getElementById('mu-apellidos').value.trim() || null,
+    email,
+    telefono:  document.getElementById('mu-tel').value.trim()     || null,
+    carrera:   document.getElementById('mu-carrera').value.trim() || null,
+    rol:       document.getElementById('mu-rol').value,
+    password:  password || undefined,
+  };
+  if (!nombre) { errEl.textContent='El nombre es obligatorio'; errEl.style.display='block'; return; }
+  const btn = document.getElementById('modal-usr-btn');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    if (_editUsrId) {
+      await apiFetch('/admin/usuarios/' + _editUsrId, { method:'PATCH', body:JSON.stringify(body) });
+      toast('✅ Usuario actualizado');
+    } else {
+      if (!email)           { errEl.textContent='El correo es obligatorio';          errEl.style.display='block'; btn.disabled=false; btn.textContent='Crear usuario'; return; }
+      if (password.length < 8) { errEl.textContent='Contraseña mín. 8 caracteres'; errEl.style.display='block'; btn.disabled=false; btn.textContent='Crear usuario'; return; }
+      await apiFetch('/admin/usuarios', { method:'POST', body:JSON.stringify(body) });
+      toast('✅ Usuario creado');
+    }
+    cerrarModalUsr();
+    cargarUsuarios();
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = _editUsrId ? 'Guardar cambios' : 'Crear usuario';
+  }
+}
+
+async function eliminarUsuario(uid, nombre) {
+  if (!confirm(`¿Desactivar a ${nombre}?\nPodrás reactivarlo desde "Editar".`)) return;
+  try {
+    await apiFetch('/admin/usuarios/' + uid, { method:'DELETE' });
+    toast(nombre + ' desactivado');
+    cargarUsuarios();
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════
+// ACTIVIDAD DE USUARIOS
+// ════════════════════════════════════════════════════
+let _actCacheAdm = [];
+
+async function cargarActividadAdmin() {
+  const el = document.getElementById('adm-act-tabla');
+  el.innerHTML = `<div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>`;
+  try {
+    const data = await apiFetch('/admin/actividad-usuarios');
+    if (!data) return;
+    _actCacheAdm = data;
+    const crit = data.filter(d=>d.estado==='critico').length;
+    const ale  = data.filter(d=>d.estado==='alerta').length;
+    const ok   = data.filter(d=>d.estado==='activo').length;
+    const sos  = data.reduce((s,d)=>s+(d.sos_periodo||0),0);
+    document.getElementById('adm-act-crit').textContent = crit;
+    document.getElementById('adm-act-ale').textContent  = ale;
+    document.getElementById('adm-act-ok').textContent   = ok;
+    document.getElementById('adm-act-sos').textContent  = sos;
+    filtrarActividadAdmin();
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--rojo);padding:16px">Error: ' + e.message + '</div>';
+  }
+}
+
+function filtrarActividadAdmin() {
+  const f  = document.getElementById('adm-act-filtro').value;
+  const dt = f ? _actCacheAdm.filter(d=>d.estado===f) : _actCacheAdm;
+  const el = document.getElementById('adm-act-tabla');
+  if (!dt.length) { el.innerHTML='<div style="padding:20px;text-align:center;color:var(--suave)">Sin resultados.</div>'; return; }
+  const col = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'};
+  let html = `<table><thead><tr><th>Usuario</th><th>Último acceso</th><th>Días sin entrar</th><th>SOS (30d)</th><th>Entradas (30d)</th></tr></thead><tbody>`;
+  dt.forEach(d => {
+    const c   = col[d.estado]||'var(--suave)';
+    const dias= d.dias_sin_entrar==null?'—':d.dias_sin_entrar===0?'Hoy':d.dias_sin_entrar+'d';
+    const ua  = d.ultimo_acceso ? new Date(d.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    html += `<tr>
+      <td><div style="font-weight:600">${d.nombre||''} ${d.apellidos||''}</div>
+          <div style="font-size:11px;color:var(--suave)">${d.email}${d.carrera?' · '+d.carrera:''}</div></td>
+      <td style="font-size:12px">${ua}</td>
+      <td><span style="color:${c};font-weight:700">${dias}</span></td>
+      <td style="text-align:center">${d.sos_periodo>0?`<span style="color:var(--rojo);font-weight:700">${d.sos_periodo}</span>`:'0'}</td>
+      <td style="text-align:center">${d.entradas_periodo}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════
+// EMERGENCIAS (localStorage — sincronizado con app)
+// ════════════════════════════════════════════════════
+const EMERG_KEY = 'kai_lineas_sos';
+let _emergEditId = null;
+
+const EMERG_DEF = [
+  {id:'saptel', icono:'🆘', nombre:'SAPTEL — Línea de Crisis', telefono:'800-290-0024', descripcion:'Apoyo emocional 24/7', disponible_24h:true,  tipo:'llamada'},
+  {id:'imss',   icono:'🏥', nombre:'IMSS — Salud Mental',      telefono:'800 911 2000',  descripcion:'Orientación en crisis',  disponible_24h:true,  tipo:'llamada'},
+  {id:'locatel',icono:'🏙', nombre:'LOCATEL — CDMX',           telefono:'55 5658-1111',  descripcion:'Información ciudadana',  disponible_24h:true,  tipo:'llamada'},
+  {id:'911',    icono:'🚨', nombre:'Emergencias',               telefono:'911',           descripcion:'Policía / Ambulancias',  disponible_24h:true,  tipo:'llamada'},
+  {id:'fes',    icono:'🏛', nombre:'Psicopedagogía FES Acatlán',telefono:'55 5623 1666',  descripcion:'Lun–Vie 8am–8pm',       disponible_24h:false, tipo:'llamada'},
+];
+
+function getEmerg() { try { return JSON.parse(localStorage.getItem(EMERG_KEY))||null; } catch { return null; } }
+function saveEmerg(d) { localStorage.setItem(EMERG_KEY, JSON.stringify(d)); }
+
+async function cargarEmergencias() {
+  const el = document.getElementById('lista-emerg');
+  const data = getEmerg() || EMERG_DEF;
+  renderEmerg(data, el);
+}
+
+function renderEmerg(data, el) {
+  if (!data.length) { el.innerHTML='<div style="padding:20px;text-align:center;color:var(--suave)">Sin líneas registradas.</div>'; return; }
+  el.innerHTML = data.map(e => `
+    <div style="background:#fff;border-radius:12px;padding:14px 16px;box-shadow:var(--sh);margin-bottom:10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:24px;width:38px;text-align:center;flex-shrink:0">${e.icono||'📞'}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${e.nombre}</div>
+        <div style="font-size:12px;color:var(--suave);margin-top:1px">${e.descripcion}</div>
+        <div style="font-size:12px;color:var(--verde);font-weight:600;margin-top:2px">${e.telefono}${e.disponible_24h?' <span style="background:rgba(51,126,89,.1);color:var(--verde);font-size:10px;padding:1px 6px;border-radius:10px">24h</span>':''}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn btn-ghost btn-sm" onclick="editarEmerg('${e.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarEmerg('${e.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function abrirFormEmerg() {
+  _emergEditId = null;
+  document.getElementById('form-emerg-tit').textContent = 'Nueva línea de emergencia';
+  ['fe-icono','fe-nombre','fe-tel','fe-desc'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('fe-24h').checked = false;
+  document.getElementById('fe-tipo').value  = 'llamada';
+  document.getElementById('form-emerg').classList.remove('hidden');
+}
+
+function editarEmerg(id) {
+  const data = getEmerg() || EMERG_DEF;
+  const e = data.find(x => x.id===id); if(!e) return;
+  _emergEditId = id;
+  document.getElementById('form-emerg-tit').textContent = 'Editar línea';
+  document.getElementById('fe-icono').value  = e.icono;
+  document.getElementById('fe-nombre').value = e.nombre;
+  document.getElementById('fe-tel').value    = e.telefono;
+  document.getElementById('fe-desc').value   = e.descripcion;
+  document.getElementById('fe-24h').checked  = e.disponible_24h;
+  document.getElementById('fe-tipo').value   = e.tipo||'llamada';
+  document.getElementById('form-emerg').classList.remove('hidden');
+}
+
+function guardarEmerg() {
+  const data = getEmerg() || EMERG_DEF;
+  const entry = {
+    id:           _emergEditId || 'emerg_' + Date.now(),
+    icono:        document.getElementById('fe-icono').value.trim()  || '📞',
+    nombre:       document.getElementById('fe-nombre').value.trim() || 'Línea',
+    telefono:     document.getElementById('fe-tel').value.trim()    || '',
+    descripcion:  document.getElementById('fe-desc').value.trim()   || '',
+    disponible_24h: document.getElementById('fe-24h').checked,
+    tipo:         document.getElementById('fe-tipo').value,
+  };
+  if (_emergEditId) {
+    const idx = data.findIndex(x=>x.id===_emergEditId);
+    if (idx>=0) data[idx]=entry;
+  } else { data.push(entry); }
+  saveEmerg(data);
+  document.getElementById('form-emerg').classList.add('hidden');
+  toast('Línea guardada ✓');
+  renderEmerg(data, document.getElementById('lista-emerg'));
+}
+
+function eliminarEmerg(id) {
+  if (!confirm('¿Eliminar esta línea?')) return;
+  const data = (getEmerg()||EMERG_DEF).filter(x=>x.id!==id);
+  saveEmerg(data);
+  renderEmerg(data, document.getElementById('lista-emerg'));
+  toast('Línea eliminada');
 }
 </script>
 </body>

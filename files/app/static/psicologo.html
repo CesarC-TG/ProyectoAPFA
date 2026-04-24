@@ -170,6 +170,59 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 .btn-cancelar{background:rgba(198,90,73,.1);color:var(--rojo)}
 .btn-cancelar:hover{background:rgba(198,90,73,.2)}
 
+/* ── Actividad ───────────────────────────────────── */
+.act-card{background:#fff;border-radius:12px;padding:13px 15px;box-shadow:var(--card-shadow);margin-bottom:10px;display:flex;align-items:flex-start;gap:11px;border-left:4px solid var(--borde)}
+.act-card.activo{border-left-color:var(--verde)}.act-card.alerta{border-left-color:var(--dorado)}.act-card.critico{border-left-color:var(--rojo)}.act-card.sin_registro{border-left-color:var(--suave)}
+.act-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px}
+.av-activo{background:var(--verde)}.av-alerta{background:var(--dorado)}.av-critico{background:var(--rojo)}.av-sin_registro{background:var(--suave)}
+.act-bdg{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin:2px}
+.ab-sos{background:rgba(198,90,73,.1);color:var(--rojo)}.ab-dias{background:rgba(122,139,148,.1);color:var(--suave)}.ab-ent{background:rgba(51,126,89,.1);color:var(--verde)}
+
+
+/* ── Botones de acción en tarjeta estudiante ─── */
+.est-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px}
+.btn-est{border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;font-family:inherit;line-height:1.2}
+.btn-est i{font-size:16px}
+.btn-est-chat{background:rgba(39,98,102,.1);color:var(--azul)}
+.btn-est-chat:hover{background:rgba(39,98,102,.2)}
+.btn-est-diario{background:rgba(201,168,76,.1);color:#8a6200}
+.btn-est-diario:hover{background:rgba(201,168,76,.2)}
+.btn-est-cita{background:rgba(51,126,89,.1);color:var(--verde)}
+.btn-est-cita:hover{background:rgba(51,126,89,.2)}
+.btn-est-act{background:rgba(122,91,156,.1);color:var(--morado,#7A5B9C)}
+.btn-est-act:hover{background:rgba(122,91,156,.2)}
+.btn-est-full{grid-column:1/-1;background:rgba(39,98,102,.08);color:var(--azul);border-radius:8px;padding:7px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* ── Indicador de días sin entrar ─────────────── */
+.est-alerta{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:4px}
+.ea-critico{background:rgba(198,90,73,.12);color:var(--rojo)}
+.ea-alerta{background:rgba(201,168,76,.12);color:#8a6200}
+.ea-activo{background:rgba(51,126,89,.12);color:var(--verde)}
+
+/* ── Modal cita ───────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+@media(min-width:600px){.modal-overlay{align-items:center}}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+@media(min-width:600px){.modal-box{border-radius:20px}}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-hdr h3{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--suave);padding:4px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:11px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;transition:border-color .15s}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{outline:none;border-color:var(--azul2)}
+.btn-modal-ok{width:100%;background:var(--azul);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
+.btn-modal-ok:hover{background:var(--azul2)}
+.btn-modal-ok:disabled{opacity:.6;cursor:default}
+
+/* ── Mini panel de estudiante ─────────────────── */
+.est-detail-panel{background:var(--fondo);border-top:1px solid var(--borde);padding:0;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .2s ease}
+.est-detail-panel.open{max-height:500px;padding:12px 14px}
+.edp-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.edp-stat{background:#fff;border-radius:8px;padding:8px 12px;font-size:12px;flex:1;min-width:80px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.edp-stat-lbl{font-size:10px;color:var(--suave);margin-bottom:2px}
+.edp-stat-val{font-size:18px;font-weight:700;color:var(--azul)}
 /* ── Loader / empty ──────────────────────────────── */
 .loader{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--suave);gap:8px;font-size:14px}
 .loader i{animation:spin 1s linear infinite;font-size:20px}
@@ -241,6 +294,10 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
         <i class='bx bxs-calendar-check'></i> Mis citas
         <span class="badge hidden" id="badge-citas">0</span>
       </button>
+      <button class="nav-btn" id="nav-actividad" onclick="showPage('actividad')">
+        <i class='bx bxs-bar-chart-alt-2'></i> Actividad
+        <span class="badge hidden" id="badge-sos">!</span>
+      </button>
       <button class="nav-btn" id="nav-chat" onclick="showPage('chat')">
         <i class='bx bxs-chat'></i> Chat con usuarios
       </button>
@@ -256,25 +313,25 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
       <div class="page-sub">Resumen de tu actividad de hoy</div>
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" style="cursor:pointer" onclick="showPage('estudiantes')" title="Ver estudiantes">
           <div class="stat-label">Estudiantes asignados</div>
           <div class="stat-val" id="stat-est">—</div>
-          <div class="stat-hint">Con citas o diario compartido</div>
+          <div class="stat-hint">Toca para ver lista →</div>
         </div>
-        <div class="stat-card verde">
+        <div class="stat-card verde" style="cursor:pointer" onclick="showPage('citas')" title="Ver citas">
           <div class="stat-label">Citas pendientes</div>
           <div class="stat-val" id="stat-citas">—</div>
-          <div class="stat-hint">Por confirmar o atender</div>
+          <div class="stat-hint">Toca para gestionar →</div>
         </div>
-        <div class="stat-card dorado">
+        <div class="stat-card dorado" style="cursor:pointer" onclick="showPage('diario')" title="Ver diarios">
           <div class="stat-label">Diarios compartidos</div>
           <div class="stat-val" id="stat-diarios">—</div>
-          <div class="stat-hint">Con acceso concedido</div>
+          <div class="stat-hint">Toca para leer →</div>
         </div>
-        <div class="stat-card rojo">
+        <div class="stat-card rojo" style="cursor:pointer" onclick="showPage('actividad')" title="Ver alertas">
           <div class="stat-label">Alertas de crisis</div>
           <div class="stat-val" id="stat-alertas">—</div>
-          <div class="stat-hint">Requieren atención</div>
+          <div class="stat-hint">Toca para ver →</div>
         </div>
       </div>
 
@@ -350,7 +407,7 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
     <div class="page" id="page-citas">
       <div class="page-title">Mis Citas</div>
       <div class="page-sub">Agenda con tus estudiantes</div>
-      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
         <select class="filter-select" id="filtro-estado-cita" onchange="cargarCitas()">
           <option value="">Todas las citas</option>
           <option value="pendiente">Pendientes</option>
@@ -358,9 +415,42 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
           <option value="completada">Completadas</option>
           <option value="cancelada">Canceladas</option>
         </select>
+        <button onclick="showPage('estudiantes')" style="background:var(--azul);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit">
+          <i class='bx bxs-calendar-plus'></i> Nueva cita
+        </button>
+        <button onclick="cargarCitas()" style="background:var(--fondo);border:1px solid var(--borde);padding:8px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+          <i class='bx bx-refresh'></i>
+        </button>
       </div>
       <div id="lista-citas">
         <div class="loader"><i class='bx bx-loader-alt'></i> Cargando citas…</div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVIDAD ── -->
+    <div class="page" id="page-actividad">
+      <div class="page-title">Actividad de Estudiantes</div>
+      <div class="page-sub">Reportes de acceso, uso de SOS y participación</div>
+      <div class="stats-grid" style="margin-bottom:20px">
+        <div class="stat-card rojo"><div class="stat-label">Sin entrar +14d</div><div class="stat-val" id="act-criticos">—</div></div>
+        <div class="stat-card dorado"><div class="stat-label">Alerta 7-14d</div><div class="stat-val" id="act-alertas">—</div></div>
+        <div class="stat-card verde"><div class="stat-label">Activos</div><div class="stat-val" id="act-activos">—</div></div>
+        <div class="stat-card rojo"><div class="stat-label">SOS 30 días</div><div class="stat-val" id="act-sos-cnt">—</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <select class="filter-select" id="act-filtro" onchange="filtrarActividad()">
+          <option value="">Todos</option>
+          <option value="critico">🔴 Sin entrar +14 días</option>
+          <option value="alerta">🟡 Sin entrar 7-14 días</option>
+          <option value="activo">🟢 Activos</option>
+          <option value="sin_registro">⚪ Sin registro</option>
+        </select>
+        <button class="btn-cita btn-confirmar" onclick="cargarActividad()" style="padding:7px 14px">
+          <i class='bx bx-refresh'></i> Actualizar
+        </button>
+      </div>
+      <div id="lista-actividad">
+        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando actividad…</div>
       </div>
     </div>
 
@@ -395,7 +485,8 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 </div>
 
 <script>
-const API_BASE = 'http://10.110.0.13:8000/api';
+const API_BASE = window.location.origin + '/api';
+const API = API_BASE;
 let token = localStorage.getItem('apfa_at') || '';
 let psico = null;
 let wsChat = null;
@@ -447,6 +538,7 @@ function showPage(id) {
   if (id === 'estudiantes' && estudiantesCache.length === 0) cargarEstudiantes();
   if (id === 'diario') cargarDiarios();
   if (id === 'citas') cargarCitas();
+  if (id === 'actividad') cargarActividad();
   if (id === 'chat') iniciarChat();
   if (id === 'perfil') renderPerfil();
 }
@@ -454,7 +546,7 @@ function showPage(id) {
 // ── Init ─────────────────────────────────────────────────
 
 ;(async () => {
-  if (!token) { window.location.href = '/'; return; }
+  if (!token) { window.location.href = '/login.html'; return; }
 
   try {
     psico = await apiFetch('/auth/me');
@@ -462,11 +554,11 @@ function showPage(id) {
     const rol = (psico.rol || '').toLowerCase();
     if (rol !== 'psicologo' && rol !== 'admin') {
       alert('Acceso solo para psicólogos.');
-      window.location.href = '/';
+      window.location.href = '/login.html';
       return;
     }
   } catch (e) {
-    window.location.href = '/';
+    window.location.href = '/login.html';
     return;
   }
 
@@ -476,6 +568,13 @@ function showPage(id) {
   // Cargar stats
   cargarStats();
   cargarAlertasRecientes();
+  // Navegar a la sección pedida: sessionStorage tiene prioridad, luego hash URL
+  const target = sessionStorage.getItem('kai_psico_target') || window.location.hash.replace('#','');
+  if (target) {
+    sessionStorage.removeItem('kai_psico_target');
+    const validSections = ['inicio','perfil','estudiantes','diario','citas','actividad','chat'];
+    if (validSections.includes(target)) setTimeout(() => showPage(target), 150);
+  }
 })();
 
 // ── Logout ────────────────────────────────────────────────
@@ -494,7 +593,7 @@ function cerrarSesion() {
   localStorage.removeItem('apfa_rt');
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  window.location.href = '/';
+  window.location.href = '/login.html';
 }
 
 // ── Stats ─────────────────────────────────────────────────
@@ -533,7 +632,7 @@ async function cargarStats() {
 async function cargarAlertasRecientes() {
   const el = document.getElementById('alertas-recientes');
   try {
-    const data = await apiFetch('/psicologo/diarios?estudiante_id=');
+    const data = await apiFetch('/psicologo/diarios');
     if (!data) return;
     const alertas = data.filter(d => d.alerta_crisis).slice(0, 5);
     if (alertas.length === 0) {
@@ -603,24 +702,73 @@ async function cargarEstudiantes() {
 }
 
 function renderEstudianteCard(e) {
-  const ini = (e.nombre || '?').charAt(0).toUpperCase();
+  const ini    = (e.nombre || '?').charAt(0).toUpperCase();
+  const nombre = (e.nombre + ' ' + (e.apellidos||'')).trim();
+
+  // Indicador días sin entrar
+  let alertaBadge = '';
+  if (e.dias_sin_entrar != null) {
+    if (e.dias_sin_entrar >= 14)      alertaBadge = `<span class="est-alerta ea-critico">⚠ ${e.dias_sin_entrar}d sin entrar</span>`;
+    else if (e.dias_sin_entrar >= 7)  alertaBadge = `<span class="est-alerta ea-alerta">🟡 ${e.dias_sin_entrar}d sin entrar</span>`;
+    else if (e.dias_sin_entrar === 0) alertaBadge = `<span class="est-alerta ea-activo">🟢 Activo hoy</span>`;
+  }
+
+  const eid = e.id.replace(/[^a-zA-Z0-9]/g,'');
+
   return `
     <div class="estudiante-card" id="est-card-${e.id}">
       <div class="est-header">
         <div class="est-avatar">${ini}</div>
-        <div>
+        <div style="flex:1;min-width:0">
           <div class="est-name">${e.nombre} ${e.apellidos || ''}</div>
           <div class="est-email">${e.email}</div>
+          ${alertaBadge}
         </div>
+        <span class="online-dot" id="dot-${e.id}" style="flex-shrink:0;width:10px;height:10px;border-radius:50%;background:#ccc;align-self:flex-start;margin-top:4px"></span>
       </div>
       <div class="est-meta">
         ${e.carrera ? `<span class="tag">${e.carrera}</span>` : ''}
         ${e.semestre ? `<span class="tag">Sem. ${e.semestre}</span>` : ''}
-        <span class="tag"><span class="online-dot" id="dot-${e.id}"></span>Desconectado</span>
       </div>
-      <button class="btn-chat-est" onclick="abrirChatCon('${e.id}', '${(e.nombre+' '+(e.apellidos||'')).trim()}')">
-        <i class='bx bx-chat'></i> Chatear
-      </button>
+
+      <!-- Mini-resumen expandible -->
+      <div class="est-detail-panel" id="edp-${eid}">
+        <div class="edp-row">
+          <div class="edp-stat"><div class="edp-stat-lbl">Último acceso</div>
+            <div style="font-size:12px;font-weight:600;color:var(--texto)">${
+              e.ultimo_acceso
+                ? new Date(e.ultimo_acceso).toLocaleDateString('es-MX',{day:'numeric',month:'short'})
+                : '—'
+            }</div>
+          </div>
+          <div class="edp-stat"><div class="edp-stat-lbl">SOS 30d</div>
+            <div class="edp-stat-val" id="edp-sos-${eid}">…</div>
+          </div>
+          <div class="edp-stat"><div class="edp-stat-lbl">Entradas</div>
+            <div class="edp-stat-val" id="edp-ent-${eid}">…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="est-actions">
+        <button class="btn-est btn-est-chat"
+          onclick="abrirChatCon('${e.id}','${nombre.replace(/'/g,"\\'")}')">
+          <i class='bx bxs-chat'></i>Chat
+        </button>
+        <button class="btn-est btn-est-diario"
+          onclick="verDiarioEstudiante('${e.id}','${nombre.replace(/'/g,"\\'")}')">
+          <i class='bx bxs-book-heart'></i>Diario
+        </button>
+        <button class="btn-est btn-est-cita"
+          onclick="abrirModalCita('${e.id}','${nombre.replace(/'/g,"\\'")}')">
+          <i class='bx bxs-calendar-plus'></i>Cita
+        </button>
+        <button class="btn-est btn-est-act btn-est-full"
+          onclick="verActividadEstudiante('${e.id}','${nombre.replace(/'/g,"\\'")}')">
+          <i class='bx bxs-bar-chart-alt-2'></i> Ver actividad
+        </button>
+      </div>
     </div>`;
 }
 
@@ -679,7 +827,7 @@ function renderDiarios(data) {
 async function cargarCitas() {
   const el = document.getElementById('lista-citas');
   const estado = document.getElementById('filtro-estado-cita')?.value || '';
-  el.innerHTML = '<div class="loader"><i class='bx bx-loader-alt'></i> Cargando citas…</div>';
+  el.innerHTML = `<div class="loader"><i class='bx bx-loader-alt'></i> Cargando citas…</div>`;
   try {
     const path = '/psicologo/citas' + (estado ? '?estado=' + estado : '');
     const data = await apiFetch(path);
@@ -729,13 +877,84 @@ function renderAccionesCita(cita) {
 
 async function actualizarCita(citaId, nuevoEstado) {
   try {
-    await apiFetch(`/admin/citas/${citaId}/estado?estado=${nuevoEstado}`, { method: 'PATCH' });
+    await apiFetch(`/psicologo/citas/${citaId}/estado?estado=${nuevoEstado}`, { method: 'PATCH' });
     toast('Cita ' + nuevoEstado + ' correctamente');
     cargarCitas();
     cargarStats();
   } catch (e) {
     toast('Error: ' + e.message);
   }
+}
+
+// ── Actividad ────────────────────────────────────────────
+let _actCache = [];
+
+async function cargarActividad() {
+  const el = document.getElementById('lista-actividad');
+  el.innerHTML = `<div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>`;
+  try {
+    const data = await apiFetch('/psicologo/actividad');
+    if (!data) return;
+    _actCache = data;
+    const criticos = data.filter(d => d.estado === 'critico').length;
+    const alertas  = data.filter(d => d.estado === 'alerta').length;
+    const activos  = data.filter(d => d.estado === 'activo').length;
+    const totalSos = data.reduce((s,d) => s + (d.sos_periodo||0), 0);
+    document.getElementById('act-criticos').textContent = criticos;
+    document.getElementById('act-alertas').textContent  = alertas;
+    document.getElementById('act-activos').textContent  = activos;
+    document.getElementById('act-sos-cnt').textContent  = totalSos;
+    const bSos = document.getElementById('badge-sos');
+    if (criticos > 0 || totalSos > 0) bSos.classList.remove('hidden');
+    filtrarActividad();
+  } catch(e) {
+    el.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + e.message + '</div>';
+  }
+}
+
+function filtrarActividad() {
+  const f = document.getElementById('act-filtro').value;
+  renderActividad(f ? _actCache.filter(d => d.estado === f) : _actCache);
+}
+
+function renderActividad(data) {
+  const el = document.getElementById('lista-actividad');
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-msg">✅ Sin estudiantes con este filtro.</div>';
+    return;
+  }
+  el.innerHTML = data.map(d => {
+    const ini = (d.nombre||'?').charAt(0).toUpperCase();
+    const clr  = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'}[d.estado]||'var(--suave)';
+    const dias = d.dias_sin_entrar == null ? 'Sin registro' : d.dias_sin_entrar === 0 ? 'Hoy' : d.dias_sin_entrar === 1 ? 'Ayer' : `Hace ${d.dias_sin_entrar}d`;
+    const ua   = d.ultimo_acceso ? new Date(d.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const sosBdg = d.sos_periodo > 0 ? `<span class="act-bdg ab-sos">🆘 ${d.sos_periodo} SOS</span>` : '';
+    const entBdg = d.entradas_periodo > 0 ? `<span class="act-bdg ab-ent">📔 ${d.entradas_periodo} entradas</span>` : '';
+    const sosDet = (d.sos_eventos||[]).map(e =>
+      `<div style="font-size:11px;color:var(--rojo);margin-top:3px;padding-left:4px">
+        ⚠ SOS ${e.tipo} · ${new Date(e.fecha).toLocaleDateString('es-MX')} · ${e.atendido?'✓ atendido':'pendiente'}
+       </div>`
+    ).join('');
+    return `<div class="act-card ${d.estado}">
+      <div class="act-av av-${d.estado}">${ini}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px">${d.nombre} ${d.apellidos||''}</div>
+        <div style="font-size:11px;color:var(--suave)">${d.email}${d.carrera?' · '+d.carrera:''}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:4px">
+          ${sosBdg}${entBdg}<span class="act-bdg ab-dias">${dias}</span>
+        </div>
+        ${sosDet}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:10px;color:var(--suave)">Último acceso</div>
+        <div style="font-size:11px;font-weight:500">${ua}</div>
+        <button onclick="abrirChatCon('${d.id}','${(d.nombre+' '+(d.apellidos||'')).trim()}')"
+          style="margin-top:6px;background:var(--azul);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">
+          Chat
+        </button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── Chat WebSocket ────────────────────────────────────────
@@ -925,7 +1144,142 @@ function enviarMensaje() {
   if (preview) preview.textContent = contenido;
 }
 
-// Auto-resize textarea
+// ── Cita ─────────────────────────────────────────────────
+let _citaEstId = null;
+
+function abrirModalCita(uid, nombre) {
+  _citaEstId = uid;
+  document.getElementById('cita-est-nombre').textContent = nombre;
+  document.getElementById('cita-motivo').value  = '';
+  document.getElementById('cita-err').style.display = 'none';
+  // Poner fecha mínima = ahora + 1h
+  const now = new Date(Date.now() + 3600000);
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('cita-fecha').value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:00`;
+  document.getElementById('modal-cita').classList.add('open');
+}
+
+function cerrarModalCita() {
+  document.getElementById('modal-cita').classList.remove('open');
+  _citaEstId = null;
+}
+
+async function confirmarCita() {
+  const err  = document.getElementById('cita-err');
+  const btn  = document.getElementById('cita-btn');
+  const fecha = document.getElementById('cita-fecha').value;
+  const modalidad = document.getElementById('cita-modalidad').value;
+  const motivo    = document.getElementById('cita-motivo').value.trim();
+  err.style.display = 'none';
+
+  if (!fecha)  { err.textContent='Selecciona fecha y hora'; err.style.display='block'; return; }
+  if (!motivo) { err.textContent='Escribe el motivo de la cita'; err.style.display='block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Agendando…';
+  try {
+    await apiFetch('/psicologo/citas', {
+      method: 'POST',
+      body: JSON.stringify({
+        estudiante_id: _citaEstId,
+        fecha_hora:    new Date(fecha).toISOString(),
+        modalidad,
+        motivo,
+      }),
+    });
+    cerrarModalCita();
+    toast('✅ Cita agendada correctamente');
+    cargarStats();
+    // Refrescar citas si la página está visible
+    if (document.getElementById('page-citas').classList.contains('on')) cargarCitas();
+  } catch(e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Confirmar cita';
+  }
+}
+
+// ── Ver diario de un estudiante específico ────────────────
+async function verDiarioEstudiante(uid, nombre) {
+  const modal = document.getElementById('modal-diario-est');
+  const cont  = document.getElementById('modal-diario-contenido');
+  document.getElementById('diario-est-nombre').textContent = nombre;
+  cont.innerHTML = `<div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>`;
+  modal.classList.add('open');
+  try {
+    const data = await apiFetch('/psicologo/diarios?estudiante_id=' + uid);
+    if (!data || !data.length) {
+      cont.innerHTML = '<div class="empty-msg">📖 Este estudiante no ha compartido entradas aún.</div>';
+      return;
+    }
+    const emojiAnimo = {'😊':1,'😐':1,'😔':1,'😰':1,'😤':1,'🥺':1};
+    cont.innerHTML = data.map(e => `
+      <div style="background:var(--fondo);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid ${e.alerta_crisis?'var(--rojo)':'var(--azul)'}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:20px">${e.estado_animo||'📝'}</span>
+          <span style="font-size:11px;color:var(--suave)">${dfmt(e.creada_en)}</span>
+        </div>
+        <p style="font-size:13px;color:var(--texto);line-height:1.55;margin:0">${e.texto}</p>
+        ${e.alerta_crisis ? '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(198,90,73,.1);color:var(--rojo);font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:8px">⚠ Alerta de crisis</span>' : ''}
+        ${(e.etiquetas||[]).length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">${e.etiquetas.map(t=>`<span style="font-size:10px;background:#fff;border:1px solid var(--borde);border-radius:20px;padding:2px 7px">${t}</span>`).join('')}</div>` : ''}
+      </div>`).join('');
+  } catch(err2) {
+    cont.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + err2.message + '</div>';
+  }
+}
+
+// ── Ver actividad de un estudiante específico ─────────────
+async function verActividadEstudiante(uid, nombre) {
+  const modal = document.getElementById('modal-act-est');
+  const cont  = document.getElementById('modal-act-contenido');
+  document.getElementById('act-est-nombre').textContent = nombre;
+  cont.innerHTML = `<div class="loader"><i class='bx bx-loader-alt'></i></div>`;
+  modal.classList.add('open');
+  try {
+    const data = await apiFetch('/psicologo/actividad');
+    const est  = data ? data.find(d => d.id === uid) : null;
+    if (!est) { cont.innerHTML = '<div class="empty-msg">Sin datos de actividad.</div>'; return; }
+
+    const ua = est.ultimo_acceso ? new Date(est.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '—';
+    const dias = est.dias_sin_entrar == null ? 'Sin registro' : est.dias_sin_entrar === 0 ? 'Hoy' : est.dias_sin_entrar === 1 ? 'Ayer' : `Hace ${est.dias_sin_entrar} días`;
+    const col  = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'}[est.estado]||'var(--suave)';
+
+    const sosDet = (est.sos_eventos||[]).length
+      ? est.sos_eventos.map(s => `
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--fondo)">
+            <span style="font-size:16px">🆘</span>
+            <div>
+              <div style="font-size:12px;font-weight:600">${s.tipo}</div>
+              <div style="font-size:11px;color:var(--suave)">${new Date(s.fecha).toLocaleString('es-MX')} · ${s.atendido?'✓ atendido':'pendiente'}</div>
+            </div>
+          </div>`).join('')
+      : '<p style="color:var(--suave);font-size:13px">Sin eventos SOS en los últimos 30 días.</p>';
+
+    cont.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--fondo);border-radius:10px;padding:12px">
+          <div style="font-size:10px;color:var(--suave);text-transform:uppercase;margin-bottom:4px">Último acceso</div>
+          <div style="font-size:13px;font-weight:600">${ua}</div>
+          <div style="font-size:12px;color:${col};font-weight:600;margin-top:2px">${dias}</div>
+        </div>
+        <div style="background:var(--fondo);border-radius:10px;padding:12px">
+          <div style="font-size:10px;color:var(--suave);text-transform:uppercase;margin-bottom:4px">Actividad 30d</div>
+          <div style="font-size:13px;font-weight:600">${est.entradas_periodo} entradas diario</div>
+          <div style="font-size:12px;color:var(--rojo);font-weight:600;margin-top:2px">${est.sos_periodo} eventos SOS</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Historial SOS</div>
+      ${sosDet}
+      <button onclick="abrirChatCon('${uid}','${nombre.replace(/'/g,"\'")}')" style="width:100%;margin-top:14px;background:var(--azul);color:#fff;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
+        <i class='bx bxs-chat'></i> Abrir chat con ${nombre.split(' ')[0]}
+      </button>`;
+  } catch(err2) {
+    cont.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + err2.message + '</div>';
+  }
+}
+
+// ── Auto-resize textarea
 document.addEventListener('input', e => {
   if (e.target.id === 'chat-input') {
     e.target.style.height = 'auto';
@@ -933,5 +1287,61 @@ document.addEventListener('input', e => {
   }
 });
 </script>
+
+<!-- ── Modal Agendar Cita ── -->
+<div class="modal-overlay" id="modal-cita" onclick="if(event.target===this)cerrarModalCita()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <h3>📅 Agendar cita</h3>
+      <button class="modal-close" onclick="cerrarModalCita()">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--suave);margin-bottom:16px">Estudiante: <strong id="cita-est-nombre">—</strong></p>
+    <div class="modal-field">
+      <label>Fecha y hora</label>
+      <input type="datetime-local" id="cita-fecha"/>
+    </div>
+    <div class="modal-field">
+      <label>Modalidad</label>
+      <select id="cita-modalidad">
+        <option value="presencial">🏫 Presencial — FES Acatlán</option>
+        <option value="videollamada">💻 Videollamada</option>
+        <option value="telefonica">📞 Telefónica</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Motivo de la cita</label>
+      <textarea id="cita-motivo" rows="3" placeholder="Describe brevemente el motivo…"></textarea>
+    </div>
+    <div id="cita-err" style="display:none;color:var(--rojo);font-size:13px;padding:8px 12px;background:rgba(198,90,73,.08);border-radius:8px;margin-bottom:12px"></div>
+    <button class="btn-modal-ok" id="cita-btn" onclick="confirmarCita()">Confirmar cita</button>
+  </div>
+</div>
+
+<!-- ── Modal Ver Diarios de Estudiante ── -->
+<div class="modal-overlay" id="modal-diario-est" onclick="if(event.target===this)document.getElementById('modal-diario-est').classList.remove('open')">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:600px">
+    <div class="modal-hdr">
+      <h3>📔 Diario de <span id="diario-est-nombre">—</span></h3>
+      <button class="modal-close" onclick="document.getElementById('modal-diario-est').classList.remove('open')">✕</button>
+    </div>
+    <div id="modal-diario-contenido">
+      <div class="loader"><i class='bx bx-loader-alt'></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Actividad de Estudiante ── -->
+<div class="modal-overlay" id="modal-act-est" onclick="if(event.target===this)document.getElementById('modal-act-est').classList.remove('open')">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:520px">
+    <div class="modal-hdr">
+      <h3>📊 Actividad de <span id="act-est-nombre">—</span></h3>
+      <button class="modal-close" onclick="document.getElementById('modal-act-est').classList.remove('open')">✕</button>
+    </div>
+    <div id="modal-act-contenido">
+      <div class="loader"><i class='bx bx-loader-alt'></i></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

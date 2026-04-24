@@ -427,6 +427,15 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
 .rec-empty{text-align:center;padding:48px 20px}
 .rec-empty-ico{font-size:42px;margin-bottom:12px}
 .rec-empty-msg{font-size:14px;color:var(--suave);line-height:1.6}
+
+/* ── Shortcuts de panel admin/psicólogo ────────── */
+.adm-shortcut-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 8px;background:#fff;border:1.5px solid var(--borde);border-radius:14px;text-decoration:none;color:var(--texto);font-size:11px;font-weight:600;text-align:center;transition:all .18s;cursor:pointer}
+.adm-shortcut-btn i{font-size:22px;color:var(--azul);transition:color .18s}
+.adm-shortcut-btn:hover{border-color:var(--azul);background:rgba(39,98,102,.06);color:var(--azul)}
+.adm-shortcut-btn:hover i{color:var(--azul2)}
+.adm-shortcut-btn:active{transform:scale(.96)}
+.adm-shortcut-btn.psico i{color:#5B8DB8}
+.adm-shortcut-btn.psico:hover{border-color:#5B8DB8;background:rgba(91,141,184,.06);color:#5B8DB8}
 </style>
 </head>
 <body>
@@ -678,52 +687,64 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
     <span class="perfil-rol" id="perf-rol">Estudiante</span>
   </div>
 
+  <!-- Panel Psicólogo -->
+  <section id="seccion-psicologo" style="display:none;margin-bottom:20px;">
+    <p class="section-label">Panel Psicólogo</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+      <a href="/psicologo.html#inicio" onclick="irPsicologo('inicio')" class="adm-shortcut-btn">
+        <i class='bx bxs-dashboard'></i>
+        <span>Inicio</span>
+      </a>
+      <a href="/psicologo.html#estudiantes" onclick="irPsicologo('estudiantes')" class="adm-shortcut-btn">
+        <i class='bx bxs-group'></i>
+        <span>Estudiantes</span>
+      </a>
+      <a href="/psicologo.html#diario" onclick="irPsicologo('diario')" class="adm-shortcut-btn psico">
+        <i class='bx bxs-book-heart'></i>
+        <span>Diarios</span>
+      </a>
+      <a href="/psicologo.html#citas" onclick="irPsicologo('citas')" class="adm-shortcut-btn psico">
+        <i class='bx bxs-calendar-check'></i>
+        <span>Mis citas</span>
+      </a>
+      <a href="/psicologo.html#actividad" onclick="irPsicologo('actividad')" class="adm-shortcut-btn psico">
+        <i class='bx bxs-bar-chart-alt-2'></i>
+        <span>Actividad</span>
+      </a>
+      <a href="/psicologo.html#chat" onclick="irPsicologo('chat')" class="adm-shortcut-btn psico">
+        <i class='bx bxs-chat'></i>
+        <span>Chat</span>
+      </a>
+    </div>
+  </section>
+
   <section id="seccion-admin" style="display:none; margin-bottom:20px;">
     <p class="section-label">Panel Administrativo</p>
-    <!-- Botones de navegación del panel -->
-    <div class="grid-2" style="margin-bottom:14px;">
-      <div class="home-card adm-tab-btn" id="adm-btn-stats" onclick="adminTab('stats')">
-        <div class="hc-ico"><i class='bx bx-stats'></i></div>
-        <div class="hc-title">Estadísticas</div>
-      </div>
-      <div class="home-card adm-tab-btn" id="adm-btn-usuarios" onclick="adminTab('usuarios')">
-        <div class="hc-ico"><i class='bx bx-group'></i></div>
-        <div class="hc-title">Usuarios</div>
-      </div>
-    </div>
-
-    <!-- Panel de ESTADÍSTICAS -->
-    <div id="adm-panel-stats" class="card adm-panel" style="display:none; margin-top:0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="margin:0;font-size:15px;">Estadísticas del sistema</h3>
-        <button class="btn btn-ghost" style="font-size:12px;" onclick="adminTab(null)">✕ Cerrar</button>
-      </div>
-      <div id="adm-stats-content" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="adm-stat-box"><div class="adm-stat-lbl">Estudiantes</div><div class="adm-stat-val" id="adm-s-est">--</div></div>
-        <div class="adm-stat-box"><div class="adm-stat-lbl">Psicólogos</div><div class="adm-stat-val" id="adm-s-psico">--</div></div>
-        <div class="adm-stat-box"><div class="adm-stat-lbl">Chats semana</div><div class="adm-stat-val" id="adm-s-chat">--</div></div>
-        <div class="adm-stat-box"><div class="adm-stat-lbl">Alertas activas</div><div class="adm-stat-val adm-rojo" id="adm-s-alertas">--</div></div>
-        <div class="adm-stat-box"><div class="adm-stat-lbl">Entradas hoy</div><div class="adm-stat-val" id="adm-s-hoy">--</div></div>
-        <div class="adm-stat-box"><div class="adm-stat-lbl">Compartidas</div><div class="adm-stat-val" id="adm-s-comp">--</div></div>
-      </div>
-      <p style="font-size:11px;color:var(--suave);margin-top:10px;text-align:right;">Act: <span id="adm-s-ts">—</span></p>
-      <button class="btn btn-azul" style="width:100%;margin-top:6px;font-size:13px;" onclick="cargarStatsAdmin()"><i class='bx bx-refresh'></i> Actualizar</button>
-      <a href="/admin.html" style="display:block;text-align:center;margin-top:8px;font-size:12px;color:var(--azul);text-decoration:underline;">Abrir panel admin completo →</a>
-    </div>
-
-    <!-- Panel de USUARIOS con cambio de rol -->
-    <div id="adm-panel-usuarios" class="card adm-panel" style="display:none; margin-top:0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="margin:0;font-size:15px;">Usuarios del sistema</h3>
-        <button class="btn btn-ghost" style="font-size:12px;" onclick="adminTab(null)">✕ Cerrar</button>
-        <a href="/admin.html" style="font-size:11px;color:var(--azul);text-decoration:underline;white-space:nowrap">Panel completo →</a>
-      </div>
-      <input type="search" id="adm-buscar" placeholder="Buscar por nombre o correo…"
-        style="width:100%;border:1px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:10px;background:var(--fondo);"
-        oninput="filtrarTablaAdmin()" />
-      <div id="adm-tabla-usuarios" style="overflow-x:auto; font-size:13px;">
-        <p style="color:var(--suave);text-align:center;padding:20px;">Cargando...</p>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+      <a href="/admin.html#inicio" onclick="irAdmin('inicio')" class="adm-shortcut-btn">
+        <i class='bx bxs-dashboard'></i>
+        <span>Inicio</span>
+      </a>
+      <a href="/admin.html#stats" onclick="irAdmin('stats')" class="adm-shortcut-btn">
+        <i class='bx bx-bar-chart-alt-2'></i>
+        <span>Estadísticas</span>
+      </a>
+      <a href="/admin.html#usuarios" onclick="irAdmin('usuarios')" class="adm-shortcut-btn">
+        <i class='bx bxs-group'></i>
+        <span>Usuarios</span>
+      </a>
+      <a href="/admin.html#asignaciones" onclick="irAdmin('asignaciones')" class="adm-shortcut-btn">
+        <i class='bx bxs-user-plus'></i>
+        <span>Asignaciones</span>
+      </a>
+      <a href="/admin.html#actividad" onclick="irAdmin('actividad')" class="adm-shortcut-btn">
+        <i class='bx bxs-bar-chart-alt-2'></i>
+        <span>Actividad</span>
+      </a>
+      <a href="/admin.html#emergencias" onclick="irAdmin('emergencias')" class="adm-shortcut-btn">
+        <i class='bx bxs-phone'></i>
+        <span>Emergencias</span>
+      </a>
     </div>
   </section>
 
@@ -893,22 +914,45 @@ function arrancarTimer() {
     }, 1000);
 }
 
-// Al arrancar la página, mostramos el login primero
-window.onload = () => {
+// Al arrancar la página: si hay token activo redirigir al panel correcto, si no mostrar login
+window.onload = async () => {
+    const savedToken = localStorage.getItem('apfa_at') || '';
+    const savedUserStr = localStorage.getItem('user');
+
+    if (savedToken && savedUserStr) {
+        try {
+            const savedUserData = JSON.parse(savedUserStr);
+            const rol = (savedUserData && savedUserData.rol) ? savedUserData.rol.toLowerCase() : '';
+            // Verificar que el token sigue válido consultando /auth/me
+            const resp = await fetch(window.location.origin + '/api/auth/me', {
+                headers: { 'Authorization': 'Bearer ' + savedToken }
+            });
+            if (resp.ok) {
+                const meData = await resp.json();
+                const rolActual = (meData.rol || '').toLowerCase();
+                if (rolActual === 'admin')     { window.location.href = '/admin.html';     return; }
+                if (rolActual === 'psicologo') { window.location.href = '/psicologo.html'; return; }
+                // Estudiante: restaurar sesión y mostrar la app
+                user = meData;
+                token = savedToken;
+                actualizarUI();
+                return;
+            }
+        } catch(e) {
+            console.warn("Sesión expirada o inválida, mostrando login:", e);
+        }
+        // Si falla, limpiar sesión inválida
+        localStorage.removeItem('apfa_at');
+        localStorage.removeItem('apfa_rt');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    }
+    // Sin sesión válida: mostrar login
     switchAuthView('login');
-    // TODO: Aquí luego revisaremos si ya hay un token guardado para saltarnos el login
 };
 
-
-// Intentamos restaurar la sesión del usuario si existe
-const savedUser = localStorage.getItem('user');
-if (savedUser) {
-    try {
-        user = JSON.parse(savedUser);
-    } catch(e) {
-        console.error("Error al restaurar usuario:", e);
-    }
-}
+// Variable de usuario (se inicializa en window.onload)
+// No restauramos aquí para evitar que tome efecto antes de verificar el token
 
 // Tus otras variables se mantienen igual
 let chatSesion=null, moodSel=null, condSel=null, urlLoc='', shareActivo=false, expandidas={}, psicoOpen=false;
@@ -919,7 +963,15 @@ async function api(path,opts={}){
   const r=await fetch(API+path,{headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}, ...opts})
   if(r.status===204)return null
   const d=await r.json()
-  if(!r.ok)throw new Error(d.detail||'Error '+r.status)
+  if(!r.ok){
+    let msg
+    if(Array.isArray(d.detail)){
+      msg=d.detail.map(e=>{const f=Array.isArray(e.loc)?e.loc.slice(1).join('.'):'';return(f?f+': ':'')+e.msg}).join(' | ')
+    }else{
+      msg=typeof d.detail==='string'?d.detail:JSON.stringify(d.detail)
+    }
+    throw new Error(msg||'Error '+r.status)
+  }
   return d
 }
 function dfmt(iso){return new Date(iso).toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
@@ -1069,14 +1121,10 @@ function actualizarUI() {
         // 1. Nombre en el botón del header
         elName.textContent = user.nombre ? user.nombre.split(' ')[0] : 'Perfil';
 
-        // 2. Mostrar u ocultar el panel (validando 'admin' en minúsculas)
-        if (panelAdmin) {
-            if (user.rol && user.rol.toLowerCase() === 'admin') {
-                panelAdmin.style.display = 'block';
-            } else {
-                panelAdmin.style.display = 'none';
-            }
-        }
+        // 2. Mostrar paneles según rol
+        const panelPsico = document.getElementById('seccion-psicologo');
+        if (panelAdmin) panelAdmin.style.display = (user.rol&&user.rol.toLowerCase()==='admin')     ? 'block' : 'none';
+        if (panelPsico) panelPsico.style.display = (user.rol&&user.rol.toLowerCase()==='psicologo') ? 'block' : 'none';
         
         // 3. Llenar los datos del perfil si existen los campos
         if(document.getElementById('perf-name')) document.getElementById('perf-name').textContent = user.nombre;
@@ -1611,6 +1659,18 @@ function toggleRecDetail(id) {
 })();
 
 function verEstadisticas() { adminTab('stats'); }
+
+// ── Navegación directa a sección de admin/psicologo ──────
+function irAdmin(seccion) {
+  // Guardar la sección destino para que admin.html la lea al cargar
+  sessionStorage.setItem('kai_admin_target', seccion);
+  window.location.href = '/admin.html';
+}
+
+function irPsicologo(seccion) {
+  sessionStorage.setItem('kai_psico_target', seccion);
+  window.location.href = '/psicologo.html';
+}
 </script>
 </body>
 </html>
