@@ -99,14 +99,24 @@ tr:hover td{background:rgba(39,98,102,.02)}
 /* Toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;animation:fuA .25s ease}
 @keyframes fuA{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* ── Bottom nav (móvil) ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--borde);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;padding:10px 4px 8px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--suave);font-weight:500;transition:.2s}
+.bnav-btn i{font-size:20px}
+.bnav-btn.on{color:var(--azul)}.bnav-btn.on i{color:var(--azul)}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .bottom-nav{display:flex}
+  .main{padding:16px;padding-bottom:80px}
+}
 </style>
 </head>
 <body>
 
 <header>
   <div class="brand">
-    <img src="/static/kai_transparent.png" alt="KAI" onerror="this.style.display='none'"/>
-    <div class="brand-txt"><strong>KAI Acatlán</strong><span>Panel Admin</span></div>
+    <img src="/static/Kai_logo.png" alt="KAI" onerror="this.style.display='none'"/>
+    <div class="brand-txt"><strong>APFA FES Acatlán</strong><span>Panel Admin</span></div>
   </div>
   <div class="hdr-right">
     <span id="hdr-name" class="hdr-name"></span>
@@ -347,8 +357,11 @@ function toast(msg) {
 function pg(id) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
   document.getElementById('pg-' + id).classList.add('on');
   document.getElementById('nb-' + id).classList.add('on');
+  const bnav = document.getElementById('bnav-' + id);
+  if (bnav) bnav.classList.add('on');
   if (id === 'usuarios')     cargarUsuarios();
   if (id === 'asignaciones') { cargarAsignaciones(); cargarSelectsPsicologosYEstudiantes(); }
   if (id === 'stats')        { cargarStats(); }
@@ -841,5 +854,14 @@ function eliminarEmerg(id) {
   toast('Línea eliminada');
 }
 </script>
+
+<nav class="bottom-nav" id="bottom-nav-admin">
+  <button class="bnav-btn on" id="bnav-inicio"       onclick="pg('inicio')">      <i class='bx bxs-dashboard'></i>Inicio</button>
+  <button class="bnav-btn"    id="bnav-usuarios"     onclick="pg('usuarios')">    <i class='bx bxs-group'></i>Usuarios</button>
+  <button class="bnav-btn"    id="bnav-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>Asignac.</button>
+  <button class="bnav-btn"    id="bnav-emergencias"  onclick="pg('emergencias')"> <i class='bx bxs-phone'></i>Emergencias</button>
+  <button class="bnav-btn"    id="bnav-stats"        onclick="pg('stats')">       <i class='bx bx-bar-chart-alt-2'></i>Stats</button>
+</nav>
+
 </body>
 </html>

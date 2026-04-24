@@ -40,6 +40,9 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("✅ Base de datos inicializada")
+    from app.routers.recursos_seed import seed as seed_recursos
+    await seed_recursos()
+    logger.info("✅ Recursos inicializados")
     yield
     logger.info("🔴 Servidor apagado")
 

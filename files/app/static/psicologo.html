@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Panel Psicólogo — KAI Acatlán</title>
+<title>Panel Psicólogo — APFA FES Acatlán</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:wght@400;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
 <style>
@@ -233,10 +233,17 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;animation:fadeUp .25s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
+/* ── Bottom nav (móvil) ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--borde);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;padding:10px 4px 8px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--suave);font-weight:500;transition:.2s}
+.bnav-btn i{font-size:20px}
+.bnav-btn.on{color:var(--azul)}.bnav-btn.on i{color:var(--azul)}
+
 /* ── Responsive ──────────────────────────────────── */
 @media(max-width:680px){
   .sidebar{display:none}
-  .main-content{padding:16px}
+  .bottom-nav{display:flex}
+  .main-content{padding:16px;padding-bottom:80px}
   .chat-layout{grid-template-columns:1fr}
   .chat-sidebar{display:none}
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -248,9 +255,9 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 <!-- HEADER -->
 <header>
   <div class="brand">
-    <img src="/static/kai_transparent.png" alt="KAI" class="brand-img" onerror="this.style.display='none'"/>
+    <img src="/static/Kai_logo.png" alt="KAI" class="brand-img" onerror="this.style.display='none'"/>
     <div class="brand-txt">
-      <strong>KAI Acatlán</strong>
+      <strong>APFA FES Acatlán</strong>
       <span>Panel Psicólogo</span>
     </div>
   </div>
@@ -532,8 +539,11 @@ function timefmt(iso) {
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
   document.getElementById('page-' + id).classList.add('on');
   document.getElementById('nav-' + id).classList.add('on');
+  const bnav = document.getElementById('bnav-' + id);
+  if (bnav) bnav.classList.add('on');
 
   if (id === 'estudiantes' && estudiantesCache.length === 0) cargarEstudiantes();
   if (id === 'diario') cargarDiarios();
@@ -1342,6 +1352,14 @@ document.addEventListener('input', e => {
     </div>
   </div>
 </div>
+
+<nav class="bottom-nav">
+  <button class="bnav-btn on" id="bnav-inicio"      onclick="showPage('inicio')">     <i class='bx bxs-dashboard'></i>Inicio</button>
+  <button class="bnav-btn"    id="bnav-estudiantes" onclick="showPage('estudiantes')"><i class='bx bxs-group'></i>Estudiantes</button>
+  <button class="bnav-btn"    id="bnav-diario"      onclick="showPage('diario')">     <i class='bx bxs-book-heart'></i>Diarios</button>
+  <button class="bnav-btn"    id="bnav-citas"       onclick="showPage('citas')">      <i class='bx bxs-calendar-check'></i>Citas</button>
+  <button class="bnav-btn"    id="bnav-chat"        onclick="showPage('chat')">       <i class='bx bxs-chat'></i>Chat</button>
+</nav>
 
 </body>
 </html>
