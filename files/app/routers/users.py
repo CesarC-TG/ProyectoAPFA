@@ -43,6 +43,17 @@ async def actualizar_perfil(
     return usuario
 
 
+
+
+# Alias para el frontend (/usuarios/mi-perfil en lugar de /usuarios/me)
+@router.patch("/mi-perfil", response_model=UsuarioRespuesta)
+async def actualizar_mi_perfil(
+    datos: UsuarioActualizar,
+    db: AsyncSession = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
+    """Alias de PATCH /me — actualiza perfil incluyendo contacto de emergencia."""
+    return await actualizar_perfil(datos, db, usuario)
 @router.post("/me/avatar", response_model=UsuarioRespuesta)
 async def subir_avatar(
     archivo: UploadFile = File(...),

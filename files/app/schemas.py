@@ -19,6 +19,11 @@ class UsuarioBase(BaseModel):
     semestre:      Optional[int] = Field(None, ge=1, le=12)
     telefono:      Optional[str]  = None
 
+    # Contacto de emergencia
+    emergencia_nombre:   Optional[str]     = Field(None, max_length=120)
+    emergencia_telefono: Optional[str]     = Field(None, max_length=20)
+    emergencia_email:    Optional[EmailStr] = None
+
     @field_validator("email")
     @classmethod
     def normalizar_email(cls, v: str) -> str:
@@ -50,6 +55,10 @@ class UsuarioActualizar(BaseModel):
     semestre:   Optional[int] = Field(None, ge=1, le=12)
     avatar_url: Optional[str] = None
     telefono:   Optional[str] = None
+    # Contacto de emergencia
+    emergencia_nombre:   Optional[str]     = Field(None, max_length=120)
+    emergencia_telefono: Optional[str]     = Field(None, max_length=20)
+    emergencia_email:    Optional[EmailStr] = None
 
 
 # ── Autenticación ─────────────────────────────────────────

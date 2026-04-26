@@ -79,7 +79,10 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = ""   # obtener en resend.com
 
     # ── IA ────────────────────────────────────────────────
-    GEMINI_API_KEY: str = ""
+    # ── Configuración de LM Studio (IA Local) ──
+    LMS_BASE_URL: str = "http://localhost:1234/v1"
+    LMS_MODEL: str = "google/gemma-4-e4b"
+    
 # ── Alertas internas ──────────────────────────────────
     ADMIN_ALERT_EMAIL: str = ""   # email que recibe alertas SOS
 

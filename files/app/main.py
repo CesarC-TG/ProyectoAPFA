@@ -13,6 +13,8 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from contextlib import asynccontextmanager
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 import uvicorn, logging, os
 
 from app.config import settings
@@ -22,7 +24,8 @@ from app.routers.auth      import router as auth_router
 from app.routers.users     import router as users_router
 from app.routers.diario    import router as diario_router
 from app.routers.recursos  import router as recursos_router
-from app.routers.sos       import router as sos_router
+from app.routers.sos           import router as sos_router
+from app.routers.notificaciones import router as notif_router
 from app.routers.chatbot   import router as chatbot_router
 from app.routers.admin     import router as admin_router
 from app.routers.websocket  import router as websocket_router
@@ -37,13 +40,45 @@ logger = logging.getLogger("apoyofes")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Asegurar que la carpeta del proyecto esté en el path de trabajo
+    # para que SQLite encuentre el .db sin importar desde dónde se corra
+    import os
+    os.chdir(Path(__file__).resolve().parent.parent)
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("✅ Base de datos inicializada")
     from app.routers.recursos_seed import seed as seed_recursos
     await seed_recursos()
     logger.info("✅ Recursos inicializados")
+    # ── Scheduler de tareas periódicas ────────────────────
+    from app.database import get_db as _get_db
+    from app.tasks.inactividad import verificar_usuarios_inactivos
+
+    scheduler = AsyncIOScheduler()
+
+    async def _tarea_inactividad():
+        async for db in _get_db():
+            try:
+                n = await verificar_usuarios_inactivos(db)
+                if n:
+                    logger.info(f"📬 {n} notificaciones de inactividad generadas")
+            except Exception as e:
+                logger.error(f"Error en tarea de inactividad: {e}")
+
+    scheduler.add_job(
+        _tarea_inactividad,
+        trigger=IntervalTrigger(hours=1),
+        id="inactividad",
+        replace_existing=True,
+        misfire_grace_time=300,
+    )
+    scheduler.start()
+    logger.info("⏰ Scheduler iniciado — verificación de inactividad cada hora")
+
     yield
+
+    scheduler.shutdown(wait=False)
     logger.info("🔴 Servidor apagado")
 
 
@@ -75,6 +110,7 @@ app.include_router(users_router, prefix="/api/users", tags=["Usuarios"])
 app.include_router(diario_router,    prefix="/api/diario",   tags=["Diario"])
 app.include_router(recursos_router,  prefix="/api/recursos", tags=["Recursos"])
 app.include_router(sos_router,       prefix="/api/sos",      tags=["SOS"])
+app.include_router(notif_router,      prefix="/api/notificaciones", tags=["Notificaciones"])
 app.include_router(chatbot_router,   prefix="/api/chatbot",  tags=["Chatbot IA"])
 app.include_router(admin_router,     prefix="/api/admin",    tags=["Administración"])
 app.include_router(websocket_router,  prefix="/ws",            tags=["WebSockets"])
@@ -113,28 +149,28 @@ async def serve_frontend(full_path: str = ""):
 
 if __name__ == "__main__":
     import socket
-    # Obtener IP local automáticamente para mostrarla al arrancar
+
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         local_ip = s.getsockname()[0]
         s.close()
     except Exception:
-        local_ip = "tu-ip-local"
+        local_ip = "127.0.0.1"
 
-    print("\n" + "═" * 52)
-    print("  🐱 KAI — ApoYo FES Acatlán")
-    print("═" * 52)
-    print(f"  Local  → http://localhost:8000")
-    print(f"  Red    → http://{local_ip}:8000")
-    print(f"  Docs   → http://localhost:8000/api/docs")
-    print("  (Comparte la URL de Red con otros dispositivos)")
-    print("═" * 52 + "\n")
+    print("\n" + "=" * 52)
+    print("  KAI — ApoYo FES Acatlan")
+    print("=" * 52)
+    print(f"  Local  -> http://localhost:8000")
+    print(f"  Red    -> http://{local_ip}:8000")
+    print(f"  Docs   -> http://localhost:8000/api/docs")
+    print("  Ctrl+C para detener el servidor")
+    print("=" * 52 + "\n")
 
     uvicorn.run(
         "app.main:app",
-        host      = "0.0.0.0",   # escucha en TODAS las interfaces (LAN incluida)
-        port      = 8000,
-        reload    = settings.DEBUG,
-        log_level = "warning",
+        host="0.0.0.0",
+        port=8000,
+        reload=False,
+        log_level="warning",
     )

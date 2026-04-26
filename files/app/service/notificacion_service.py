@@ -87,3 +87,76 @@ def _enviar_resend(destinatario: str, asunto: str, html: str, texto: str):
         "html": html,
         "text": texto or asunto,
     })
+
+async def notificar_contacto_emergencia(evento, usuario):
+    """Notifica al contacto de emergencia del usuario cuando activa el botón SOS."""
+    if not usuario:
+        return
+    nombre_emergencia = getattr(usuario, 'emergencia_nombre', None)
+    email_emergencia  = getattr(usuario, 'emergencia_email',  None)
+    tel_emergencia    = getattr(usuario, 'emergencia_telefono', None)
+
+    if not email_emergencia and not tel_emergencia:
+        return  # No hay contacto registrado
+
+    asunto = f"⚠️ {usuario.nombre} necesita apoyo — ApoYo FES Acatlán"
+    cuerpo = f"""Hola{' ' + nombre_emergencia if nombre_emergencia else ''},
+
+{usuario.nombre} activó el botón SOS en la plataforma ApoYo FES Acatlán.
+
+Esto puede significar que necesita apoyo emocional en este momento.
+Por favor comunícate con {usuario.nombre} a la brevedad.
+
+--- Información del evento ---
+Tipo:       {evento.tipo_accion}
+Fecha/Hora: {evento.creado_en}
+Descripción: {evento.descripcion or 'No especificada'}
+
+Si necesitas orientación profesional, contacta:
+📞 SAPTEL 24hrs: 800 290 0024
+📍 Psicopedagogía FES Acatlán: 55 5623 1666
+
+Este mensaje fue enviado automáticamente por ApoYo FES Acatlán.
+No respondas a este correo.
+"""
+    if settings.SMTP_USER and settings.SMTP_PASSWORD and email_emergencia:
+        try:
+            await enviar_email(
+                destinatario=email_emergencia,
+                asunto=asunto,
+                cuerpo=cuerpo,
+            )
+        except Exception as e:
+            print(f"Error notificando contacto emergencia: {e}")
+
+    # Log SMS simulado (integrar con Twilio en producción)
+    if tel_emergencia:
+        import logging
+        logging.getLogger("apoyofes").info(
+            f"[SMS SIMULADO] SOS → {tel_emergencia} ({nombre_emergencia}): "
+            f"{usuario.nombre} necesita apoyo."
+        )
+
+
+async def notificacion_inactividad(db_session, usuario):
+    """
+    Crea una notificación in-app de inactividad (2+ días sin entrar).
+    Llamada desde el scheduler periódico.
+    """
+    from app.models import Notificacion
+    import uuid
+
+    notif = Notificacion(
+        id         = str(uuid.uuid4()),
+        usuario_id = usuario.id,
+        titulo     = "¿Cómo te has sentido? 💙",
+        mensaje    = (
+            "Llevamos un par de días sin saber de ti. "
+            "¿Todo bien? Si quieres, puedes escribir cómo te sientes en tu diario "
+            "o chatear con KAI — estamos aquí cuando lo necesites. 🌿"
+        ),
+        tipo       = "recordatorio",
+        leida      = False,
+    )
+    db_session.add(notif)
+    await db_session.commit()

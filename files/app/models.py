@@ -81,6 +81,11 @@ class Usuario(Base):
     telefono        = Column(String(20),  unique=True, nullable=True, index=True)
     password_reset_token = Column(String(100), nullable=True)
 
+    # ── Contacto de emergencia ────────────────────────────
+    emergencia_nombre   = Column(String(120), nullable=True)
+    emergencia_telefono = Column(String(20),  nullable=True)
+    emergencia_email    = Column(String(200), nullable=True)
+
     # Google OAuth
     google_id       = Column(String(100), unique=True, nullable=True)
 

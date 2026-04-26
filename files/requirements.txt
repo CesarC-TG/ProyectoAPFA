@@ -38,7 +38,8 @@ httpx                 # cliente de prueba para FastAPI
 factory-boy             # fixtures de prueba
 
 # ────── Google Gemini────────────────────────
-google-genai
+openai
 
 # ── Email transaccional (Resend) ─────────────────────────
 resend
+apscheduler

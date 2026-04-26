@@ -1,14 +1,12 @@
 """
 Router Chatbot IA — conversación con historial persistente
+Usa LM Studio (API compatible con OpenAI) corriendo en localhost:1234
 """
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from typing import Optional
-import uuid, httpx, os
-
-from google import genai
-from google.genai import types
+import uuid, os
+from openai import AsyncOpenAI
 
 from app.database import get_db
 from app.models import Usuario, MensajeChat
@@ -17,18 +15,48 @@ from app.service.auth_service import get_current_user
 
 router = APIRouter()
 
-SYSTEM_PROMPT = SYSTEM_PROMPT = """Eres KAI, el asistente de bienestar emocional de la FES Acatlán (UNAM).
-Tu objetivo es brindar apoyo empático, cálido y sin prejuicios a la comunidad estudiantil.
+SYSTEM_PROMPT = """Eres KAI, el asistente de bienestar emocional de la FES Acatlán (UNAM).
+Tu misión es acompañar emocionalmente a la comunidad estudiantil con empatía, calidez y sin juzgar.
 
-Estás capacitado para escuchar, validar y orientar sobre temas como: 
-estrés, ansiedad, depresión, duelo, adicciones, TDAH, espectro autista (TEA) y trastornos alimenticios (TCA).
+Puedes orientar sobre: estrés académico, ansiedad, depresión, duelo, problemas de sueño,
+relaciones interpersonales, adicciones, TDAH, TEA y trastornos alimenticios (TCA).
 
-REGLAS ESTRICTAS E INQUEBRANTABLES:
-1. LÍMITE CLÍNICO: NO eres médico. Jamás diagnostiques, ni des indicaciones médicas, ni recetes absolutamente nada.
-2. PROTOCOLO DE CRISIS: Si detectas cualquier mención de autolesión, suicidio, sobredosis o violencia inminente, ABANDONA la conversación normal y deriva INMEDIATAMENTE con este texto: "Por favor, busca ayuda urgente. No estás solo/a. Llama a SAPTEL: 800 290 0024 (24hrs) o acude a Psicopedagogía FES: 55 5623 1666."
-3. ESTILO: Responde en español de México (tono cercano y respetuoso), sé conversacional, no uses listas largas y limítate a máximo 150-200 palabras. 
+REGLAS ABSOLUTAS — nunca las rompas bajo ningún pretexto:
 
-Cierra tus respuestas con una pregunta suave para invitar a la reflexión."""
+REGLA 1 — MEDICAMENTOS:
+Jamás recomiendes, menciones ni sugieras ningún medicamento, suplemento, sustancia o dosis.
+Si alguien pide medicamentos responde exactamente:
+"No puedo recomendarte ningún medicamento — eso es trabajo exclusivo de un médico o psiquiatra.
+Lo que sí puedo hacer es acompañarte a entender lo que sientes y orientarte para llegar al especialista adecuado.
+¿Me cuentas más sobre cómo te has sentido últimamente?"
+
+REGLA 2 — CRISIS:
+Si detectas mención de suicidio, autolesión, sobredosis o peligro inminente responde únicamente:
+"Gracias por confiar en mí. Lo que describes es urgente y mereces apoyo real ahora mismo.
+SAPTEL 24hrs: 800 290 0024
+Psicopedagogía FES Acatlán: 55 5623 1666
+No estás solo/a. ¿Hay alguien contigo en este momento?"
+
+REGLA 3 — LÍMITE CLÍNICO:
+No diagnostiques. No prescribas. No des consejos médicos ni nutricionales específicos.
+Deriva con calidez a Psicopedagogía FES o al médico cuando sea necesario.
+
+REGLA 4 — FUERA DE TEMA:
+Si preguntan sobre temas ajenos al bienestar emocional (tareas, código, etc.) responde:
+"Eso está fuera de lo que puedo apoyarte aquí, pero si quieres hablar de cómo te sientes, estoy contigo."
+
+ESTILO:
+- Español de México, cercano y respetuoso
+- Entre 80 y 180 palabras. SIEMPRE termina la oración antes de acabar la respuesta.
+- Estructura: valida lo que siente → orienta → pregunta abierta al final
+- Habla de forma natural, no uses listas con viñetas en respuestas emocionales
+- Máximo 1 o 2 emojis por respuesta"""
+
+
+def _get_lm_client() -> AsyncOpenAI:
+    base_url = os.getenv("LMS_BASE_URL", "http://localhost:1234/v1")
+    return AsyncOpenAI(base_url=base_url, api_key="lm-studio")
+
 
 @router.post("/mensaje", response_model=MensajeChatRespuesta)
 async def enviar_mensaje(
@@ -38,7 +66,6 @@ async def enviar_mensaje(
 ):
     sesion_id = datos.sesion_id or str(uuid.uuid4())
 
-    # Historial de la sesión (últimos 20 mensajes)
     result = await db.execute(
         select(MensajeChat)
         .where(MensajeChat.usuario_id == usuario.id, MensajeChat.sesion_chat_id == sesion_id)
@@ -64,8 +91,6 @@ async def enviar_mensaje(
     db.add(msg_asistente)
     await db.commit()
     await db.refresh(msg_asistente)
-
-    # Adaptar a schema (sesion_id en lugar de sesion_chat_id)
     msg_asistente.sesion_id = sesion_id
     return msg_asistente
 
@@ -110,46 +135,52 @@ async def listar_sesiones(
 
 
 async def _llamar_ia(mensajes: list) -> str:
-    api_key = os.getenv("GEMINI_API_KEY", "")
-    if not api_key:
+    try:
+        client = _get_lm_client()
+        model = os.getenv("LMS_MODEL", "local-model")
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + mensajes,
+            temperature=0.75,
+            max_tokens=1024,   # Suficiente para respuestas completas sin cortar
+        )
+        content = response.choices[0].message.content or ""
+        finish = response.choices[0].finish_reason
+
+        # Si se cortó igual por alguna razón, agrega cierre suave
+        if finish == "length" and content:
+            content = content.rstrip() + "... ¿Quieres que continuemos hablando de esto?"
+
+        return content if content else _fallback(mensajes[-1]["content"])
+
+    except Exception as e:
+        print(f"ERROR LM Studio: {e}")
         return _fallback(mensajes[-1]["content"] if mensajes else "")
 
-    try:
-        # 1. Inicializamos el NUEVO cliente oficial de Google
-        client = genai.Client(api_key=api_key)
-
-        # 2. Traducimos tu historial al formato de la nueva librería
-        historial = []
-        for msg in mensajes:
-            rol = "model" if msg["role"] == "assistant" else "user"
-            historial.append({
-                "role": rol,
-                "parts": [{"text": msg["content"]}]
-            })
-
-        # 3. Disparamos la petición asíncrona (.aio) al modelo nuevecito
-        response = await client.aio.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=historial,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-            )
-        )
-        
-        return response.text
-            
-    except Exception as e:
-        print(f"🚨 ERROR CON GOOGLE GENAI (EL NUEVO): {e}")
-        return "Estoy teniendo dificultades técnicas. Si necesitas ayuda urgente llama a SAPTEL: 800 290 0024 (24hrs)."
-    
-        
 
 def _fallback(msg: str) -> str:
     lower = msg.lower()
-    if any(w in lower for w in ["suicid", "matarme", "no quiero vivir", "hacerme daño", "sobredosis", "lastimarme", "quitarme la vida", "cortarme", "ahorcarme", "veneno", "dormir para siempre"]):
-        return "Gracias por confiar en mí. Llama AHORA a SAPTEL: 800 290 0024 (24hrs). No estás solo/a. 💙"
-    if any(w in lower for w in ["ansios", "pánico", "angustia", "nervios", "estres", "preocup", "agobio", "sobrecarg"]):
-        return "Prueba respiración 4-7-8: inhala 4s, retén 7s, exhala 8s. ¿Quieres que te guíe?"
-    if any(w in lower for w in ["triste", "solo", "llorar", "mal", "deprim", "decai", "pesim", "desanim", "desesper", "sin ganas"]):
-        return "Está bien no estar bien. ¿Quieres contarme más sobre lo que sientes? Estoy aquí. 💙"
-    return "Hola, soy KAI 👋 ¿Cómo te sientes hoy?"
+    if any(w in lower for w in ["suicid", "matarme", "no quiero vivir", "hacerme daño",
+                                  "sobredosis", "lastimarme", "quitarme la vida",
+                                  "cortarme", "ahorcarme", "veneno", "dormir para siempre"]):
+        return ("Gracias por confiar en mí. Lo que describes es urgente y mereces apoyo real ahora mismo.\n"
+                "📞 SAPTEL 24hrs: 800 290 0024\n"
+                "📍 Psicopedagogía FES Acatlán: 55 5623 1666\n"
+                "No estás solo/a. ¿Hay alguien contigo en este momento?")
+    if any(w in lower for w in ["medicina", "medicamento", "pastilla", "antidepresivo",
+                                  "ansiolítico", "receta", "tomar algo", "que tomo",
+                                  "me recomiendas tomar"]):
+        return ("No puedo recomendarte ningún medicamento — eso es trabajo exclusivo de un médico o psiquiatra. "
+                "Lo que sí puedo hacer es acompañarte a entender lo que sientes y orientarte para llegar "
+                "al especialista adecuado. ¿Me cuentas más sobre cómo te has sentido últimamente?")
+    if any(w in lower for w in ["ansios", "pánico", "angustia", "nervios", "estrés",
+                                  "preocup", "agobio", "sobrecarg"]):
+        return ("Tiene mucho sentido que te sientas así, a veces el estrés se acumula sin que nos demos cuenta. "
+                "Una cosa que puede ayudarte en este momento es respirar despacio: inhala 4 segundos, "
+                "sostén 4, exhala 4. ¿Quieres contarme qué está pasando?")
+    if any(w in lower for w in ["triste", "solo", "llorar", "mal", "deprim", "decaíd",
+                                  "pesim", "desanim", "desesper", "sin ganas"]):
+        return ("Gracias por compartirlo, no es fácil decir que uno está mal. "
+                "Sentirse así a veces es una señal de que algo importante necesita atención. "
+                "¿Quieres contarme más sobre lo que está pasando? Estoy aquí. 💙")
+    return "Hola, soy KAI 👋 Estoy aquí para escucharte. ¿Cómo te has sentido últimamente?"

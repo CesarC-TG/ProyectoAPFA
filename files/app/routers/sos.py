@@ -16,7 +16,7 @@ from app.service.auth_service import (
     get_current_user_optional,   # BUG FIX: usar la versión opcional
     get_current_psicologo,
 )
-from app.service.notificacion_service import notificar_sos_a_admin
+from app.service.notificacion_service import notificar_sos_a_admin, notificar_contacto_emergencia
 
 router = APIRouter()
 
@@ -106,6 +106,9 @@ async def registrar_evento_sos(
 
     # Notificar a administradores en background (no bloquea la respuesta)
     background_tasks.add_task(notificar_sos_a_admin, evento, usuario)
+    # Notificar al contacto de emergencia personal del usuario
+    if usuario:
+        background_tasks.add_task(notificar_contacto_emergencia, evento, usuario)
 
     return evento
 

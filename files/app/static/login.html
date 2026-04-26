@@ -290,7 +290,44 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);c
 
     <div class="field">
       <label>Carrera (opcional)</label>
-      <input type="text" id="r-carrera" placeholder="Ej. Pedagogía, Derecho…"/>
+      <select id="r-carrera">
+        <option value="">-- Selecciona tu carrera --</option>
+        <option>Actuaría</option>
+        <option>Administración</option>
+        <option>Arquitectura</option>
+        <option>Cirujano Dentista</option>
+        <option>Comunicación</option>
+        <option>Contaduría</option>
+        <option>Derecho</option>
+        <option>Diseño Gráfico</option>
+        <option>Economía</option>
+        <option>Enfermería</option>
+        <option>Filosofía</option>
+        <option>Historia</option>
+        <option>Ingeniería Civil</option>
+        <option>Ingeniería en Computación</option>
+        <option>Ingeniería Mecánica Eléctrica</option>
+        <option>Lengua y Literatura Hispánicas</option>
+        <option>Matemáticas Aplicadas y Computación</option>
+        <option>Medicina</option>
+        <option>Optometría</option>
+        <option>Pedagogía</option>
+        <option>Psicología</option>
+        <option>Química</option>
+        <option>Relaciones Internacionales</option>
+        <option>Sociología</option>
+        <option>Trabajo Social</option>
+        <option>Otra</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Tipo de cuenta</label>
+      <select id="r-rol">
+        <option value="estudiante">🎓 Estudiante</option>
+        <option value="psicologo">🧠 Psicólogo / Orientador</option>
+      </select>
+      <div style="font-size:12px;color:#789;margin-top:4px;">Los psicólogos requieren aprobación del administrador</div>
     </div>
 
     <!-- CAPTCHA -->
@@ -588,7 +625,8 @@ async function doRegistro() {
   const email    = document.getElementById('r-email').value.trim().toLowerCase();
   const tel      = document.getElementById('r-tel').value.trim();
   const pass     = document.getElementById('r-pass').value;
-  const carrera  = document.getElementById('r-carrera').value.trim();
+  const carrera  = document.getElementById('r-carrera').value;
+  const rol      = document.getElementById('r-rol').value;
   const captcha  = parseInt(document.getElementById('captcha-ans').value);
 
   // Validaciones
@@ -607,7 +645,7 @@ async function doRegistro() {
 
   // Guardar datos para usar después de verificar
   pendingData = { nombre, apellidos, email, telefono: tel || undefined,
-                  password: pass, carrera: carrera || undefined };
+                  password: pass, carrera: carrera || undefined, rol };
 
   const btn = document.getElementById('reg-btn');
   btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Enviando código…';
