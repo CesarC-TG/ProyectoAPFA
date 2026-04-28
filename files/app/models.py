@@ -56,10 +56,7 @@ class EstadoCita(str, enum.Enum):
 
 class Usuario(Base):
     __tablename__ = "usuarios"
-    # Esta configuración es la clave para que no choque en scripts externos
-    __table_args__ = (
-        {'extend_existing': True}
-    )
+   
     
     # El resto de tus columnas se quedan igual...
 

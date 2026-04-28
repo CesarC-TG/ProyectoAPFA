@@ -9,12 +9,20 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 from sqlalchemy.orm import DeclarativeBase
+from pathlib import Path
 from app.config import settings
 
 # SQLite no acepta pool_size ni max_overflow
 if "sqlite" in settings.DATABASE_URL:
+    # Ruta absoluta para que SQLite encuentre el archivo sin importar
+    # desde dónde se ejecute la app
+    _DB_DIR = Path(__file__).resolve().parent.parent
+    _DB_DIR.mkdir(parents=True, exist_ok=True)
+    _DB_PATH = _DB_DIR / "apoyofes.db"
+    _DB_URL = f"sqlite+aiosqlite:///{_DB_PATH}"
+    
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        _DB_URL,
         echo=settings.DEBUG,
         connect_args={"check_same_thread": False},
     )

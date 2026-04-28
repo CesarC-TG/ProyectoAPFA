@@ -25,9 +25,8 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "CHANGE_ME_IN_PRODUCTION_JWT"
 
     # ── Base de datos ─────────────────────────────────────
-    DATABASE_URL: str = (
-        "postgresql+asyncpg://apoyofes:password@localhost:5432/apoyofes_db"
-    )
+    DATABASE_URL: str = "sqlite+aiosqlite:///./apoyofes.db"
+    
     # SQLite para desarrollo rápido:
     # DATABASE_URL = "sqlite+aiosqlite:///./apoyofes.db"
 
@@ -80,7 +79,7 @@ class Settings(BaseSettings):
 
     # ── IA ────────────────────────────────────────────────
     # ── Configuración de LM Studio (IA Local) ──
-    LMS_BASE_URL: str = "http://localhost:1234/v1"
+    LMS_BASE_URL: str = "http://10.110.0.28:1234/v1"
     LMS_MODEL: str = "google/gemma-4-e4b"
     
 # ── Alertas internas ──────────────────────────────────
