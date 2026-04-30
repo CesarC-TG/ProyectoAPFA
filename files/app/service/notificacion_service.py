@@ -138,6 +138,156 @@ No respondas a este correo.
         )
 
 
+def _generar_link_gcal(
+    fecha_hora,
+    duracion_min: int,
+    titulo: str,
+    descripcion: str,
+    ubicacion: str,
+) -> str:
+    from datetime import timezone, timedelta
+    from urllib.parse import quote
+    if fecha_hora.tzinfo is None:
+        fecha_hora = fecha_hora.replace(tzinfo=timezone.utc)
+    fin = fecha_hora + timedelta(minutes=duracion_min)
+    fmt = "%Y%m%dT%H%M%SZ"
+    inicio_str = fecha_hora.astimezone(timezone.utc).strftime(fmt)
+    fin_str    = fin.astimezone(timezone.utc).strftime(fmt)
+    params = (
+        f"action=TEMPLATE"
+        f"&text={quote(titulo)}"
+        f"&dates={inicio_str}/{fin_str}"
+        f"&details={quote(descripcion)}"
+        f"&location={quote(ubicacion)}"
+    )
+    return f"https://calendar.google.com/calendar/render?{params}"
+
+
+async def enviar_email_cita(
+    *,
+    estudiante_email: str,
+    estudiante_nombre: str,
+    psicologo_email: str,
+    psicologo_nombre: str,
+    fecha_hora,           # datetime
+    duracion_min: int,
+    modalidad: str,
+    motivo: str,
+    tipo: str = "nueva",  # "nueva" | "confirmada"
+) -> None:
+    """
+    Envía correo de notificación de cita a estudiante y psicólogo.
+    Incluye link pre-rellenado de Google Calendar.
+    Ejecutar como background task para no bloquear la respuesta HTTP.
+    """
+    from datetime import timezone
+
+    if fecha_hora.tzinfo is None:
+        fecha_hora = fecha_hora.replace(tzinfo=timezone.utc)
+
+    _DIAS  = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
+    _MESES = ["enero","febrero","marzo","abril","mayo","junio",
+              "julio","agosto","septiembre","octubre","noviembre","diciembre"]
+    fecha_str = f"{_DIAS[fecha_hora.weekday()]} {fecha_hora.day} de {_MESES[fecha_hora.month-1]} de {fecha_hora.year}"
+    hora_str  = fecha_hora.strftime("%H:%M")
+    modal_str = "Videollamada 📹" if modalidad == "videollamada" else "Presencial 🏛"
+    ubicacion = "Videollamada" if modalidad == "videollamada" else "FES Acatlán, Edificio D, Planta Baja"
+
+    titulo_gcal = "Cita de orientación — KAI FES Acatlán"
+    desc_gcal = (
+        f"Cita de orientación psicológica\n"
+        f"Modalidad: {modalidad}\n"
+        f"Psicólogo/a: {psicologo_nombre}\n"
+        f"Estudiante: {estudiante_nombre}\n"
+        f"{('Motivo: ' + motivo) if motivo else ''}"
+    ).strip()
+
+    gcal_link = _generar_link_gcal(fecha_hora, duracion_min, titulo_gcal, desc_gcal, ubicacion)
+
+    encabezado = "✅ Cita confirmada" if tipo == "confirmada" else "📅 Nueva cita programada"
+    color_header = "#276266"
+
+    def _html(nombre_dest: str, otro_nombre: str, rol_otro: str) -> str:
+        return f"""
+<!DOCTYPE html><html lang="es"><body style="margin:0;padding:0;background:#F8F7F4;font-family:'DM Sans',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
+  <tr><td style="background:{color_header};padding:28px 32px;text-align:center">
+    <p style="margin:0;color:#fff;font-size:22px;font-weight:700">{encabezado}</p>
+    <p style="margin:8px 0 0;color:rgba(255,255,255,.8);font-size:14px">KAI — ApoYo FES Acatlán</p>
+  </td></tr>
+  <tr><td style="padding:28px 32px">
+    <p style="margin:0 0 6px;color:#2F3E46;font-size:15px">Hola, <strong>{nombre_dest}</strong> 👋</p>
+    <p style="margin:0 0 24px;color:#7A8B94;font-size:14px;line-height:1.6">
+      {"Tu cita ha sido confirmada." if tipo == "confirmada" else "Se ha agendado una nueva cita."} Aquí están los detalles:
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0"
+      style="background:#F8F7F4;border-radius:12px;padding:20px;margin-bottom:24px">
+      <tr><td style="padding:6px 0">
+        <span style="font-size:12px;color:#7A8B94;text-transform:uppercase;letter-spacing:.06em">Fecha</span>
+        <p style="margin:2px 0 0;font-size:15px;font-weight:600;color:#2F3E46">📅 {fecha_str}</p>
+      </td></tr>
+      <tr><td style="padding:6px 0">
+        <span style="font-size:12px;color:#7A8B94;text-transform:uppercase;letter-spacing:.06em">Hora</span>
+        <p style="margin:2px 0 0;font-size:15px;font-weight:600;color:#2F3E46">🕐 {hora_str} hrs · {duracion_min} min</p>
+      </td></tr>
+      <tr><td style="padding:6px 0">
+        <span style="font-size:12px;color:#7A8B94;text-transform:uppercase;letter-spacing:.06em">Modalidad</span>
+        <p style="margin:2px 0 0;font-size:15px;font-weight:600;color:#2F3E46">{modal_str}</p>
+      </td></tr>
+      <tr><td style="padding:6px 0">
+        <span style="font-size:12px;color:#7A8B94;text-transform:uppercase;letter-spacing:.06em">{rol_otro}</span>
+        <p style="margin:2px 0 0;font-size:15px;font-weight:600;color:#2F3E46">👤 {otro_nombre}</p>
+      </td></tr>
+      {f'<tr><td style="padding:6px 0"><span style="font-size:12px;color:#7A8B94;text-transform:uppercase;letter-spacing:.06em">Motivo</span><p style="margin:2px 0 0;font-size:14px;color:#2F3E46">{motivo}</p></td></tr>' if motivo else ''}
+    </table>
+    <div style="text-align:center;margin-bottom:24px">
+      <a href="{gcal_link}" target="_blank"
+        style="display:inline-block;background:#276266;color:#fff;padding:13px 28px;
+               border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;
+               box-shadow:0 4px 12px rgba(39,98,102,.3)">
+        📆 Agregar a Google Calendar
+      </a>
+    </div>
+    <p style="margin:0;font-size:12px;color:#7A8B94;text-align:center;line-height:1.6">
+      Si necesitas cancelar o reagendar, hazlo desde la app KAI.<br>
+      Psicopedagogía FES Acatlán · Edificio D, PB · 55 5623 1666
+    </p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>"""
+
+    texto_plano = (
+        f"{encabezado}\n\n"
+        f"Fecha: {fecha_str} a las {hora_str} hrs\n"
+        f"Modalidad: {modal_str}\n"
+        f"Psicólogo/a: {psicologo_nombre}\n"
+        f"Estudiante: {estudiante_nombre}\n"
+        f"{('Motivo: ' + motivo + chr(10)) if motivo else ''}"
+        f"\nAgrega al calendario:\n{gcal_link}\n\n"
+        f"KAI — ApoYo FES Acatlán"
+    )
+
+    if not (settings.SMTP_USER and settings.SMTP_PASSWORD):
+        return
+
+    asunto = f"{encabezado} — {fecha_str} {hora_str} hrs"
+    for email_dest, nombre_dest, otro_nombre, rol_otro in [
+        (estudiante_email, estudiante_nombre, psicologo_nombre, "Psicólogo/a"),
+        (psicologo_email,  psicologo_nombre,  estudiante_nombre, "Estudiante"),
+    ]:
+        try:
+            await enviar_email(
+                destinatario=email_dest,
+                asunto=asunto,
+                cuerpo=texto_plano,
+                html=_html(nombre_dest, otro_nombre, rol_otro),
+            )
+        except Exception as e:
+            print(f"Error enviando email de cita a {email_dest}: {e}")
+
+
 async def notificacion_inactividad(db_session, usuario):
     """
     Crea una notificación in-app de inactividad (2+ días sin entrar).

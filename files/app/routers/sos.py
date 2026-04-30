@@ -149,18 +149,18 @@ async def listar_todos_eventos(
 @router.patch("/admin/eventos/{evento_id}/atender", response_model=MensajeRespuesta)
 async def marcar_evento_atendido(
     evento_id: str,
-    notas: Optional[str] = None,
+    datos: dict = None,
     db: AsyncSession = Depends(get_db),
     psicologo: Usuario = Depends(get_current_psicologo),
 ):
-    """Marca un evento SOS como atendido con notas opcionales."""
+    """Marca un evento SOS como atendido con notas opcionales en el body JSON."""
     evento = await db.get(EventoSOS, evento_id)
     if not evento:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
 
     evento.atendido       = True
     evento.atendido_por   = psicologo.id
-    evento.notas_atencion = notas
+    evento.notas_atencion = (datos or {}).get("notas")
     await db.commit()
 
     return {"mensaje": "Evento marcado como atendido"}

@@ -74,14 +74,14 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 .rol-badge{display:inline-block;background:rgba(39,98,102,.1);color:var(--azul);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 
 /* ── Estudiantes ─────────────────────────────────── */
-.estudiantes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-.estudiante-card{background:#fff;border-radius:14px;padding:18px;box-shadow:var(--card-shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent}
+.estudiantes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.estudiante-card{background:#fff;border-radius:14px;padding:18px;box-shadow:var(--card-shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent;min-width:0;overflow:hidden}
 .estudiante-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
 .estudiante-card.selected{border-color:var(--azul2)}
-.est-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.est-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;min-width:0}
 .est-avatar{width:42px;height:42px;border-radius:50%;background:var(--azul2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
-.est-name{font-weight:600;font-size:14px;margin-bottom:1px}
-.est-email{font-size:12px;color:var(--suave)}
+.est-name{font-weight:600;font-size:14px;margin-bottom:1px;word-break:break-word}
+.est-email{font-size:12px;color:var(--suave);word-break:break-all}
 .est-meta{display:flex;gap:8px;flex-wrap:wrap}
 .tag{font-size:11px;background:var(--fondo);color:var(--suave);padding:3px 8px;border-radius:20px;font-weight:500;border:1px solid var(--borde)}
 .tag.crisis{background:rgba(198,90,73,.1);color:var(--rojo);border-color:rgba(198,90,73,.2)}
@@ -161,14 +161,40 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 .cita-estado.confirmada{background:rgba(51,126,89,.12);color:var(--verde)}
 .cita-estado.completada{background:rgba(122,139,148,.12);color:var(--suave)}
 .cita-estado.cancelada{background:rgba(198,90,73,.12);color:var(--rojo)}
-.cita-actions{display:flex;gap:6px;flex-shrink:0}
-.btn-cita{border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s}
+.cita-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.btn-cita{border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s;font-family:inherit}
+
+/* ── Observaciones cita ───────────────────────── */
+.obs-panel{border-top:1px solid var(--fondo);margin-top:10px;padding-top:10px;display:none}
+.obs-panel.open{display:block}
+.obs-textarea{width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;background:#fff;color:var(--texto);transition:border-color .15s}
+.obs-textarea:focus{outline:none;border-color:var(--azul2)}
+.obs-hint{font-size:11px;color:var(--suave);margin-bottom:6px}
+.btn-obs-guardar{background:var(--azul);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-obs-guardar:hover{background:var(--azul2)}
+.btn-obs-notas{background:rgba(39,98,102,.1);color:var(--azul);font-size:12px}
+.btn-obs-notas.tiene-notas{background:rgba(39,98,102,.18)}
 .btn-confirmar{background:rgba(51,126,89,.12);color:var(--verde)}
 .btn-confirmar:hover{background:rgba(51,126,89,.25)}
 .btn-completar{background:rgba(39,98,102,.12);color:var(--azul)}
 .btn-completar:hover{background:rgba(39,98,102,.25)}
 .btn-cancelar{background:rgba(198,90,73,.1);color:var(--rojo)}
 .btn-cancelar:hover{background:rgba(198,90,73,.2)}
+
+/* ── SOS Admin ──────────────────────────────────── */
+.sos-event-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:var(--card-shadow);margin-bottom:10px;border-left:4px solid var(--rojo)}
+.sos-event-card.atendido{border-left-color:var(--verde)}
+.sos-ev-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.sos-ev-tipo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.sos-ev-fecha{font-size:11px;color:var(--suave)}
+.sos-ev-user{font-size:13px;font-weight:600;margin-bottom:2px}
+.sos-ev-detail{font-size:12px;color:var(--suave);margin-bottom:8px;line-height:1.5}
+.sos-ev-notas{font-size:12px;background:rgba(51,126,89,.07);border-radius:8px;padding:6px 10px;color:var(--verde);margin-bottom:8px}
+.btn-atender{background:var(--verde);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-atender:hover{background:#29694a}
+.sos-tabs{display:flex;background:var(--fondo);border:1px solid var(--borde);border-radius:11px;padding:3px;gap:2px;margin-bottom:16px}
+.sos-tab{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:var(--suave);transition:.15s;font-family:inherit}
+.sos-tab.on{background:#fff;color:var(--texto);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
 /* ── Actividad ───────────────────────────────────── */
 .act-card{background:#fff;border-radius:12px;padding:13px 15px;box-shadow:var(--card-shadow);margin-bottom:10px;display:flex;align-items:flex-start;gap:11px;border-left:4px solid var(--borde)}
@@ -192,6 +218,46 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 .btn-est-act{background:rgba(122,91,156,.1);color:var(--morado,#7A5B9C)}
 .btn-est-act:hover{background:rgba(122,91,156,.2)}
 .btn-est-full{grid-column:1/-1;background:rgba(39,98,102,.08);color:var(--azul);border-radius:8px;padding:7px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* ── Eventos ─────────────────────────────────── */
+.evento-card{background:#fff;border-radius:14px;padding:16px;box-shadow:var(--card-shadow);margin-bottom:12px;border-left:4px solid var(--azul)}
+.evento-card.inactivo{opacity:.55;border-left-color:var(--suave)}
+.evento-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.evento-titulo{font-size:15px;font-weight:700;color:var(--texto);line-height:1.3}
+.evento-tipo-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0}
+.etb-platica{background:rgba(39,98,102,.1);color:var(--azul)}
+.etb-taller{background:rgba(51,126,89,.1);color:var(--verde)}
+.etb-otro{background:rgba(122,91,156,.1);color:var(--morado,#7A5B9C)}
+.evento-desc{font-size:13px;color:var(--suave);line-height:1.5;margin-bottom:10px}
+.evento-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.evento-meta-item{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--texto);background:var(--fondo);padding:4px 10px;border-radius:20px}
+.evento-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.btn-ev-edit{background:rgba(39,98,102,.1);color:var(--azul);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:.15s}
+.btn-ev-edit:hover{background:rgba(39,98,102,.2)}
+.btn-ev-del{background:rgba(198,90,73,.08);color:var(--rojo);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:.15s}
+.btn-ev-del:hover{background:rgba(198,90,73,.16)}
+.ev-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.ev-form-grid{grid-template-columns:1fr}}
+.ev-full{grid-column:1/-1}
+.ev-field{display:flex;flex-direction:column;gap:5px}
+.ev-field label{font-size:12px;font-weight:600;color:var(--suave);text-transform:uppercase;letter-spacing:.04em}
+.ev-field input,.ev-field select,.ev-field textarea{background:var(--fondo);border:1px solid var(--borde);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--texto);width:100%;box-sizing:border-box;transition:border .15s}
+.ev-field input:focus,.ev-field select:focus,.ev-field textarea:focus{outline:none;border-color:var(--azul)}
+.ev-field textarea{resize:vertical;min-height:72px}
+
+/* ── Toggle vista mis/todos ───────────────────── */
+.filter-toggle{background:none;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--suave);transition:.15s;font-family:inherit}
+.filter-toggle.on{background:#fff;color:var(--azul);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* ── Chips de categoría ───────────────────────── */
+.cat-chip{background:#fff;border:1.5px solid var(--borde);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;color:var(--suave);transition:.15s;white-space:nowrap;font-family:inherit}
+.cat-chip.on{background:var(--azul);border-color:var(--azul);color:#fff}
+.cat-chip:hover:not(.on){border-color:var(--azul2);color:var(--azul2)}
+
+/* ── Badge de categoría en la tarjeta ─────────── */
+.cat-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(122,91,156,.12);color:var(--morado);border:1px solid rgba(122,91,156,.2);cursor:pointer;transition:.15s}
+.cat-badge:hover{background:rgba(122,91,156,.2)}
+.cat-badge.sin-cat{background:var(--fondo);color:var(--suave);border-color:var(--borde)}
 
 /* ── Indicador de días sin entrar ─────────────── */
 .est-alerta{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:4px}
@@ -234,6 +300,7 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* ── Bottom nav (móvil) ── */
+.kai-ico{width:1em;height:1em;vertical-align:middle;display:inline;flex-shrink:0}
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--borde);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
 .bnav-btn{flex:1;padding:10px 4px 8px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--suave);font-weight:500;transition:.2s}
 .bnav-btn i{font-size:20px}
@@ -290,10 +357,6 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
         <i class='bx bxs-group'></i> Mis estudiantes
         <span class="badge hidden" id="badge-est">0</span>
       </button>
-      <button class="nav-btn" id="nav-diario" onclick="showPage('diario')">
-        <i class='bx bxs-book-heart'></i> Diarios
-        <span class="badge hidden" id="badge-alertas">!</span>
-      </button>
     </div>
     <div class="nav-section" style="margin-top:12px">
       <div class="nav-label">Comunicación</div>
@@ -301,12 +364,15 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
         <i class='bx bxs-calendar-check'></i> Mis citas
         <span class="badge hidden" id="badge-citas">0</span>
       </button>
+      <button class="nav-btn" id="nav-eventos" onclick="showPage('eventos')">
+        <i class='bx bxs-calendar-event'></i> Eventos
+      </button>
       <button class="nav-btn" id="nav-actividad" onclick="showPage('actividad')">
         <i class='bx bxs-bar-chart-alt-2'></i> Actividad
-        <span class="badge hidden" id="badge-sos">!</span>
       </button>
-      <button class="nav-btn" id="nav-chat" onclick="showPage('chat')">
-        <i class='bx bxs-chat'></i> Chat con usuarios
+      <button class="nav-btn" id="nav-sos" onclick="showPage('sos')">
+        <i class='bx bxs-error-circle' style="color:var(--rojo)"></i> SOS Emergencias
+        <span class="badge hidden" id="badge-sos">!</span>
       </button>
     </div>
   </nav>
@@ -316,7 +382,7 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 
     <!-- ── INICIO ── -->
     <div class="page on" id="page-inicio">
-      <div class="page-title">¡Bienvenido/a 👋</div>
+      <div class="page-title" id="saludo-inicio">¡Bienvenido/a </div>
       <div class="page-sub">Resumen de tu actividad de hoy</div>
 
       <div class="stats-grid">
@@ -329,11 +395,6 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
           <div class="stat-label">Citas pendientes</div>
           <div class="stat-val" id="stat-citas">—</div>
           <div class="stat-hint">Toca para gestionar →</div>
-        </div>
-        <div class="stat-card dorado" style="cursor:pointer" onclick="showPage('diario')" title="Ver diarios">
-          <div class="stat-label">Diarios compartidos</div>
-          <div class="stat-val" id="stat-diarios">—</div>
-          <div class="stat-hint">Toca para leer →</div>
         </div>
         <div class="stat-card rojo" style="cursor:pointer" onclick="showPage('actividad')" title="Ver alertas">
           <div class="stat-label">Alertas de crisis</div>
@@ -383,30 +444,30 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
 
     <!-- ── ESTUDIANTES ── -->
     <div class="page" id="page-estudiantes">
-      <div class="page-title">Mis Estudiantes</div>
-      <div class="page-sub">Usuarios asignados a tu cuidado</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+        <div class="page-title" style="margin:0">Estudiantes</div>
+        <div style="display:flex;background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:3px;gap:2px">
+          <button id="toggle-mis" class="filter-toggle on" onclick="toggleVistaEst('mis')">Mis estudiantes</button>
+          <button id="toggle-todos" class="filter-toggle" onclick="toggleVistaEst('todos')">Todos</button>
+        </div>
+      </div>
+      <div class="page-sub">Filtra y categoriza para un seguimiento más efectivo</div>
+
+      <!-- Chips de categoría -->
+      <div id="cat-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button class="cat-chip on" data-cat="" onclick="selCat(this,'')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 4 13V5a2 2 0 0 1 2-2h5c4.4 0 8 3.6 8 8v9a1 1 0 0 1-1 1h-7z"/><path d="M11 3v17"/></svg> Todos</button>
+        <button class="cat-chip" data-cat="ansiedad"  onclick="selCat(this,'ansiedad')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Ansiedad</button>
+        <button class="cat-chip" data-cat="depresion" onclick="selCat(this,'depresion')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Depresión</button>
+        <button class="cat-chip" data-cat="estres"    onclick="selCat(this,'estres')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Estrés</button>
+        <button class="cat-chip" data-cat="adicciones" onclick="selCat(this,'adicciones')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg> Adicciones</button>
+        <button class="cat-chip" data-cat="crisis"    onclick="selCat(this,'crisis')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Crisis</button>
+        <button class="cat-chip" data-cat="duelo"     onclick="selCat(this,'duelo')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Duelo</button>
+        <button class="cat-chip" data-cat="otro"      onclick="selCat(this,'otro')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Otro</button>
+        <button class="cat-chip" data-cat="sin_cat"   onclick="selCat(this,'sin_cat')">— Sin categoría</button>
+      </div>
+
       <div id="lista-estudiantes">
         <div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>
-      </div>
-    </div>
-
-    <!-- ── DIARIO ── -->
-    <div class="page" id="page-diario">
-      <div class="page-title">Diarios Compartidos</div>
-      <div class="page-sub">Solo entradas que los estudiantes te dieron acceso</div>
-
-      <div class="diario-filters">
-        <select class="filter-select" id="filtro-estudiante" onchange="filtrarDiario()">
-          <option value="">Todos los estudiantes</option>
-        </select>
-        <select class="filter-select" id="filtro-alerta" onchange="filtrarDiario()">
-          <option value="">Todas las entradas</option>
-          <option value="crisis">Solo alertas de crisis</option>
-        </select>
-      </div>
-
-      <div id="lista-diario">
-        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando diarios…</div>
       </div>
     </div>
 
@@ -431,6 +492,28 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
       </div>
       <div id="lista-citas">
         <div class="loader"><i class='bx bx-loader-alt'></i> Cargando citas…</div>
+      </div>
+    </div>
+
+    <!-- ── EVENTOS ── -->
+    <div class="page" id="page-eventos">
+      <div class="page-title">Eventos</div>
+      <div class="page-sub">Pláticas y talleres de apoyo para estudiantes</div>
+
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
+        <select class="filter-select" id="filtro-tipo-evento" onchange="renderEventos()">
+          <option value="">Todos los tipos</option>
+          <option value="platica">Plática</option>
+          <option value="taller">Taller</option>
+          <option value="otro">Otro</option>
+        </select>
+        <button onclick="abrirModalEvento(null)" style="background:var(--azul);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;margin-left:auto">
+          <i class='bx bx-plus'></i> Nuevo evento
+        </button>
+      </div>
+
+      <div id="lista-eventos">
+        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando eventos…</div>
       </div>
     </div>
 
@@ -461,32 +544,25 @@ header{background:var(--azul);padding:12px 20px;display:flex;align-items:center;
       </div>
     </div>
 
-    <!-- ── CHAT ── -->
-    <div class="page" id="page-chat">
-      <div class="page-title">Chat con Estudiantes</div>
-      <div class="page-sub">Comunicación directa en tiempo real</div>
-
-      <div class="chat-layout">
-        <!-- Lista de conversaciones -->
-        <div class="chat-sidebar">
-          <div class="chat-sidebar-hdr">
-            <h3>Conversaciones</h3>
-            <input class="chat-search" type="search" placeholder="Buscar estudiante…" id="chat-search" oninput="filtrarChatList()"/>
-          </div>
-          <div class="chat-list" id="chat-list">
-            <div class="loader"><i class='bx bx-loader-alt'></i></div>
-          </div>
-        </div>
-
-        <!-- Ventana de chat activa -->
-        <div class="chat-main" id="chat-main">
-          <div class="no-chat-sel">
-            <i class='bx bx-message-square-dots'></i>
-            <span>Selecciona un estudiante para chatear</span>
-          </div>
-        </div>
+    <!-- ── SOS ── -->
+    <div class="page" id="page-sos">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div class="page-title" style="margin:0">Eventos SOS</div>
+        <button onclick="cargarSOS()" style="background:var(--fondo);border:1px solid var(--borde);padding:7px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit"><i class='bx bx-refresh'></i></button>
       </div>
+      <div class="page-sub">Alertas de emergencia de los estudiantes</div>
+
+      <div class="sos-tabs">
+        <button class="sos-tab on" id="sos-tab-pend" onclick="switchSOS('pendientes')">
+          <svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Pendientes <span id="sos-pend-cnt" style="background:var(--rojo);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px">0</span>
+        </button>
+        <button class="sos-tab" id="sos-tab-atend" onclick="switchSOS('atendidos')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Atendidos</button>
+      </div>
+
+      <div id="sos-pendientes-list"></div>
+      <div id="sos-atendidos-list" class="hidden"></div>
     </div>
+
 
   </main>
 </div>
@@ -496,11 +572,9 @@ const API_BASE = window.location.origin + '/api';
 const API = API_BASE;
 let token = localStorage.getItem('apfa_at') || '';
 let psico = null;
-let wsChat = null;
 let estudiantesCache = [];
-let diariosCache = [];
-let chatActivo = null; // { id, nombre }
-let mensajesActivos = []; // historial local de mensajes del chat activo
+let vistaEst = 'mis';   // 'mis' | 'todos'
+let catFiltro = '';     // categoría activa
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -546,10 +620,11 @@ function showPage(id) {
   if (bnav) bnav.classList.add('on');
 
   if (id === 'estudiantes' && estudiantesCache.length === 0) cargarEstudiantes();
-  if (id === 'diario') cargarDiarios();
   if (id === 'citas') cargarCitas();
+  if (id === 'eventos') cargarEventos();
   if (id === 'actividad') cargarActividad();
-  if (id === 'chat') iniciarChat();
+  if (id === 'sos') cargarSOS();
+
   if (id === 'perfil') renderPerfil();
 }
 
@@ -574,6 +649,7 @@ function showPage(id) {
 
   // Llenar header
   document.getElementById('hdr-name').textContent = psico.nombre || 'Psicólogo';
+  document.getElementById('saludo-inicio').textContent = `¡Bienvenido/a, ${psico.nombre || 'Psicólogo'}! 👋`;
 
   // Cargar stats
   cargarStats();
@@ -582,7 +658,7 @@ function showPage(id) {
   const target = sessionStorage.getItem('kai_psico_target') || window.location.hash.replace('#','');
   if (target) {
     sessionStorage.removeItem('kai_psico_target');
-    const validSections = ['inicio','perfil','estudiantes','diario','citas','actividad','chat'];
+    const validSections = ['inicio','perfil','estudiantes','citas','eventos','actividad','sos'];
     if (validSections.includes(target)) setTimeout(() => showPage(target), 150);
   }
 })();
@@ -598,7 +674,6 @@ function cerrarSesion() {
       body: JSON.stringify({ refresh_token: rt })
     }).catch(() => {});
   }
-  if (wsChat) { wsChat.close(); wsChat = null; }
   localStorage.removeItem('apfa_at');
   localStorage.removeItem('apfa_rt');
   localStorage.removeItem('token');
@@ -614,7 +689,6 @@ async function cargarStats() {
     if (!s) return;
     document.getElementById('stat-est').textContent    = s.total_estudiantes_asignados ?? '0';
     document.getElementById('stat-citas').textContent  = s.citas_pendientes ?? '0';
-    document.getElementById('stat-diarios').textContent= s.diarios_compartidos ?? '0';
     document.getElementById('stat-alertas').textContent= s.alertas_crisis ?? '0';
 
     // Badgets en sidebar
@@ -646,7 +720,7 @@ async function cargarAlertasRecientes() {
     if (!data) return;
     const alertas = data.filter(d => d.alerta_crisis).slice(0, 5);
     if (alertas.length === 0) {
-      el.innerHTML = '<div class="empty-msg">✅ Sin alertas de crisis recientes</div>';
+      el.innerHTML = '<div class="empty-msg"> Sin alertas de crisis recientes</div>';
       return;
     }
     el.innerHTML = alertas.map(e => `
@@ -687,28 +761,77 @@ async function cargarEstudiantes() {
   const el = document.getElementById('lista-estudiantes');
   el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando estudiantes…</div>';
   try {
-    const data = await apiFetch('/psicologo/mis-estudiantes');
+    const endpoint = vistaEst === 'todos' ? '/psicologo/todos-estudiantes' : '/psicologo/mis-estudiantes';
+    const data = await apiFetch(endpoint);
     if (!data) return;
     estudiantesCache = data;
 
-    // Llenar filtro de diario
-    const sel = document.getElementById('filtro-estudiante');
-    sel.innerHTML = '<option value="">Todos los estudiantes</option>';
-    data.forEach(e => {
-      const opt = document.createElement('option');
-      opt.value = e.id; opt.textContent = e.nombre + (e.apellidos ? ' ' + e.apellidos : '');
-      sel.appendChild(opt);
-    });
 
-    if (data.length === 0) {
-      el.innerHTML = '<div class="empty-msg">Aún no tienes estudiantes asignados.<br>Los estudiantes aparecerán aquí cuando tengas citas con ellos o compartan su diario contigo.</div>';
-      return;
-    }
 
-    el.innerHTML = `<div class="estudiantes-grid">${data.map(e => renderEstudianteCard(e)).join('')}</div>`;
+    renderEstudiantesFiltrados();
   } catch (e) {
     el.innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error al cargar estudiantes: ${e.message}</div>`;
   }
+}
+
+function renderEstudiantesFiltrados() {
+  const el = document.getElementById('lista-estudiantes');
+  let datos = estudiantesCache;
+
+  if (catFiltro === 'sin_cat') {
+    datos = datos.filter(e => !e.categoria_problema);
+  } else if (catFiltro) {
+    datos = datos.filter(e => e.categoria_problema === catFiltro);
+  }
+
+  if (datos.length === 0) {
+    const msg = vistaEst === 'mis'
+      ? 'Aún no tienes estudiantes asignados.<br>Aparecerán aquí cuando tengas citas o compartan su diario contigo.'
+      : 'No hay estudiantes con esta categoría.';
+    el.innerHTML = `<div class="empty-msg">${msg}</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="estudiantes-grid">${datos.map(e => renderEstudianteCard(e)).join('')}</div>`;
+}
+
+function toggleVistaEst(modo) {
+  vistaEst = modo;
+  document.getElementById('toggle-mis').classList.toggle('on', modo === 'mis');
+  document.getElementById('toggle-todos').classList.toggle('on', modo === 'todos');
+  cargarEstudiantes();
+}
+
+function selCat(btn, cat) {
+  catFiltro = cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  renderEstudiantesFiltrados();
+}
+
+async function cambiarCategoria(estudianteId, nombreEst) {
+  const cats = [
+    {v:'', label:'— Sin categoría'},
+    {v:'ansiedad',   label:'Ansiedad'},
+    {v:'depresion',  label:'Depresión'},
+    {v:'estres',     label:'Estrés'},
+    {v:'adicciones', label:'Adicciones'},
+    {v:'crisis',     label:'Crisis'},
+    {v:'duelo',      label:'Duelo'},
+    {v:'otro',       label:'Otro'},
+  ];
+  const opciones = cats.map((c,i) => `${i}: ${c.label}`).join('\n');
+  const resp = prompt(`Categoría para ${nombreEst}:\n\n${opciones}\n\nEscribe el número:`);
+  if (resp === null) return;
+  const idx = parseInt(resp);
+  if (isNaN(idx) || idx < 0 || idx >= cats.length) { toast('Opción inválida'); return; }
+  try {
+    await apiFetch(`/psicologo/estudiantes/${estudianteId}/categoria`, {
+      method: 'PATCH',
+      body: JSON.stringify({ categoria: cats[idx].v }),
+    });
+    toast('Categoría actualizada ✓');
+    cargarEstudiantes();
+  } catch(e) { toast(e.message); }
 }
 
 function renderEstudianteCard(e) {
@@ -718,12 +841,21 @@ function renderEstudianteCard(e) {
   // Indicador días sin entrar
   let alertaBadge = '';
   if (e.dias_sin_entrar != null) {
-    if (e.dias_sin_entrar >= 14)      alertaBadge = `<span class="est-alerta ea-critico">⚠ ${e.dias_sin_entrar}d sin entrar</span>`;
+    if (e.dias_sin_entrar >= 14)      alertaBadge = `<span class="est-alerta ea-critico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${e.dias_sin_entrar}d sin entrar</span>`;
     else if (e.dias_sin_entrar >= 7)  alertaBadge = `<span class="est-alerta ea-alerta">🟡 ${e.dias_sin_entrar}d sin entrar</span>`;
     else if (e.dias_sin_entrar === 0) alertaBadge = `<span class="est-alerta ea-activo">🟢 Activo hoy</span>`;
   }
 
   const eid = e.id.replace(/[^a-zA-Z0-9]/g,'');
+
+  const CAT_LABEL = {
+    ansiedad:'Ansiedad', depresion:'Depresión', estres:'Estrés',
+    adicciones:'Adicciones', crisis:'Crisis', duelo:'Duelo', otro:'Otro'
+  };
+  const catLabel = e.categoria_problema ? (CAT_LABEL[e.categoria_problema] || e.categoria_problema) : null;
+  const catBadge = `<span class="cat-badge ${catLabel ? '' : 'sin-cat'}" title="Cambiar categoría"
+    onclick="cambiarCategoria('${e.id}','${nombre.replace(/'/g,"\\'")}')">
+    ${catLabel || '+ Categoría'}</span>`;
 
   return `
     <div class="estudiante-card" id="est-card-${e.id}">
@@ -736,9 +868,10 @@ function renderEstudianteCard(e) {
         </div>
         <span class="online-dot" id="dot-${e.id}" style="flex-shrink:0;width:10px;height:10px;border-radius:50%;background:#ccc;align-self:flex-start;margin-top:4px"></span>
       </div>
-      <div class="est-meta">
+      <div class="est-meta" style="gap:6px">
         ${e.carrera ? `<span class="tag">${e.carrera}</span>` : ''}
         ${e.semestre ? `<span class="tag">Sem. ${e.semestre}</span>` : ''}
+        ${catBadge}
       </div>
 
       <!-- Mini-resumen expandible -->
@@ -762,14 +895,6 @@ function renderEstudianteCard(e) {
 
       <!-- Botones de acción -->
       <div class="est-actions">
-        <button class="btn-est btn-est-chat"
-          onclick="abrirChatCon('${e.id}','${nombre.replace(/'/g,"\\'")}')">
-          <i class='bx bxs-chat'></i>Chat
-        </button>
-        <button class="btn-est btn-est-diario"
-          onclick="verDiarioEstudiante('${e.id}','${nombre.replace(/'/g,"\\'")}')">
-          <i class='bx bxs-book-heart'></i>Diario
-        </button>
         <button class="btn-est btn-est-cita"
           onclick="abrirModalCita('${e.id}','${nombre.replace(/'/g,"\\'")}')">
           <i class='bx bxs-calendar-plus'></i>Cita
@@ -780,56 +905,6 @@ function renderEstudianteCard(e) {
         </button>
       </div>
     </div>`;
-}
-
-// ── Diario ────────────────────────────────────────────────
-
-async function cargarDiarios() {
-  const el = document.getElementById('lista-diario');
-  el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando diarios…</div>';
-  try {
-    const data = await apiFetch('/psicologo/diarios');
-    if (!data) return;
-    diariosCache = data;
-    renderDiarios(data);
-  } catch (e) {
-    el.innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error: ${e.message}</div>`;
-  }
-}
-
-function filtrarDiario() {
-  const estId  = document.getElementById('filtro-estudiante').value;
-  const alerta = document.getElementById('filtro-alerta').value;
-  let datos = diariosCache;
-  if (estId)       datos = datos.filter(d => d.estudiante?.id === estId);
-  if (alerta === 'crisis') datos = datos.filter(d => d.alerta_crisis);
-  renderDiarios(datos);
-}
-
-function renderDiarios(data) {
-  const el = document.getElementById('lista-diario');
-  if (!data || data.length === 0) {
-    el.innerHTML = '<div class="empty-msg">📖 No hay entradas del diario para mostrar.<br>Los estudiantes deben compartir sus entradas para que aparezcan aquí.</div>';
-    return;
-  }
-  el.innerHTML = data.map(e => `
-    <div class="entrada-card ${e.alerta_crisis ? 'alerta' : ''}">
-      <div class="entrada-header">
-        <div>
-          <span class="entrada-autor">${e.estudiante?.nombre || 'Estudiante'}</span>
-          ${e.estudiante?.carrera ? `<span style="font-size:11px;color:var(--suave);margin-left:8px">${e.estudiante.carrera}</span>` : ''}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="entrada-animo">${e.estado_animo || ''}</span>
-          <span class="entrada-fecha">${dfmt(e.creada_en)}</span>
-        </div>
-      </div>
-      <div class="entrada-texto">${e.texto}</div>
-      <div class="entrada-tags">
-        ${(e.etiquetas || []).map(t => `<span class="tag">${t}</span>`).join('')}
-        ${e.alerta_crisis ? `<span class="alerta-badge"><i class='bx bxs-error-circle'></i> Alerta de crisis</span>` : ''}
-      </div>
-    </div>`).join('');
 }
 
 // ── Citas ────────────────────────────────────────────────
@@ -843,7 +918,7 @@ async function cargarCitas() {
     const data = await apiFetch(path);
     if (!data) return;
     if (data.length === 0) {
-      el.innerHTML = '<div class="empty-msg">📅 Sin citas registradas' + (estado ? ' con ese estado' : '') + '.</div>';
+      el.innerHTML = '<div class="empty-msg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Sin citas registradas' + (estado ? ' con ese estado' : '') + '.</div>';
       return;
     }
     el.innerHTML = '<div class="citas-list">' + data.map(cita => {
@@ -860,13 +935,27 @@ async function cargarCitas() {
             <div class="mes">${mes}</div>
             <div class="hora">${hora}</div>
           </div>
-          <div class="cita-info">
+          <div class="cita-info" style="flex:1;min-width:0">
             <div class="cita-est">${est}</div>
             <div class="cita-motivo">${cita.motivo || 'Sin motivo registrado'} · ${cita.modalidad || 'presencial'}</div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
             <span class="cita-estado ${cita.estado}">${cita.estado}</span>
-            <div class="cita-actions">${acc}</div>
+            <div class="cita-actions">
+              ${acc}
+              <button class="btn-cita btn-obs-notas ${cita.notas_psicologo ? 'tiene-notas' : ''}"
+                onclick="toggleObs('${cita.id}')">
+                📝 ${cita.notas_psicologo ? 'Ver notas' : 'Añadir notas'}
+              </button>
+            </div>
+          </div>
+          <div class="obs-panel" id="obs-${cita.id}" style="width:100%">
+            <div class="obs-hint">Observaciones privadas (solo visibles para ti)</div>
+            <textarea class="obs-textarea" id="obs-txt-${cita.id}"
+              placeholder="Escribe tus observaciones sobre esta cita…">${cita.notas_psicologo || ''}</textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:6px">
+              <button class="btn-obs-guardar" onclick="guardarNotas('${cita.id}')">Guardar observaciones</button>
+            </div>
           </div>
         </div>`;
     }).join('') + '</div>';
@@ -891,6 +980,35 @@ async function actualizarCita(citaId, nuevoEstado) {
     toast('Cita ' + nuevoEstado + ' correctamente');
     cargarCitas();
     cargarStats();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  }
+}
+
+function toggleObs(citaId) {
+  const panel = document.getElementById('obs-' + citaId);
+  if (!panel) return;
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    panel.querySelector('.obs-textarea')?.focus();
+  }
+}
+
+async function guardarNotas(citaId) {
+  const txt = document.getElementById('obs-txt-' + citaId);
+  if (!txt) return;
+  const notas = txt.value.trim();
+  try {
+    await apiFetch(`/psicologo/citas/${citaId}/notas`, {
+      method: 'PATCH',
+      body: JSON.stringify({ notas }),
+    });
+    toast('Observaciones guardadas ✓');
+    const btn = document.querySelector(`#cita-${citaId} .btn-obs-notas`);
+    if (btn) {
+      btn.classList.toggle('tiene-notas', !!notas);
+      btn.textContent = notas ? '📝 Ver notas' : '📝 Añadir notas';
+    }
   } catch (e) {
     toast('Error: ' + e.message);
   }
@@ -938,11 +1056,11 @@ function renderActividad(data) {
     const clr  = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'}[d.estado]||'var(--suave)';
     const dias = d.dias_sin_entrar == null ? 'Sin registro' : d.dias_sin_entrar === 0 ? 'Hoy' : d.dias_sin_entrar === 1 ? 'Ayer' : `Hace ${d.dias_sin_entrar}d`;
     const ua   = d.ultimo_acceso ? new Date(d.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    const sosBdg = d.sos_periodo > 0 ? `<span class="act-bdg ab-sos">🆘 ${d.sos_periodo} SOS</span>` : '';
-    const entBdg = d.entradas_periodo > 0 ? `<span class="act-bdg ab-ent">📔 ${d.entradas_periodo} entradas</span>` : '';
+    const sosBdg = d.sos_periodo > 0 ? `<span class="act-bdg ab-sos"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> ${d.sos_periodo} SOS</span>` : '';
+    const entBdg = d.entradas_periodo > 0 ? `<span class="act-bdg ab-ent"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${d.entradas_periodo} entradas</span>` : '';
     const sosDet = (d.sos_eventos||[]).map(e =>
       `<div style="font-size:11px;color:var(--rojo);margin-top:3px;padding-left:4px">
-        ⚠ SOS ${e.tipo} · ${new Date(e.fecha).toLocaleDateString('es-MX')} · ${e.atendido?'✓ atendido':'pendiente'}
+        <svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> SOS ${e.tipo} · ${new Date(e.fecha).toLocaleDateString('es-MX')} · ${e.atendido?'atendido':'pendiente'}
        </div>`
     ).join('');
     return `<div class="act-card ${d.estado}">
@@ -958,201 +1076,95 @@ function renderActividad(data) {
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:10px;color:var(--suave)">Último acceso</div>
         <div style="font-size:11px;font-weight:500">${ua}</div>
-        <button onclick="abrirChatCon('${d.id}','${(d.nombre+' '+(d.apellidos||'')).trim()}')"
-          style="margin-top:6px;background:var(--azul);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">
-          Chat
-        </button>
       </div>
     </div>`;
   }).join('');
 }
 
-// ── Chat WebSocket ────────────────────────────────────────
+// ── SOS ──────────────────────────────────────────────────
 
-function iniciarChat() {
-  // Cargar lista de estudiantes para el sidebar de chat
-  if (estudiantesCache.length === 0) {
-    apiFetch('/psicologo/mis-estudiantes').then(data => {
-      if (data) {
-        estudiantesCache = data;
-        renderChatList(data);
-      }
-    }).catch(() => {});
-  } else {
-    renderChatList(estudiantesCache);
-  }
+let _sosPend = [], _sosAtend = [];
+let _sosTab = 'pendientes';
 
-  // Conectar WebSocket si no está conectado
-  if (!wsChat || wsChat.readyState > 1) {
-    conectarWSChat();
-  }
-}
+async function cargarSOS() {
+  document.getElementById('sos-pendientes-list').innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando…</div>';
+  try {
+    const [pend, atend] = await Promise.all([
+      apiFetch('/sos/admin/eventos?atendido=false&limit=100'),
+      apiFetch('/sos/admin/eventos?atendido=true&limit=100'),
+    ]);
+    _sosPend  = pend  || [];
+    _sosAtend = atend || [];
 
-function conectarWSChat() {
-  const wsUrl = (window.location.protocol === 'https:' ? 'wss' : 'ws')
-    + '://' + window.location.host + '/ws/chat?token=' + token;
-
-  wsChat = new WebSocket(wsUrl);
-
-  wsChat.onopen = () => console.log('Chat WS conectado');
-
-  wsChat.onmessage = (evt) => {
-    const data = JSON.parse(evt.data);
-    if (data.tipo === 'mensaje') {
-      // Mensaje entrante de un estudiante
-      if (chatActivo && data.remitente_id === chatActivo.id) {
-        agregarMensaje(data.contenido, 'theirs', data.timestamp);
-      } else {
-        // Notificar si es de otro
-        const est = estudiantesCache.find(e => e.id === data.remitente_id);
-        toast(`💬 ${est ? est.nombre : 'Estudiante'}: ${data.contenido.substring(0, 50)}`);
-        actualizarPreview(data.remitente_id, data.contenido);
-      }
+    // Actualizar badge
+    const cnt = _sosPend.length;
+    document.getElementById('sos-pend-cnt').textContent = cnt;
+    const badge = document.getElementById('badge-sos');
+    const bnavBadge = document.getElementById('bnav-sos-badge');
+    if (cnt > 0) {
+      badge.textContent = cnt; badge.classList.remove('hidden');
+      bnavBadge.textContent = cnt; bnavBadge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+      bnavBadge.classList.add('hidden');
     }
-    if (data.tipo === 'estado_usuario') {
-      actualizarDotEstado(data.usuario_id, data.en_linea);
-      // Actualizar indicador en ventana de chat activa
-      if (chatActivo && data.usuario_id === chatActivo.id) {
-        const statusEl = document.getElementById('chat-status');
-        if (statusEl) {
-          statusEl.textContent = data.en_linea ? 'En línea' : 'Desconectado';
-          statusEl.style.color = data.en_linea ? 'var(--verde)' : 'var(--suave)';
-        }
-      }
-    }
-  };
 
-  wsChat.onclose = () => {
-    console.log('Chat WS desconectado');
-    // Reconectar tras 3s si sigue en la página
-    setTimeout(() => {
-      if (document.getElementById('page-chat').classList.contains('on')) {
-        conectarWSChat();
-      }
-    }, 3000);
-  };
-}
-
-function actualizarDotEstado(uid, enLinea) {
-  const dot = document.getElementById('dot-' + uid);
-  if (dot) {
-    dot.classList.toggle('on', enLinea);
-    dot.nextSibling.textContent = enLinea ? ' En línea' : ' Desconectado';
+    renderSOS();
+  } catch(e) {
+    document.getElementById('sos-pendientes-list').innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error: ${e.message}</div>`;
   }
 }
 
-function actualizarPreview(uid, contenido) {
-  const item = document.querySelector(`.chat-item[data-id="${uid}"] .chat-item-preview`);
-  if (item) item.textContent = contenido;
+function renderSOS() {
+  renderSOSList('sos-pendientes-list', _sosPend, false);
+  renderSOSList('sos-atendidos-list',  _sosAtend, true);
 }
 
-function renderChatList(data) {
-  const el = document.getElementById('chat-list');
-  if (!data || data.length === 0) {
-    el.innerHTML = '<div class="empty-msg" style="padding:20px;font-size:13px">Sin estudiantes asignados</div>';
+function renderSOSList(elId, data, atendido) {
+  const el = document.getElementById(elId);
+  if (!data.length) {
+    el.innerHTML = `<div class="empty-msg">${atendido ? ' No hay eventos atendidos aún.' : ' Sin emergencias pendientes.'}</div>`;
     return;
   }
-  el.innerHTML = data.map(e => {
-    const ini = (e.nombre || '?').charAt(0).toUpperCase();
+  el.innerHTML = data.map(ev => {
+    const fecha = new Date(ev.creado_en).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
     return `
-      <div class="chat-item" data-id="${e.id}" data-nombre="${e.nombre} ${e.apellidos||''}" onclick="abrirChatCon('${e.id}', '${(e.nombre+' '+(e.apellidos||'')).trim()}')">
-        <div class="chat-item-av">
-          ${ini}
-          <span class="dot" id="dot-chat-${e.id}"></span>
-        </div>
-        <div class="chat-item-info">
-          <div class="chat-item-name">${e.nombre} ${e.apellidos || ''}</div>
-          <div class="chat-item-preview" id="preview-${e.id}">${e.carrera || 'Estudiante'}</div>
-        </div>
-      </div>`;
-  }).join('');
-
-  // Consultar estado en línea de cada estudiante
-  data.forEach(e => {
-    if (wsChat && wsChat.readyState === 1) {
-      wsChat.send(JSON.stringify({ tipo: 'estado', usuario_id: e.id }));
-    }
-  });
-}
-
-function filtrarChatList() {
-  const q = document.getElementById('chat-search').value.toLowerCase();
-  document.querySelectorAll('.chat-item').forEach(item => {
-    const nom = item.dataset.nombre.toLowerCase();
-    item.style.display = nom.includes(q) ? '' : 'none';
-  });
-}
-
-function abrirChatCon(uid, nombre) {
-  // Navegar a la tab de chat si no estamos ahí
-  showPage('chat');
-
-  chatActivo = { id: uid, nombre };
-  mensajesActivos = [];
-
-  // Marcar activo en sidebar
-  document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
-  const item = document.querySelector(`.chat-item[data-id="${uid}"]`);
-  if (item) item.classList.add('active');
-
-  // Render ventana
-  const main = document.getElementById('chat-main');
-  const ini = nombre.charAt(0).toUpperCase();
-  main.innerHTML = `
-    <div class="chat-top">
-      <div class="chat-top-av">${ini}</div>
-      <div>
-        <div class="chat-top-name">${nombre}</div>
-        <div class="chat-top-status" id="chat-status">Verificando estado…</div>
+    <div class="sos-event-card ${atendido ? 'atendido' : ''}">
+      <div class="sos-ev-hdr">
+        <span class="sos-ev-tipo" style="color:${atendido ? 'var(--verde)' : 'var(--rojo)'}">${atendido ? '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Atendido' : '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Pendiente'} · ${ev.tipo_accion}</span>
+        <span class="sos-ev-fecha">${fecha}</span>
       </div>
-    </div>
-    <div class="chat-msgs" id="chat-msgs"></div>
-    <div class="chat-input-bar">
-      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escribe un mensaje…"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensaje()}"></textarea>
-      <button class="btn-send" onclick="enviarMensaje()"><i class='bx bxs-send'></i></button>
+      <div class="sos-ev-user">${ev.usuario_id ? '👤 Estudiante registrado' : '👤 Anónimo'}</div>
+      ${ev.descripcion ? `<div class="sos-ev-detail">${ev.descripcion}</div>` : ''}
+      ${ev.ip_address ? `<div class="sos-ev-detail">IP: ${ev.ip_address}</div>` : ''}
+      ${ev.notas_atencion ? `<div class="sos-ev-notas">📝 ${ev.notas_atencion}</div>` : ''}
+      ${!atendido ? `<button class="btn-atender" onclick="atenderEvento('${ev.id}')">Marcar como atendido</button>` : ''}
     </div>`;
-
-  // Consultar si está en línea
-  if (wsChat && wsChat.readyState === 1) {
-    wsChat.send(JSON.stringify({ tipo: 'estado', usuario_id: uid }));
-  }
+  }).join('');
 }
 
-function agregarMensaje(contenido, lado, timestamp) {
-  const el = document.getElementById('chat-msgs');
-  if (!el) return;
-  const t = timestamp ? timefmt(timestamp) : timefmt(new Date().toISOString());
-  const div = document.createElement('div');
-  div.className = 'msg ' + lado;
-  div.innerHTML = `<div class="msg-bubble">${contenido}</div><div class="msg-time">${t}</div>`;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+async function atenderEvento(id) {
+  const notas = prompt('Notas de atención (opcional):');
+  if (notas === null) return; // canceló
+  try {
+    await apiFetch(`/sos/admin/eventos/${id}/atender`, {
+      method: 'PATCH',
+      body: JSON.stringify({ notas: notas.trim() || null }),
+    });
+    toast('✅ Evento marcado como atendido');
+    cargarSOS();
+  } catch(e) { toast(e.message); }
 }
 
-function enviarMensaje() {
-  const input = document.getElementById('chat-input');
-  if (!input || !chatActivo) return;
-  const contenido = input.value.trim();
-  if (!contenido) return;
-  if (!wsChat || wsChat.readyState !== 1) {
-    toast('Sin conexión. Reconectando…');
-    conectarWSChat();
-    return;
-  }
-  wsChat.send(JSON.stringify({
-    tipo: 'mensaje',
-    destinatario_id: chatActivo.id,
-    contenido,
-  }));
-  agregarMensaje(contenido, 'mine', new Date().toISOString());
-  input.value = '';
-  input.style.height = 'auto';
-
-  // Actualizar preview
-  const preview = document.getElementById('preview-' + chatActivo.id);
-  if (preview) preview.textContent = contenido;
+function switchSOS(tab) {
+  _sosTab = tab;
+  const isPend = tab === 'pendientes';
+  document.getElementById('sos-tab-pend').classList.toggle('on', isPend);
+  document.getElementById('sos-tab-atend').classList.toggle('on', !isPend);
+  document.getElementById('sos-pendientes-list').classList.toggle('hidden', !isPend);
+  document.getElementById('sos-atendidos-list').classList.toggle('hidden', isPend);
 }
+
 
 // ── Cita ─────────────────────────────────────────────────
 let _citaEstId = null;
@@ -1210,35 +1222,6 @@ async function confirmarCita() {
   }
 }
 
-// ── Ver diario de un estudiante específico ────────────────
-async function verDiarioEstudiante(uid, nombre) {
-  const modal = document.getElementById('modal-diario-est');
-  const cont  = document.getElementById('modal-diario-contenido');
-  document.getElementById('diario-est-nombre').textContent = nombre;
-  cont.innerHTML = `<div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>`;
-  modal.classList.add('open');
-  try {
-    const data = await apiFetch('/psicologo/diarios?estudiante_id=' + uid);
-    if (!data || !data.length) {
-      cont.innerHTML = '<div class="empty-msg">📖 Este estudiante no ha compartido entradas aún.</div>';
-      return;
-    }
-    const emojiAnimo = {'😊':1,'😐':1,'😔':1,'😰':1,'😤':1,'🥺':1};
-    cont.innerHTML = data.map(e => `
-      <div style="background:var(--fondo);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid ${e.alerta_crisis?'var(--rojo)':'var(--azul)'}">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:20px">${e.estado_animo||'📝'}</span>
-          <span style="font-size:11px;color:var(--suave)">${dfmt(e.creada_en)}</span>
-        </div>
-        <p style="font-size:13px;color:var(--texto);line-height:1.55;margin:0">${e.texto}</p>
-        ${e.alerta_crisis ? '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(198,90,73,.1);color:var(--rojo);font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:8px">⚠ Alerta de crisis</span>' : ''}
-        ${(e.etiquetas||[]).length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">${e.etiquetas.map(t=>`<span style="font-size:10px;background:#fff;border:1px solid var(--borde);border-radius:20px;padding:2px 7px">${t}</span>`).join('')}</div>` : ''}
-      </div>`).join('');
-  } catch(err2) {
-    cont.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + err2.message + '</div>';
-  }
-}
-
 // ── Ver actividad de un estudiante específico ─────────────
 async function verActividadEstudiante(uid, nombre) {
   const modal = document.getElementById('modal-act-est');
@@ -1258,7 +1241,7 @@ async function verActividadEstudiante(uid, nombre) {
     const sosDet = (est.sos_eventos||[]).length
       ? est.sos_eventos.map(s => `
           <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--fondo)">
-            <span style="font-size:16px">🆘</span>
+            <svg class="kai-ico" style="width:16px;height:16px;color:var(--rojo)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>
             <div>
               <div style="font-size:12px;font-weight:600">${s.tipo}</div>
               <div style="font-size:11px;color:var(--suave)">${new Date(s.fecha).toLocaleString('es-MX')} · ${s.atendido?'✓ atendido':'pendiente'}</div>
@@ -1281,11 +1264,176 @@ async function verActividadEstudiante(uid, nombre) {
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Historial SOS</div>
       ${sosDet}
-      <button onclick="abrirChatCon('${uid}','${nombre.replace(/'/g,"\'")}')" style="width:100%;margin-top:14px;background:var(--azul);color:#fff;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
-        <i class='bx bxs-chat'></i> Abrir chat con ${nombre.split(' ')[0]}
-      </button>`;
+      `;
   } catch(err2) {
     cont.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + err2.message + '</div>';
+  }
+}
+
+// ── Eventos del Psicólogo ─────────────────────────────────
+
+let _eventosCache = [];
+let _editandoEventoId = null;
+
+async function cargarEventos() {
+  const el = document.getElementById('lista-eventos');
+  el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando eventos…</div>';
+  try {
+    const data = await apiFetch('/psicologo/eventos');
+    if (!data) return;
+    _eventosCache = data;
+    renderEventos();
+  } catch(e) {
+    el.innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error: ${e.message}</div>`;
+  }
+}
+
+function renderEventos() {
+  const el = document.getElementById('lista-eventos');
+  const filtroTipo = document.getElementById('filtro-tipo-evento')?.value || '';
+  let datos = _eventosCache;
+  if (filtroTipo) datos = datos.filter(ev => ev.tipo === filtroTipo);
+
+  if (!datos.length) {
+    el.innerHTML = '<div class="empty-msg"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ' + (filtroTipo ? 'No hay eventos de ese tipo.' : 'Sin eventos aún. Crea el primero con el botón de arriba.') + '</div>';
+    return;
+  }
+
+  const TIPO_LABEL = { platica: 'Plática', taller: 'Taller', otro: 'Otro' };
+  const ahora = new Date();
+
+  el.innerHTML = datos.map(ev => {
+    const fecha = new Date(ev.fecha_hora);
+    const pasado = fecha < ahora;
+    const fechaStr = fecha.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const horaStr  = fecha.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
+    const tipoCls  = { platica:'etb-platica', taller:'etb-taller', otro:'etb-otro' }[ev.tipo] || 'etb-otro';
+    const modalidadIco = ev.modalidad === 'en_linea'
+      ? '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'
+      : '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    const modalidadLabel = ev.modalidad === 'en_linea' ? 'En línea' : 'Presencial';
+
+    return `
+    <div class="evento-card${!ev.activo ? ' inactivo' : ''}" id="ev-${ev.id}">
+      <div class="evento-hdr">
+        <div class="evento-titulo">${ev.titulo}</div>
+        <span class="evento-tipo-badge ${tipoCls}">${TIPO_LABEL[ev.tipo] || ev.tipo}</span>
+      </div>
+      ${ev.descripcion ? `<div class="evento-desc">${ev.descripcion}</div>` : ''}
+      <div class="evento-meta">
+        <span class="evento-meta-item">
+          <svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${fechaStr} · ${horaStr}${pasado ? ' <span style="color:var(--suave);font-size:10px">(pasado)</span>' : ''}
+        </span>
+        <span class="evento-meta-item">${modalidadIco} ${modalidadLabel}</span>
+        ${ev.lugar ? `<span class="evento-meta-item"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${ev.lugar}</span>` : ''}
+        ${ev.link_evento ? `<a href="${ev.link_evento}" target="_blank" class="evento-meta-item" style="color:var(--azul);text-decoration:none"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Ver enlace</a>` : ''}
+        ${ev.capacidad ? `<span class="evento-meta-item"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Cupo: ${ev.capacidad}</span>` : ''}
+      </div>
+      <div class="evento-actions">
+        <button class="btn-ev-edit" onclick="abrirModalEvento('${ev.id}')">
+          <svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+        </button>
+        <button class="btn-ev-del" onclick="eliminarEvento('${ev.id}')">
+          <svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Eliminar
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirModalEvento(id) {
+  _editandoEventoId = id;
+  const modal = document.getElementById('modal-evento');
+  document.getElementById('ev-error').classList.add('hidden');
+
+  if (id) {
+    const ev = _eventosCache.find(e => e.id === id);
+    if (!ev) return;
+    document.getElementById('modal-evento-titulo').textContent = 'Editar evento';
+    document.getElementById('ev-titulo').value      = ev.titulo || '';
+    document.getElementById('ev-tipo').value        = ev.tipo || 'platica';
+    document.getElementById('ev-modalidad').value   = ev.modalidad || 'presencial';
+    document.getElementById('ev-capacidad').value   = ev.capacidad || '';
+    document.getElementById('ev-lugar').value       = ev.lugar || '';
+    document.getElementById('ev-link').value        = ev.link_evento || '';
+    document.getElementById('ev-descripcion').value = ev.descripcion || '';
+    if (ev.fecha_hora) {
+      const f = new Date(ev.fecha_hora);
+      const pad = n => String(n).padStart(2,'0');
+      document.getElementById('ev-fecha').value = `${f.getFullYear()}-${pad(f.getMonth()+1)}-${pad(f.getDate())}T${pad(f.getHours())}:${pad(f.getMinutes())}`;
+    }
+  } else {
+    document.getElementById('modal-evento-titulo').textContent = 'Nuevo evento';
+    document.getElementById('ev-titulo').value      = '';
+    document.getElementById('ev-tipo').value        = 'platica';
+    document.getElementById('ev-modalidad').value   = 'presencial';
+    document.getElementById('ev-capacidad').value   = '';
+    document.getElementById('ev-lugar').value       = '';
+    document.getElementById('ev-link').value        = '';
+    document.getElementById('ev-descripcion').value = '';
+    document.getElementById('ev-fecha').value       = '';
+  }
+  toggleCamposEvento();
+  modal.classList.add('open');
+}
+
+function cerrarModalEvento() {
+  document.getElementById('modal-evento').classList.remove('open');
+  _editandoEventoId = null;
+}
+
+function toggleCamposEvento() {
+  const enLinea = document.getElementById('ev-modalidad').value === 'en_linea';
+  document.getElementById('ev-lugar-wrap').classList.toggle('hidden', enLinea);
+  document.getElementById('ev-link-wrap').classList.toggle('hidden', !enLinea);
+}
+
+async function guardarEvento() {
+  const btn = document.getElementById('ev-save-btn');
+  const errEl = document.getElementById('ev-error');
+  errEl.classList.add('hidden');
+
+  const titulo = document.getElementById('ev-titulo').value.trim();
+  const fecha  = document.getElementById('ev-fecha').value;
+  if (!titulo) { errEl.textContent = 'El título es obligatorio.'; errEl.classList.remove('hidden'); return; }
+  if (!fecha)  { errEl.textContent = 'La fecha y hora son obligatorias.'; errEl.classList.remove('hidden'); return; }
+
+  const payload = {
+    titulo,
+    tipo:        document.getElementById('ev-tipo').value,
+    descripcion: document.getElementById('ev-descripcion').value.trim() || null,
+    fecha_hora:  new Date(fecha).toISOString(),
+    modalidad:   document.getElementById('ev-modalidad').value,
+    lugar:       document.getElementById('ev-lugar').value.trim() || null,
+    link_evento: document.getElementById('ev-link').value.trim() || null,
+    capacidad:   parseInt(document.getElementById('ev-capacidad').value) || null,
+  };
+
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    if (_editandoEventoId) {
+      await apiFetch('/psicologo/eventos/' + _editandoEventoId, { method:'PUT', body: JSON.stringify(payload) });
+    } else {
+      await apiFetch('/psicologo/eventos', { method:'POST', body: JSON.stringify(payload) });
+    }
+    cerrarModalEvento();
+    await cargarEventos();
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar evento';
+  }
+}
+
+async function eliminarEvento(id) {
+  if (!confirm('¿Eliminar este evento? Esta acción no se puede deshacer.')) return;
+  try {
+    await apiFetch('/psicologo/eventos/' + id, { method:'DELETE' });
+    await cargarEventos();
+  } catch(e) {
+    alert('Error al eliminar: ' + e.message);
   }
 }
 
@@ -1313,9 +1461,9 @@ document.addEventListener('input', e => {
     <div class="modal-field">
       <label>Modalidad</label>
       <select id="cita-modalidad">
-        <option value="presencial">🏫 Presencial — FES Acatlán</option>
-        <option value="videollamada">💻 Videollamada</option>
-        <option value="telefonica">📞 Telefónica</option>
+        <option value="presencial"> Presencial — FES Acatlán</option>
+        <option value="videollamada"> Videollamada</option>
+        <option value="telefonica"> Telefónica</option>
       </select>
     </div>
     <div class="modal-field">
@@ -1327,15 +1475,60 @@ document.addEventListener('input', e => {
   </div>
 </div>
 
-<!-- ── Modal Ver Diarios de Estudiante ── -->
-<div class="modal-overlay" id="modal-diario-est" onclick="if(event.target===this)document.getElementById('modal-diario-est').classList.remove('open')">
-  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:600px">
+<!-- ── Modal Crear/Editar Evento ── -->
+<div class="modal-overlay" id="modal-evento" onclick="if(event.target===this)cerrarModalEvento()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:560px">
     <div class="modal-hdr">
-      <h3>📔 Diario de <span id="diario-est-nombre">—</span></h3>
-      <button class="modal-close" onclick="document.getElementById('modal-diario-est').classList.remove('open')">✕</button>
+      <h3 id="modal-evento-titulo">Nuevo evento</h3>
+      <button class="modal-close" onclick="cerrarModalEvento()">✕</button>
     </div>
-    <div id="modal-diario-contenido">
-      <div class="loader"><i class='bx bx-loader-alt'></i></div>
+    <div style="padding:0 4px">
+      <div class="ev-form-grid">
+        <div class="ev-field ev-full">
+          <label>Título del evento *</label>
+          <input type="text" id="ev-titulo" placeholder="Ej. Taller de manejo del estrés" maxlength="200"/>
+        </div>
+        <div class="ev-field">
+          <label>Tipo</label>
+          <select id="ev-tipo">
+            <option value="platica">Plática</option>
+            <option value="taller">Taller</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="ev-field">
+          <label>Fecha y hora *</label>
+          <input type="datetime-local" id="ev-fecha"/>
+        </div>
+        <div class="ev-field">
+          <label>Modalidad</label>
+          <select id="ev-modalidad" onchange="toggleCamposEvento()">
+            <option value="presencial">Presencial</option>
+            <option value="en_linea">En línea</option>
+          </select>
+        </div>
+        <div class="ev-field">
+          <label>Capacidad (personas)</label>
+          <input type="number" id="ev-capacidad" placeholder="Ej. 30" min="1"/>
+        </div>
+        <div class="ev-field ev-full" id="ev-lugar-wrap">
+          <label>Lugar / Salón</label>
+          <input type="text" id="ev-lugar" placeholder="Ej. Auditorio A, Edificio D" maxlength="200"/>
+        </div>
+        <div class="ev-field ev-full hidden" id="ev-link-wrap">
+          <label>Link de la sesión</label>
+          <input type="url" id="ev-link" placeholder="https://meet.google.com/..."/>
+        </div>
+        <div class="ev-field ev-full">
+          <label>Descripción</label>
+          <textarea id="ev-descripcion" placeholder="Describe el objetivo, dinámica o temas que se tratarán…" rows="3"></textarea>
+        </div>
+      </div>
+      <div id="ev-error" class="err-box hidden" style="margin-top:12px"></div>
+      <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end">
+        <button onclick="cerrarModalEvento()" style="background:var(--fondo);border:1px solid var(--borde);color:var(--texto);padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancelar</button>
+        <button onclick="guardarEvento()" style="background:var(--azul);color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" id="ev-save-btn">Guardar evento</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1356,9 +1549,8 @@ document.addEventListener('input', e => {
 <nav class="bottom-nav">
   <button class="bnav-btn on" id="bnav-inicio"      onclick="showPage('inicio')">     <i class='bx bxs-dashboard'></i>Inicio</button>
   <button class="bnav-btn"    id="bnav-estudiantes" onclick="showPage('estudiantes')"><i class='bx bxs-group'></i>Estudiantes</button>
-  <button class="bnav-btn"    id="bnav-diario"      onclick="showPage('diario')">     <i class='bx bxs-book-heart'></i>Diarios</button>
   <button class="bnav-btn"    id="bnav-citas"       onclick="showPage('citas')">      <i class='bx bxs-calendar-check'></i>Citas</button>
-  <button class="bnav-btn"    id="bnav-chat"        onclick="showPage('chat')">       <i class='bx bxs-chat'></i>Chat</button>
+  <button class="bnav-btn"    id="bnav-sos"         onclick="showPage('sos')" style="color:var(--rojo)"><i class='bx bxs-error-circle'></i>SOS<span id="bnav-sos-badge" class="badge hidden" style="position:absolute;top:6px;right:6px;min-width:16px;height:16px;font-size:9px">0</span></button>
 </nav>
 
 </body>

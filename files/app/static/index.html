@@ -354,6 +354,7 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
 /* Filtros */
 .rec-filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .rec-filters::-webkit-scrollbar{display:none}
+.kai-ico{width:1em;height:1em;vertical-align:middle;display:inline;flex-shrink:0}
 .rec-filter-btn{flex-shrink:0;border:1.5px solid var(--borde);background:var(--blanco);border-radius:50px;padding:7px 15px;font-size:12px;font-weight:600;color:var(--suave);cursor:pointer;white-space:nowrap;transition:all .18s;display:flex;align-items:center;gap:5px}
 .rec-filter-btn:hover{border-color:var(--azul);color:var(--azul)}
 .rec-filter-btn.on{background:var(--azul);border-color:var(--azul);color:#fff}
@@ -447,6 +448,19 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   50%      { box-shadow: 0 0 0 14px rgba(231,76,60,.24), 0 0 0 28px rgba(231,76,60,.10); }
 }
 
+/* ── SOS bloqueado ──────────────────────────────────────── */
+.sos-panic-btn.locked {
+  background: linear-gradient(145deg, #888, #666);
+  animation: none;
+  box-shadow: 0 0 0 10px rgba(100,100,100,.15);
+  cursor: not-allowed;
+}
+.sos-locked-msg {
+  background: rgba(255,165,0,.12); border: 1px solid rgba(255,165,0,.3);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+  font-size: 13px; color: #7a5200; line-height: 1.5; text-align: center;
+}
+
 /* ── Modal selector de línea ────────────────────────────── */
 .sos-modal-bg {
   position: fixed; inset: 0; background: rgba(0,0,0,.55);
@@ -527,10 +541,10 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   </div>
   <p class="section-label">Herramientas disponibles</p>
   <div class="grid-2">
-  <div class="home-card" onclick="go('diario')"><div class="hc-ico"><i class='bx bx-book-open'></i></div><div class="hc-title">Diario personal</div><div class="hc-sub">Escribe tus pensamientos</div></div>
+  <div class="home-card" onclick="go('notificaciones')"><div class="hc-ico"><i class='bx bx-bell'></i></div><div class="hc-title">Notificaciones</div><div class="hc-sub">Alertas y avisos del equipo</div></div>
   <div class="home-card" onclick="go('recursos')"><div class="hc-ico"><i class='bx bx-spa'></i></div><div class="hc-title">Recursos</div><div class="hc-sub">Técnicas y clínicas</div></div>
   <div class="home-card" onclick="go('sos')"><div class="hc-ico"><i class='bx bx-first-aid'></i></div><div class="hc-title">SOS Emergencias</div><div class="hc-sub">Líneas de crisis</div></div>
-  <div class="home-card" onclick="go('adicciones')"><div class="hc-ico"><i class='bx bx-brain'></i></div><div class="hc-title">Adicciones</div><div class="hc-sub">Centros de ayuda</div></div>
+  <div class="home-card" onclick="go('citas')"><div class="hc-ico"><i class='bx bx-calendar-check'></i></div><div class="hc-title">Mis Citas</div><div class="hc-sub">Ver y gestionar tus citas</div></div>
   </div>
 </div>
 
@@ -567,8 +581,8 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   <div id="entradas-list"></div>
   <div class="psico-bubble" id="psico-bubble" style="display:none">
     <div class="psico-menu hidden" id="psico-menu">
-      <button class="psico-menu-btn" onclick="go('chat-psico')"><span class="ico">💬</span> Chat con psicólogo/a</button>
-      <a class="psico-menu-btn" href="tel:5556231666"><span class="ico">📞</span> Llamar a Psicopedagogía</a>
+      <button class="psico-menu-btn" onclick="go('chat-psico')"><span class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Chat con psicólogo/a</button>
+      <a class="psico-menu-btn" href="tel:5556231666"><span class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span> Llamar a Psicopedagogía</a>
     </div>
     <button class="psico-fab" onclick="togglePsicoMenu()" title="Contactar psicólogo">
         <svg viewBox="0 0 100 100"><path d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 80c-19.3 0-35-15.7-35-35s15.7-35 35-35 35 15.7 35 35-15.7 35-35 35zm15-45c0 8.3-6.7 15-15 15s-15-6.7-15-15 6.7-15 15-15 15 6.7 15 15zm20 30H15c0-11 9-20 20-20h30c11 0 20 9 20 20z" fill="currentColor"/></svg>
@@ -600,19 +614,23 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
 </div>
 
 <div class="page" id="p-sos">
+  <div id="sos-locked-banner" class="sos-locked-msg hidden">
+    ⏳ Tu alerta SOS está siendo atendida por el equipo de psicopedagogía.<br>
+    El botón se desbloqueará cuando tu caso sea marcado como atendido.
+  </div>
   <div style="text-align:center;padding:20px 0 8px;">
     <p style="font-size:13px;color:var(--suave);margin-bottom:18px;">Si estás en crisis, presiona el botón</p>
-    <button class="sos-panic-btn" onclick="abrirModalSOS()">
-      🆘
+    <button class="sos-panic-btn" id="sos-panic-btn" onclick="intentarSOS()">
+      <svg style="width:2em;height:2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>
       <span class="sos-txt">SOS</span>
     </button>
     <p style="font-size:12px;color:var(--suave);max-width:260px;margin:0 auto 20px;">Te mostramos las líneas de emergencia disponibles para que elijas</p>
   </div>
-  <a class="sos-big-btn llamar" href="tel:8002900024"><div class="sbb-icon">📞</div><div class="sbb-txt"><strong>Llamar a crisis</strong><span>SAPTEL · 800 290 0024 · 24 hrs</span></div><span class="sbb-arr">›</span></a>
-  <button class="sos-big-btn sms" onclick="togglePanel('sms-panel')"><div class="sbb-icon">💬</div><div class="sbb-txt"><strong>Enviar SMS de ayuda</strong><span>Mensaje a línea de crisis</span></div><span class="sbb-arr">›</span></button>
+  <a class="sos-big-btn llamar" href="tel:8002900024"><div class="sbb-icon"><svg style="width:1.4em;height:1.4em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div class="sbb-txt"><strong>Llamar a crisis</strong><span>SAPTEL · 800 290 0024 · 24 hrs</span></div><span class="sbb-arr">›</span></a>
+  <button class="sos-big-btn sms" onclick="togglePanel('sms-panel')"><div class="sbb-icon"><svg style="width:1.4em;height:1.4em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="sbb-txt"><strong>Enviar SMS de ayuda</strong><span>Mensaje a línea de crisis</span></div><span class="sbb-arr">›</span></button>
   <div class="panel-extra" id="sms-panel">
-    <h3>📱 ¿A quién enviar el SMS?</h3>
-    <a class="sms-opt" href="sms:8002900024?body=Necesito ayuda, estoy en crisis"><span class="ico">🆘</span><div><strong>SAPTEL · Línea de crisis</strong><span>800 290 0024</span></div></a>
+    <h3><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> ¿A quién enviar el SMS?</h3>
+    <a class="sms-opt" href="sms:8002900024?body=Necesito ayuda, estoy en crisis"><span class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg></span><div><strong>SAPTEL · Línea de crisis</strong><span>800 290 0024</span></div></a>
     <a class="sms-opt" href="sms:558009112000?body=Necesito apoyo emocional urgente"><span class="ico verde">💚</span><div><strong>IMSS · Salud mental</strong><span>55 800 911 2000</span></div></a>
     <a class="sms-opt" href="sms:?body=Necesito ayuda urgente. Mi ubicación: "><span class="ico gris">👤</span><div><strong>Contacto de confianza</strong><span>Elige de tu lista de contactos</span></div></a>
   </div>
@@ -621,15 +639,15 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
     <h3>📍 Tu ubicación actual</h3>
     <div class="loc-info" id="loc-info">Obteniendo ubicación…</div>
     <div class="loc-btns">
-      <button class="btn-copy" onclick="copiarUbicacion()">📋 Copiar link</button>
+      <button class="btn-copy" onclick="copiarUbicacion()"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Copiar link</button>
       <a class="btn-wa" id="wa-link" href="#">
           <svg viewBox="0 0 100 100"><path d="M85 15C76 6 63.3 0 50 0 22.4 0 0 22.4 0 50c0 8.8 2.3 17.4 6.7 25l-7.1 26L26 94c7.3 4 15.6 6.1 24 6.1 27.6 0 50-22.4 50-50 0-13.4-5.2-26-15-35.1zm-35 81c-7.6 0-15-2-21.6-5.8l-1.5-.9-16 4.2 4.3-15.6-.9-1.5C6.1 63.8 4.1 57 4.1 50 4.1 24.7 24.7 4.1 50 4.1c12.3 0 23.8 4.8 32.5 13.5C91.2 26.2 96 37.7 96 50 96 75.3 75.4 96 50 96zm22.5-18.9c-1.2-.6-7.3-3.6-8.5-4s-2-1.2-2.8 0c-.8 1.2-3.1 4-3.8 4.8s-1.4.9-2.6.3c-1.2-.6-5.1-1.9-9.7-6-3.6-3.2-6-7.2-6.7-8.4s0-1.8.6-2.4c.5-.5 1.2-1.4 1.8-2 .6-.6.8-1.1 1.2-1.8s.2-1.4-.1-2c-.3-.6-2.8-6.7-3.8-9.1-1-2.4-2-2-2.8-2s-1.6 0-2.4.3c-.8.3-2.6 1.4-2.6 3.6 0 2.2 1.6 4.3 1.8 4.5.2.2 3.1 4.7 7.5 6.6 1 .4 1.8.7 2.4.9 1 .3 2 .3 2.8.2.8-.1 2.6-1.1 3-2 .4-.9.4-1.7.3-2-.1-.3-.4-.5-1-.8z" fill="currentColor"/></svg>
           WhatsApp
       </a>
     </div>
   </div>
-  <button class="sos-big-btn fes" onclick="llamarFES()"><div class="sbb-icon">🏛</div><div class="sbb-txt"><strong>Psicopedagogía FES Acatlán</strong><span>Lun–Vie · 8am–8pm · Edificio D, PB</span></div><span class="sbb-arr" style="color:var(--suave)">›</span></button>
-  <button class="sos-big-btn adicciones" onclick="go('adicciones')"><div class="sbb-icon">🧠</div><div class="sbb-txt"><strong>Centros de adicciones</strong><span>CONADIC, CIJ y más centros</span></div><span class="sbb-arr">›</span></button>
+  <button class="sos-big-btn fes" onclick="llamarFES()"><div class="sbb-icon"><svg style="width:1.4em;height:1.4em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="sbb-txt"><strong>Psicopedagogía FES Acatlán</strong><span>Lun–Vie · 8am–8pm · Edificio D, PB</span></div><span class="sbb-arr" style="color:var(--suave)">›</span></button>
+  <button class="sos-big-btn adicciones" onclick="go('adicciones')"><div class="sbb-icon"><svg style="width:1.4em;height:1.4em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a2.5 2.5 0 0 1 0 5 2.5 2.5 0 0 1 0-5zM14.5 2a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5z"/><path d="M7 13a5 5 0 1 1 10 0 5 5 0 0 1-10 0z"/><path d="M12 22V18"/></svg></div><div class="sbb-txt"><strong>Centros de adicciones</strong><span>CONADIC, CIJ y más centros</span></div><span class="sbb-arr">›</span></button>
   <p class="section-label" style="margin-top:18px">Líneas de emergencia</p>
   <div id="lineas-list"></div>
 </div>
@@ -641,12 +659,12 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   <div class="page-sub">Ayuda profesional para rehabilitación</div>
   <div class="card" style="background:rgba(107,63,160,.06);border-color:rgba(107,63,160,.18)"><p style="font-size:13px;color:#4a1780;line-height:1.6">Buscar ayuda para una adicción es un acto de valentía. Estos centros ofrecen atención confidencial, muchos con cobertura pública o gratuita.</p></div>
   <p class="section-label">Líneas de orientación 24hrs</p>
-  <div class="adiccion-card"><span class="ac-icon">📞</span><div class="ac-info"><strong>CONADIC — Línea de la Vida</strong><span>Orientación 24 hrs sobre adicciones y treatmento. Sin costo.</span></div><a class="ac-tel" href="tel:8009112000">800 911 2000</a></div>
-  <div class="adiccion-card"><span class="ac-icon">🏥</span><div class="ac-info"><strong>CIJ — Centro de Integración Juvenil</strong><span>Treatmento ambulatorio · Acatlán: 55 5563 4330</span></div><a class="ac-tel" href="tel:5555634330">55 5563 4330</a></div>
-  <div class="adiccion-card"><span class="ac-icon">💊</span><div class="ac-info"><strong>UNEME-CAPA</strong><span>Unidades especializadas en adicciones · CDMX gratuito</span></div><a class="ac-tel" href="tel:8002900024">800 290 0024</a></div>
-  <div class="adiccion-card"><span class="ac-icon">🌿</span><div class="ac-info"><strong>AA — Alcohólicos Anónimos</strong><span>Grupos de apoyo en toda la CDMX · Gratuito y anónimo</span></div><a class="ac-tel" href="tel:5555748651">55 5574 8651</a></div>
-  <div class="adiccion-card"><span class="ac-icon">🤝</span><div class="ac-info"><strong>NA — Narcóticos Anónimos</strong><span>Grupos de 12 pasos · Anónimo y gratuito</span></div><a class="ac-tel" href="tel:5555614090">55 5614 0903</a></div>
-  <div class="adiccion-card"><span class="ac-icon">🔬</span><div class="ac-info"><strong>CDIS — Clínicas IMSS</strong><span>Desintoxicación · Requiere derechohabiencia IMSS</span></div><a class="ac-tel" href="tel:8006232323">800 623 2323</a></div>
+  <div class="adiccion-card"><span class="ac-icon"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><div class="ac-info"><strong>CONADIC — Línea de la Vida</strong><span>Orientación 24 hrs sobre adicciones y treatmento. Sin costo.</span></div><a class="ac-tel" href="tel:8009112000">800 911 2000</a></div>
+  <div class="adiccion-card"><span class="ac-icon"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><div class="ac-info"><strong>CIJ — Centro de Integración Juvenil</strong><span>Treatmento ambulatorio · Acatlán: 55 5563 4330</span></div><a class="ac-tel" href="tel:5555634330">55 5563 4330</a></div>
+  <div class="adiccion-card"><span class="ac-icon"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg></span><div class="ac-info"><strong>UNEME-CAPA</strong><span>Unidades especializadas en adicciones · CDMX gratuito</span></div><a class="ac-tel" href="tel:8002900024">800 290 0024</a></div>
+  <div class="adiccion-card"><span class="ac-icon"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 4 13V5a2 2 0 0 1 2-2h5c4.4 0 8 3.6 8 8v9a1 1 0 0 1-1 1h-7z"/><path d="M11 3v17"/></svg></span><div class="ac-info"><strong>AA — Alcohólicos Anónimos</strong><span>Grupos de apoyo en toda la CDMX · Gratuito y anónimo</span></div><a class="ac-tel" href="tel:5555748651">55 5574 8651</a></div>
+  <div class="adiccion-card"><span class="ac-icon"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg></span><div class="ac-info"><strong>NA — Narcóticos Anónimos</strong><span>Grupos de 12 pasos · Anónimo y gratuito</span></div><a class="ac-tel" href="tel:5555614090">55 5614 0903</a></div>
+  <div class="adiccion-card"><span class="ac-icon"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><div class="ac-info"><strong>CDIS — Clínicas IMSS</strong><span>Desintoxicación · Requiere derechohabiencia IMSS</span></div><a class="ac-tel" href="tel:8006232323">800 623 2323</a></div>
   <p class="section-label" style="margin-top:18px">En FES Acatlán</p>
   <div class="card"><h4 style="font-size:13px;font-weight:600;margin-bottom:6px">Psicopedagogía FES Acatlán</h4><p style="font-size:12px;color:var(--suave);line-height:1.6">El Departamento de Psicopedagogía ofrece orientación y canalización a centros de adicciones. Lun–Vie 8am–8pm · Edificio D, PB · <a href="tel:5556231666" style="color:var(--azul2);font-weight:600">55 5623 1666</a></p></div>
 </div>
@@ -663,30 +681,14 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
 
   <!-- Filtros por categoría -->
   <div class="rec-filters" id="rec-filters">
-    <button class="rec-filter-btn on" data-tipo="" onclick="setRecFiltro(this, '')">
-      🌿 Todos
-    </button>
-    <button class="rec-filter-btn" data-tipo="respiracion" onclick="setRecFiltro(this, 'respiracion')">
-      🌬️ Respiración
-    </button>
-    <button class="rec-filter-btn" data-tipo="meditacion" onclick="setRecFiltro(this, 'meditacion')">
-      🧘 Meditación
-    </button>
-    <button class="rec-filter-btn" data-tipo="ejercicio" onclick="setRecFiltro(this, 'ejercicio')">
-      🏃 Ejercicio
-    </button>
-    <button class="rec-filter-btn" data-tipo="lectura" onclick="setRecFiltro(this, 'lectura')">
-      📖 Lectura
-    </button>
-    <button class="rec-filter-btn" data-tipo="video" onclick="setRecFiltro(this, 'video')">
-      🎬 Video
-    </button>
-    <button class="rec-filter-btn" data-tipo="clinica" onclick="setRecFiltro(this, 'clinica')">
-      🏥 Clínicas
-    </button>
-    <button class="rec-filter-btn" data-tipo="linea_crisis" onclick="setRecFiltro(this, 'linea_crisis')">
-      📞 Crisis
-    </button>
+    <button class="rec-filter-btn on" data-tipo="" onclick="setRecFiltro(this, '')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 4 13V5a2 2 0 0 1 2-2h5c4.4 0 8 3.6 8 8v9a1 1 0 0 1-1 1h-7z"/><path d="M11 3v17"/></svg> Todos</button>
+    <button class="rec-filter-btn" data-tipo="respiracion" onclick="setRecFiltro(this, 'respiracion')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 3c2.5 0 5 2.5 5 5v13H4V8c0-2.5 2.5-5 3-5Z"/><path d="M17 3c-2.5 0-5 2.5-5 5v13h8V8c0-2.5-2.5-5-3-5Z"/></svg> Respiración</button>
+    <button class="rec-filter-btn" data-tipo="meditacion" onclick="setRecFiltro(this, 'meditacion')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="2"/><path d="m9 22 3-6 3 6M7 11l5 2 5-2"/></svg> Meditación</button>
+    <button class="rec-filter-btn" data-tipo="ejercicio" onclick="setRecFiltro(this, 'ejercicio')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="2"/><path d="m9 22 3-6 3 6M7 11l5 2 5-2"/></svg> Ejercicio</button>
+    <button class="rec-filter-btn" data-tipo="lectura" onclick="setRecFiltro(this, 'lectura')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Lectura</button>
+    <button class="rec-filter-btn" data-tipo="video" onclick="setRecFiltro(this, 'video')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Video</button>
+    <button class="rec-filter-btn" data-tipo="clinica" onclick="setRecFiltro(this, 'clinica')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Clínicas</button>
+    <button class="rec-filter-btn" data-tipo="linea_crisis" onclick="setRecFiltro(this, 'linea_crisis')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Crisis</button>
   </div>
 
   <!-- Lista de recursos -->
@@ -768,7 +770,7 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   <!-- ── Contacto de Emergencia ──────────────────────────── -->
   <p class="section-label">Contacto de emergencia</p>
   <div class="emergencia-form">
-    <div class="ef-title">🚨 ¿A quién avisamos si activas SOS?</div>
+    <div class="ef-title"> ¿A quién avisamos si activas SOS?</div>
     <p style="font-size:12px;color:#888;margin-bottom:10px;">Si presionas el botón SOS, notificamos automáticamente a esta persona.</p>
     <input class="field-input" type="text"  id="ec-nombre" placeholder="Nombre completo" style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid #fca5a5;border-radius:10px;font-size:14px"/>
     <input class="field-input" type="tel"   id="ec-tel"    placeholder="Teléfono (10 dígitos)" style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid #fca5a5;border-radius:10px;font-size:14px"/>
@@ -793,7 +795,7 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   </div>
   <div class="call-bar">
     <button class="call-btn-bar video" onclick="alert('Videollamada en desarrollo. Por ahora llama al 55 5623 1666')">📹 Videollamada</button>
-    <a class="call-btn-bar phone" href="tel:5556231666">📞 Llamar</a>
+    <a class="call-btn-bar phone" href="tel:5556231666"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Llamar</a>
   </div>
   <div class="info-box">Para atención real llama a <strong>55 5623 1666</strong> Lun–Vie 8am–8pm. Este chat envía tus mensajes al equipo de apoyo.</div>
   <div class="chat-wrap">
@@ -818,8 +820,8 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
     <div id="auth-t0">
       <!-- Selector email / teléfono -->
       <div class="login-mode-tabs">
-        <div class="lm-tab on" id="lmt-email" onclick="setLoginMode('email')">📧 Correo</div>
-        <div class="lm-tab"    id="lmt-tel"   onclick="setLoginMode('tel')">📱 Teléfono</div>
+        <div class="lm-tab on" id="lmt-email" onclick="setLoginMode('email')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Correo</div>
+        <div class="lm-tab"    id="lmt-tel"   onclick="setLoginMode('tel')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Teléfono</div>
       </div>
       <!-- Modo email -->
       <div id="login-email-fields">
@@ -836,8 +838,8 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
       <div id="reset-box" class="reset-box hidden">
         <p>Ingresa tu <strong>correo</strong> o teléfono registrado y recibirás una contraseña temporal.</p>
         <div class="login-mode-tabs" style="margin-bottom:10px;">
-          <div class="lm-tab on" id="rst-tab-email" onclick="setResetMode('email')">📧 Correo</div>
-          <div class="lm-tab"    id="rst-tab-tel"   onclick="setResetMode('tel')">📱 Teléfono</div>
+          <div class="lm-tab on" id="rst-tab-email" onclick="setResetMode('email')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Correo</div>
+          <div class="lm-tab"    id="rst-tab-tel"   onclick="setResetMode('tel')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Teléfono</div>
         </div>
         <div id="rst-email-field" class="field" style="margin-bottom:8px;">
           <input type="email" id="reset-email" placeholder="usuario@pcpuma.acatlan.unam.mx" style="width:100%"/>
@@ -863,15 +865,35 @@ header{background:var(--azul);padding:12px 18px;display:flex;align-items:center;
   </div>
 </div>
 
+<div class="page" id="p-notificaciones">
+  <div class="page-title">Notificaciones</div>
+  <div class="page-sub">Avisos y alertas del equipo de apoyo</div>
+  <div id="notif-list"><div class="loader-msg">Cargando…</div></div>
+</div>
+
+<div class="page" id="p-citas">
+  <div class="page-title">Mis Citas</div>
+  <div class="page-sub">Gestiona tus citas con el equipo de psicopedagogía</div>
+
+  <!-- Tabs próximas / pasadas -->
+  <div class="tabs" style="margin-top:4px">
+    <button class="tab on" id="tab-proximas" onclick="switchTabCitas('proximas')">Próximas</button>
+    <button class="tab" id="tab-pasadas" onclick="switchTabCitas('pasadas')">Historial</button>
+  </div>
+
+  <div id="citas-proximas-list"></div>
+  <div id="citas-pasadas-list" class="hidden"></div>
+</div>
+
 <nav class="bottom-nav">
   <button class="bnav-btn on" onclick="go('home')"><i class='bx bx-home-alt ico'></i>Inicio</button>
-  <button class="bnav-btn" onclick="go('diario')"><i class='bx bx-book-heart ico'></i>Diario</button>
+  <button class="bnav-btn" onclick="go('recursos')"><i class='bx bx-leaf ico'></i>Recursos</button>
   <button class="bnav-btn" onclick="go('chatbot')">
     <img src="/static/kai_transparent.png" class="kai-ui-ico kai-cat-img" alt="KAI">
     KAI
   </button>
-  <button class="bnav-btn" onclick="go('recursos')"><i class='bx bx-leaf ico'></i>Recursos</button>
-  <button class="bnav-btn sos-btn" onclick="go('sos')"><span id="notif-badge" class="notif-badge" style="display:none">0</span><i class='bx bx-support ico'></i>SOS</button>
+  <button class="bnav-btn" onclick="go('notificaciones')"><span id="notif-badge" class="notif-badge" style="display:none">0</span><i class='bx bx-bell ico'></i>Alertas</button>
+  <button class="bnav-btn sos-btn" onclick="go('sos')"><i class='bx bx-support ico'></i>SOS</button>
 </nav>
 
 
@@ -955,17 +977,20 @@ async function api(path,opts={}){
 function dfmt(iso){return new Date(iso).toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
 function toast(msg){const e=document.createElement('div');e.className='toast';e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),2600)}
 
-const PAGEMAP={home:'p-home',diario:'p-diario',chatbot:'p-chatbot',sos:'p-sos',adicciones:'p-adicciones',recursos:'p-recursos',perfil:'p-perfil','chat-psico':'p-chat-psico'}
-const NAVMAP=['home','diario','chatbot','recursos','sos']
+const PAGEMAP={home:'p-home',diario:'p-diario',chatbot:'p-chatbot',sos:'p-sos',adicciones:'p-adicciones',recursos:'p-recursos',perfil:'p-perfil','chat-psico':'p-chat-psico',notificaciones:'p-notificaciones',citas:'p-citas'}
+const NAVMAP=['home','recursos','chatbot','notificaciones','sos']
 
 function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'))
   document.getElementById(PAGEMAP[page])?.classList.add('on')
   document.querySelectorAll('.bnav-btn').forEach((b,i)=>b.classList.toggle('on',NAVMAP[i]===page))
-  document.getElementById('psico-bubble').style.display=page==='diario'?'':'none'
+  document.getElementById('psico-bubble').style.display='none'
   psicoOpen=false; document.getElementById('psico-menu').classList.add('hidden')
   if(page==='diario')loadDiario()
   if(page==='recursos')loadRecursos()
+  if(page==='notificaciones')loadNotificaciones()
+  if(page==='citas')loadCitas()
+  if(page==='sos')initSOS()
   if(page==='sos')loadLineas()
   if(page==='perfil')renderPerfil()
   window.scrollTo(0,0)
@@ -1244,7 +1269,7 @@ async function cerrarSesion(){
 }
 
 async function eliminarCuenta(){
-  if(!confirm('⚠️ ¿Eliminar tu cuenta? Esta acción es IRREVERSIBLE.'))return
+  if(!confirm(' ¿Eliminar tu cuenta? Esta acción es IRREVERSIBLE.'))return
   if(!confirm('¿Confirmas la eliminación permanente de todos tus datos?'))return
   try{await api('/auth/logout-all',{method:'POST'})}catch{}
   localStorage.clear();token='';user=null;actualizarUI();window.location.href='/login.html';
@@ -1294,11 +1319,11 @@ async function guardarEntrada(){
 
 async function loadDiario(){
   const el=document.getElementById('entradas-list')
-  if(!token){el.innerHTML='<div class="empty-state"><div class="ico">🔒</div><p>Inicia sesión para ver y guardar tu diario.</p></div><button class="btn btn-azul" onclick="abrirAuth()" style="max-width:280px;margin:0 auto">Iniciar sesión</button>';return}
+  if(!token){el.innerHTML='<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p>Inicia sesión para ver y guardar tu diario.</p></div><button class="btn btn-azul" onclick="abrirAuth()" style="max-width:280px;margin:0 auto">Iniciar sesión</button>';return}
   el.innerHTML='<div class="loader-msg">Cargando…</div>'
   try{
     const r=await api('/diario/?por_pagina=30')
-    if(!r.entradas.length){el.innerHTML='<div class="empty-state"><div class="ico">📖</div><p>Aún no tienes entradas.<br>Escribe tu primera hoy.</p></div>';return}
+    if(!r.entradas.length){el.innerHTML='<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><p>Aún no tienes entradas.<br>Escribe tu primera hoy.</p></div>';return}
     el.innerHTML=r.entradas.map(e=>`
       <div class="entrada-card">
         <div class="ec-top">${e.estado_animo?`<span style="font-size:20px">${e.estado_animo}</span>`:''}${e.alerta_crisis?'<span class="ec-crisis">Alerta</span>':''}<span class="ec-fecha">${dfmt(e.creada_en)}</span></div>
@@ -1317,36 +1342,36 @@ function togglePsicoMenu(){psicoOpen=!psicoOpen;document.getElementById('psico-m
 
 // Chatbot
 // Minimalismo de iconos para temas del bot
-const RICONS={general:'💬',tdah:'⚡',autismo:'🌈',ansiedad:'😰',depresion:'🌧',tca:'🍃',duelo:'💙',adiccion:'🧠'}
+const RICONS={general:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',tdah:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',autismo:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 17a10 10 0 0 0-20 0"/><path d="M6 17a6 6 0 0 1 12 0"/><path d="M10 17a2 2 0 0 1 4 0"/></svg>',ansiedad:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',depresion:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',tca:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',duelo:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',adiccion:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5a3 3 0 1 0-5.997.142 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.142 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/></svg>'}
 
 const CONDS=[
-  {id:'general',ico:'💬',name:'Apoyo general',desc:'Estrés, emociones, bienestar'},
-  {id:'tdah',ico:'⚡',name:'TDAH',desc:'Atención, concentración, impulsividad'},
-  {id:'autismo',ico:'🌈',name:'Espectro autista',desc:'TEA, comunicación, sensibilidad'},
-  {id:'ansiedad',ico:'😰',name:'Ansiedad',desc:'Pánico, preocupación, nerviosismo'},
-  {id:'depresion',ico:'🌧',name:'Depresión',desc:'Tristeza profunda, desmotivación'},
-  {id:'tca',ico:'🍃',name:'Trastornos aliment.',desc:'TCA, imagen corporal'},
-  {id:'duelo',ico:'💙',name:'Duelo',desc:'Pérdidas, procesos de duelo'},
-  {id:'adiccion',ico:'🧠',name:'Adicciones',desc:'Sustancias, comportamentales'},
+  {id:'general',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',name:'Apoyo general',desc:'Estrés, emociones, bienestar'},
+  {id:'tdah',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',name:'TDAH',desc:'Atención, concentración, impulsividad'},
+  {id:'autismo',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 17a10 10 0 0 0-20 0"/><path d="M6 17a6 6 0 0 1 12 0"/><path d="M10 17a2 2 0 0 1 4 0"/></svg>',name:'Espectro autista',desc:'TEA, comunicación, sensibilidad'},
+  {id:'ansiedad',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 15h8M9.5 9.5h.01M14.5 9.5h.01"/></svg>',name:'Ansiedad',desc:'Pánico, preocupación, nerviosismo'},
+  {id:'depresion',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',name:'Depresión',desc:'Tristeza profunda, desmotivación'},
+  {id:'tca',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',name:'Trastornos aliment.',desc:'TCA, imagen corporal'},
+  {id:'duelo',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',name:'Duelo',desc:'Pérdidas, procesos de duelo'},
+  {id:'adiccion',ico:'<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5a3 3 0 1 0-5.997.142 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.142 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/></svg>',name:'Adicciones',desc:'Sustancias, comportamentales'},
 ]
 function renderConds(){document.getElementById('cond-grid').innerHTML=CONDS.map(c=>`<div class="cond-btn${condSel===c.id?' sel':''}" onclick="selCond('${c.id}')"><div class="cond-ico">${c.ico}</div><div class="cond-name">${c.name}</div><div class="cond-desc">${c.desc}</div></div>`).join('')}
 function selCond(id){condSel=id;renderConds()}
 const WELCOME={
-  tdah:'¡Hola! 👋 Entiendo que vivir con TDAH puede ser desafiante en la universidad. ¿Qué está siendo más difícil para ti últimamente: la concentración, los plazos, o algo más?',
-  autismo:'Hola 👋 Cada persona en el espectro tiene experiencias únicas. ¿Hay algo en tu vida universitaria o personal sobre lo que te gustaría hablar hoy?',
-  ansiedad:'Hola 👋 Un ejercicio rápido primero: inhala 4 segundos, aguanta 4, exhala 8. ¿Cómo te sientes en este momento? Cuéntame.',
-  depresion:'Hola 👋 Gracias por estar aquí. No tienes que estar "bien" para hablar. ¿Cómo has estado en estos días?',
-  tca:'Hola 👋 Es valiente hablar de esto. Puedo ofrecerte apoyo y orientarte a recursos especializados. ¿Qué te trajo aquí hoy?',
-  duelo:'Hola 👋 El duelo es uno de los procesos más difíciles. No hay forma "correcta" de vivirlo. Estoy aquí para escucharte. ¿Quieres contarme qué estás viviendo?',
-  adiccion:'Hola 👋 Reconocer que necesitas apoyo es un acto de valentía. ¿Por dónde quieres empezar?',
-  general:'Hola, soy KAI 👋 Estoy aquí para acompañarte. ¿Cómo te sientes hoy?'
+  tdah:'¡Hola!, entiendo que vivir con TDAH puede ser desafiante en la universidad. ¿Qué está siendo más difícil para ti últimamente: la concentración, los plazos, o algo más?',
+  autismo:'Hola, cada persona en el espectro tiene experiencias únicas. ¿Hay algo en tu vida universitaria o personal sobre lo que te gustaría hablar hoy?',
+  ansiedad:'Hola, un ejercicio rápido primero: inhala 4 segundos, aguanta 4, exhala 8. ¿Cómo te sientes en este momento? Cuéntame.',
+  depresion:'Hola, gracias por estar aquí. No tienes que estar "bien" para hablar. ¿Cómo has estado en estos días?',
+  tca:'Hola, es valiente hablar de esto. Puedo ofrecerte apoyo y orientarte a recursos especializados. ¿Qué te trajo aquí hoy?',
+  duelo:'Hola, el duelo es uno de los procesos más difíciles. No hay forma "correcta" de vivirlo. Estoy aquí para escucharte. ¿Quieres contarme qué estás viviendo?',
+  adiccion:'Hola, reconocer que necesitas apoyo es un acto de valentía. ¿Por dónde quieres empezar?',
+  general:'Hola, soy KAI, estoy aquí para acompañarte. ¿Cómo te sientes hoy?'
 }
 function iniciarChat(){
   if(!condSel){toast('Selecciona un tema primero');return}
   document.getElementById('condition-selector').classList.add('hidden')
   document.getElementById('chat-area').classList.remove('hidden')
   const c=CONDS.find(x=>x.id===condSel)
-  document.getElementById('cond-label').textContent=c.ico+' '+c.name
+  document.getElementById('cond-label').innerHTML=c.ico+' '+c.name
   document.getElementById('chat-msgs').innerHTML=''
   chatSesion=null; addBubble(WELCOME[condSel]||WELCOME.general,'bot','chat-msgs')
 }
@@ -1387,13 +1412,13 @@ let _recCache = [];
 let _recFiltroTipo = '';
 
 const REC_ICONS = {
-  respiracion:  '🌬️',
-  meditacion:   '🧘',
-  ejercicio:    '🏃',
-  lectura:      '📖',
-  video:        '🎬',
-  clinica:      '🏥',
-  linea_crisis: '📞',
+  respiracion:  '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v7"/><path d="M9 7.5C5 8 3 11 3 15a3 3 0 0 0 6 0v-2.5"/><path d="M15 7.5c4 .5 6 3.5 6 7.5a3 3 0 0 1-6 0v-2.5"/></svg>',
+  meditacion:   '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="4" r="1"/><path d="m9 20 3-6 3 6"/><path d="M6.5 12H9l3-4.5 3 4.5h2.5"/><line x1="12" y1="9.5" x2="12" y2="12"/></svg>',
+  ejercicio:    '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="4" r="1"/><path d="m9 20 3-6 3 6"/><path d="M6.5 12H9l3-4.5 3 4.5h2.5"/><line x1="12" y1="9.5" x2="12" y2="12"/></svg>',
+  lectura:      '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  video:        '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+  clinica:      '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  linea_crisis: '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
 };
 
 const REC_LABELS = {
@@ -1405,6 +1430,170 @@ const REC_LABELS = {
   clinica:      'Clínica',
   linea_crisis: 'Línea de crisis',
 };
+
+async function loadNotificaciones() {
+  const el = document.getElementById('notif-list');
+  if (!token) {
+    el.innerHTML = '<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p>Inicia sesión para ver tus notificaciones.</p></div><button class="btn btn-azul" onclick="abrirAuth()" style="max-width:280px;margin:0 auto">Iniciar sesión</button>';
+    return;
+  }
+  el.innerHTML = '<div class="loader-msg">Cargando…</div>';
+  try {
+    const r = await api('/notificaciones/mis');
+    const notifs = Array.isArray(r) ? r : (r.notificaciones || []);
+    if (!notifs.length) {
+      el.innerHTML = '<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><p>No tienes notificaciones por ahora.</p></div>';
+      return;
+    }
+    el.innerHTML = notifs.map(n => `
+      <div class="card" style="border-left:3px solid ${n.leida ? 'var(--borde)' : 'var(--azul)'}; opacity:${n.leida ? '.7' : '1'}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div>
+            <strong style="font-size:14px;display:block;margin-bottom:3px">${n.titulo}</strong>
+            <span style="font-size:13px;color:var(--suave);line-height:1.5">${n.mensaje}</span>
+          </div>
+          ${!n.leida ? `<button onclick="marcarLeida('${n.id}')" style="flex-shrink:0;background:none;border:none;color:var(--azul2);font-size:12px;cursor:pointer;white-space:nowrap">Marcar leída</button>` : ''}
+        </div>
+        <span style="font-size:11px;color:var(--suave);display:block;margin-top:6px">${new Date(n.creada_en).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="err-box">${e.message}</div>`;
+  }
+}
+
+async function marcarLeida(id) {
+  try {
+    await api('/notificaciones/'+id+'/leer', {method:'PATCH'});
+    loadNotificaciones();
+  } catch(e) { toast(e.message); }
+}
+
+// ── Citas ─────────────────────────────────────────────────
+let citasData = [];
+let citasTabActual = 'proximas';
+
+const ESTADO_LABEL = {
+  pendiente:'Pendiente', confirmada:'Confirmada',
+  cancelada:'Cancelada', completada:'Completada'
+};
+const ESTADO_COLOR = {
+  pendiente:'var(--dorado)', confirmada:'var(--verde)',
+  cancelada:'var(--rojo)', completada:'var(--suave)'
+};
+
+async function loadCitas() {
+  if (!token) {
+    document.getElementById('citas-proximas-list').innerHTML =
+      '<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p>Inicia sesión para ver tus citas.</p></div>';
+    return;
+  }
+  document.getElementById('citas-proximas-list').innerHTML = '<div class="loader-msg">Cargando…</div>';
+  try {
+    const [citas, psics] = await Promise.all([
+      api('/users/me/citas'),
+      api('/users/psicologos').catch(() => [])
+    ]);
+    citasData = citas;
+    window._psicMap = {};
+    (psics||[]).forEach(p => { window._psicMap[p.id] = p.nombre + (p.apellidos?' '+p.apellidos:''); });
+    renderCitas();
+  } catch(e) {
+    document.getElementById('citas-proximas-list').innerHTML = `<div class="err-box">${e.message}</div>`;
+  }
+}
+
+function renderCitas() {
+  const ahora = new Date();
+  const proximas = citasData.filter(c => new Date(c.fecha_hora) >= ahora && c.estado !== 'cancelada');
+  const pasadas  = citasData.filter(c => new Date(c.fecha_hora) < ahora || c.estado === 'cancelada');
+
+  document.getElementById('citas-proximas-list').innerHTML =
+    proximas.length ? proximas.map(citaCard).join('') :
+    '<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><p>No tienes citas próximas.<br>Solicita una con el botón de arriba.</p></div>';
+
+  document.getElementById('citas-pasadas-list').innerHTML =
+    pasadas.length ? pasadas.map(citaCard).join('') :
+    '<div class="empty-state"><div class="ico">🗂️</div><p>Sin historial de citas aún.</p></div>';
+}
+
+function citaCard(c) {
+  const fecha = new Date(c.fecha_hora);
+  const fechaStr = fecha.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+  const horaStr  = fecha.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  const psicNombre = window._psicMap?.[c.psicologo_id] || 'Psicólogo/a';
+  const esPendiente   = c.estado === 'pendiente';
+  const esCancelable  = c.estado === 'pendiente' || c.estado === 'confirmada';
+  const isFutura = new Date(c.fecha_hora) >= new Date();
+
+  return `
+  <div class="card" style="border-left:3px solid ${ESTADO_COLOR[c.estado]}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
+      <div>
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${ESTADO_COLOR[c.estado]}">${ESTADO_LABEL[c.estado]}</span>
+        <div style="font-size:15px;font-weight:600;margin-top:2px">${fechaStr}</div>
+        <div style="font-size:13px;color:var(--suave)">${horaStr} · ${c.modalidad === 'videollamada' ? '📹 Videollamada' : '🏫 Presencial'}</div>
+      </div>
+      <div style="font-size:12px;color:var(--suave);text-align:right;flex-shrink:0">
+        <i class='bx bx-user'></i> ${psicNombre}
+      </div>
+    </div>
+    ${c.motivo ? `<div style="font-size:13px;color:var(--texto);background:var(--fondo);border-radius:8px;padding:8px 10px;margin-bottom:8px;line-height:1.5">${c.motivo}</div>` : ''}
+    ${c.link_videollamada ? `<a href="${c.link_videollamada}" target="_blank" style="font-size:12px;color:var(--azul2);display:block;margin-bottom:8px">🔗 Unirse a videollamada</a>` : ''}
+    ${isFutura ? `<div style="display:flex;gap:7px;flex-wrap:wrap">
+      ${esPendiente ? `<button class="btn btn-verde btn-sm" onclick="confirmarCita('${c.id}')">✓ Confirmar</button>` : ''}
+      ${esCancelable ? `<button class="btn btn-ghost btn-sm" style="color:var(--rojo)" onclick="cancelarCita('${c.id}')">Cancelar</button>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
+function switchTabCitas(tab) {
+  citasTabActual = tab;
+  document.getElementById('citas-proximas-list').classList.toggle('hidden', tab !== 'proximas');
+  document.getElementById('citas-pasadas-list').classList.toggle('hidden', tab !== 'pasadas');
+  document.getElementById('tab-proximas').classList.toggle('on', tab === 'proximas');
+  document.getElementById('tab-pasadas').classList.toggle('on', tab === 'pasadas');
+}
+
+async function confirmarCita(id) {
+  try {
+    await api('/users/me/citas/'+id+'/confirmar', {method:'PATCH'});
+    toast('Cita confirmada ✓');
+    loadCitas();
+  } catch(e) { toast(e.message); }
+}
+
+async function cancelarCita(id) {
+  if (!confirm('¿Seguro que quieres cancelar esta cita?')) return;
+  try {
+    await api('/users/me/citas/'+id, {method:'DELETE'});
+    toast('Cita cancelada');
+    loadCitas();
+  } catch(e) { toast(e.message); }
+}
+
+
+// ── SOS ──────────────────────────────────────────────────
+
+async function initSOS() {
+  const btn    = document.getElementById('sos-panic-btn');
+  const banner = document.getElementById('sos-locked-banner');
+  if (!token) { btn.classList.remove('locked'); banner.classList.add('hidden'); return; }
+  try {
+    const eventos = await api('/sos/eventos');
+    const pendiente = (eventos || []).some(e => !e.atendido);
+    btn.classList.toggle('locked', pendiente);
+    banner.classList.toggle('hidden', !pendiente);
+  } catch { /* sin sesión o error — dejar botón activo */ }
+}
+
+function intentarSOS() {
+  const btn = document.getElementById('sos-panic-btn');
+  if (btn.classList.contains('locked')) {
+    toast('Tu SOS ya está siendo atendido. El botón se desbloqueará pronto.');
+    return;
+  }
+  abrirModalSOS();
+}
 
 async function loadRecursos() {
   const el = document.getElementById('rec-list');
@@ -1654,47 +1843,32 @@ function irPsicologo(seccion) {
     <p>Selecciona la línea más adecuada para tu situación</p>
 
     <a class="sos-line-btn rojo" href="tel:8002900024" onclick="registrarSOS('llamada_saptel')">
-      <span class="sos-line-ico">🆘</span>
-      <div class="sos-line-info">
-        <strong>SAPTEL — Línea de Crisis</strong>
-        <span>Apoyo emocional 24/7 los 365 días</span>
-      </div>
+      <span class="sos-line-ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg></span>
+      <div class="sos-line-info"><strong>SAPTEL — Línea de Crisis</strong><span>Apoyo emocional 24/7 los 365 días</span></div>
       <span class="sos-line-tel">800 290 0024</span>
     </a>
 
     <a class="sos-line-btn azul" href="tel:5556231666" onclick="registrarSOS('llamada_fes')">
-      <span class="sos-line-ico">🏛</span>
-      <div class="sos-line-info">
-        <strong>Psicopedagogía FES Acatlán</strong>
-        <span>Lun–Vie · 8am–8pm · Edificio D, PB</span>
-      </div>
+      <span class="sos-line-ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <div class="sos-line-info"><strong>Psicopedagogía FES Acatlán</strong><span>Lun–Vie · 8am–8pm · Edificio D, PB</span></div>
       <span class="sos-line-tel">55 5623 1666</span>
     </a>
 
     <a class="sos-line-btn azul" href="tel:8009112000" onclick="registrarSOS('llamada_imss')">
-      <span class="sos-line-ico">🏥</span>
-      <div class="sos-line-info">
-        <strong>IMSS — Salud Mental</strong>
-        <span>Orientación en crisis · 24 hrs</span>
-      </div>
+      <span class="sos-line-ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+      <div class="sos-line-info"><strong>IMSS — Salud Mental</strong><span>Orientación en crisis · 24 hrs</span></div>
       <span class="sos-line-tel">800 911 2000</span>
     </a>
 
     <a class="sos-line-btn rojo" href="tel:911" onclick="registrarSOS('llamada_911')">
-      <span class="sos-line-ico">🚨</span>
-      <div class="sos-line-info">
-        <strong>Emergencias CDMX</strong>
-        <span>Policía / Ambulancias / Bomberos</span>
-      </div>
+      <span class="sos-line-ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+      <div class="sos-line-info"><strong>Emergencias CDMX</strong><span>Policía / Ambulancias / Bomberos</span></div>
       <span class="sos-line-tel">911</span>
     </a>
 
     <a class="sos-line-btn verde" href="tel:8009112000" onclick="registrarSOS('llamada_conadic')">
-      <span class="sos-line-ico">🧠</span>
-      <div class="sos-line-info">
-        <strong>CONADIC — Línea de la Vida</strong>
-        <span>Adicciones y salud mental · 24 hrs</span>
-      </div>
+      <span class="sos-line-ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a2.5 2.5 0 0 1 0 5 2.5 2.5 0 0 1 0-5zM14.5 2a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5z"/><path d="M7 13a5 5 0 1 1 10 0 5 5 0 0 1-10 0z"/><path d="M12 22V18"/></svg></span>
+      <div class="sos-line-info"><strong>CONADIC — Línea de la Vida</strong><span>Adicciones y salud mental · 24 hrs</span></div>
       <span class="sos-line-tel">800 911 2000</span>
     </a>
 
