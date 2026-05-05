@@ -50,7 +50,9 @@ ESTILO:
 - Entre 80 y 180 palabras. SIEMPRE termina la oración antes de acabar la respuesta.
 - Estructura: valida lo que siente → orienta → pregunta abierta al final
 - Habla de forma natural, no uses listas con viñetas en respuestas emocionales
-- Máximo 1 o 2 emojis por respuesta"""
+- Máximo 1 o 2 emojis por respuesta
+
+contesta TODO como chilango"""
 
 
 def _get_lm_client() -> AsyncOpenAI:

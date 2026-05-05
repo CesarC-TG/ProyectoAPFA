@@ -2,7 +2,7 @@
 Router de Usuarios — perfil propio, citas del estudiante, notificaciones
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from typing import Optional
@@ -111,6 +111,7 @@ async def mis_citas(
 @router.post("/me/citas", response_model=CitaRespuesta, status_code=201)
 async def solicitar_cita(
     datos: CitaCrear,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
     usuario: Usuario = Depends(get_current_user),
 ):
@@ -132,7 +133,39 @@ async def solicitar_cita(
     db.add(cita)
     await db.commit()
     await db.refresh(cita)
+
+    from app.service.notificacion_service import enviar_email_cita
+    background_tasks.add_task(
+        enviar_email_cita,
+        estudiante_email  = usuario.email,
+        estudiante_nombre = usuario.nombre,
+        psicologo_email   = psicologo.email,
+        psicologo_nombre  = psicologo.nombre + (f" {psicologo.apellidos}" if psicologo.apellidos else ""),
+        fecha_hora        = cita.fecha_hora,
+        duracion_min      = cita.duracion_minutos,
+        modalidad         = cita.modalidad,
+        motivo            = cita.motivo or "",
+        tipo              = "nueva",
+    )
+
     return cita
+
+
+@router.patch("/me/citas/{cita_id}/confirmar", response_model=MensajeRespuesta)
+async def confirmar_cita(
+    cita_id: str,
+    db: AsyncSession = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
+    """Estudiante confirma una cita pendiente agendada por el psicólogo."""
+    cita = await db.get(Cita, cita_id)
+    if not cita or cita.estudiante_id != usuario.id:
+        raise HTTPException(status_code=404, detail="Cita no encontrada")
+    if cita.estado != EstadoCita.PENDIENTE:
+        raise HTTPException(status_code=400, detail="Solo puedes confirmar citas en estado pendiente")
+    cita.estado = EstadoCita.CONFIRMADA
+    await db.commit()
+    return {"mensaje": "Cita confirmada correctamente"}
 
 
 @router.delete("/me/citas/{cita_id}", response_model=MensajeRespuesta)

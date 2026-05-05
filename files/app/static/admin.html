@@ -99,6 +99,23 @@ tr:hover td{background:rgba(39,98,102,.02)}
 /* Toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;animation:fuA .25s ease}
 @keyframes fuA{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* ── Recursos ───────────────────────────────────────── */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:16px}
+.rec-card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh);border-left:4px solid var(--azul2);transition:box-shadow .15s}
+.rec-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.rec-card-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.rec-card-titulo{font-size:14px;font-weight:600;color:var(--texto);flex:1}
+.rec-tipo-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:rgba(39,98,102,.1);color:var(--azul);flex-shrink:0}
+.rec-card-desc{font-size:12px;color:var(--suave);margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rec-card-meta{font-size:11px;color:var(--suave);margin-bottom:10px}
+.rec-card-actions{display:flex;gap:6px}
+.rec-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.rec-chip{background:#fff;border:1px solid var(--borde);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--suave);font-family:inherit}
+.rec-chip:hover{border-color:var(--azul);color:var(--azul)}
+.rec-chip.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+.mr-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mr-full{grid-column:1/-1}
+.kai-ico{width:1em;height:1em;vertical-align:middle;display:inline;flex-shrink:0}
 /* ── Bottom nav (móvil) ── */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--borde);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
 .bnav-btn{flex:1;padding:10px 4px 8px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--suave);font-weight:500;transition:.2s}
@@ -136,6 +153,7 @@ tr:hover td{background:rgba(39,98,102,.02)}
     <button class="nav-btn"    id="nb-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>     Asignaciones</button>
     <button class="nav-btn"    id="nb-actividad"    onclick="pg('actividad')">   <i class='bx bxs-bar-chart-alt-2'></i>Actividad</button>
     <button class="nav-btn"    id="nb-emergencias"  onclick="pg('emergencias')"> <i class='bx bxs-phone'></i>          Emergencias</button>
+    <button class="nav-btn"    id="nb-recursos"     onclick="pg('recursos')">    <i class='bx bxs-book-content'></i>  Recursos</button>
   </nav>
 
   <main class="main">
@@ -298,6 +316,29 @@ tr:hover td{background:rgba(39,98,102,.02)}
     <div id="lista-emerg"><div class="loader"><i class='bx bx-loader-alt'></i></div></div>
   </div>
 
+  <!-- ── RECURSOS ── -->
+  <div class="pg" id="pg-recursos">
+    <div class="pg-title">Recursos de Apoyo</div>
+    <div class="pg-sub">Gestiona el contenido que ven estudiantes y psicólogos en la app</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div class="rec-chips">
+        <button class="rec-chip on" data-tipo="" onclick="selChip('')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 4 13V5a2 2 0 0 1 2-2h5c4.4 0 8 3.6 8 8v9a1 1 0 0 1-1 1h-7z"/><path d="M11 3v17"/></svg> Todos</button>
+        <button class="rec-chip" data-tipo="respiracion"  onclick="selChip('respiracion')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 3c2.5 0 5 2.5 5 5v13H4V8c0-2.5 2.5-5 3-5Z"/><path d="M17 3c-2.5 0-5 2.5-5 5v13h8V8c0-2.5-2.5-5-3-5Z"/></svg> Respiración</button>
+        <button class="rec-chip" data-tipo="meditacion"   onclick="selChip('meditacion')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="2"/><path d="m9 22 3-6 3 6M7 11l5 2 5-2"/></svg> Meditación</button>
+        <button class="rec-chip" data-tipo="ejercicio"    onclick="selChip('ejercicio')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="2"/><path d="m9 22 3-6 3 6M7 11l5 2 5-2"/></svg> Ejercicio</button>
+        <button class="rec-chip" data-tipo="lectura"      onclick="selChip('lectura')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Lectura</button>
+        <button class="rec-chip" data-tipo="video"        onclick="selChip('video')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Video</button>
+        <button class="rec-chip" data-tipo="clinica"      onclick="selChip('clinica')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Clínica</button>
+        <button class="rec-chip" data-tipo="linea_crisis" onclick="selChip('linea_crisis')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Crisis</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="cargarRecursos()"><i class='bx bx-refresh'></i></button>
+        <button class="btn btn-primary" onclick="abrirModalRecurso()"><i class='bx bx-plus'></i> Nuevo recurso</button>
+      </div>
+    </div>
+    <div id="rec-grid"><div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div></div>
+  </div>
+
   </main>
 </div>
 
@@ -326,12 +367,84 @@ tr:hover td{background:rgba(39,98,102,.02)}
   </div>
 </div>
 
+<!-- ── MODAL CREAR/EDITAR RECURSO ── -->
+<div id="modal-rec" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center" onclick="if(event.target===this)cerrarModalRecurso()">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:min(560px,95vw);max-height:92vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px" id="modal-rec-tit">Nuevo recurso</h3>
+    <form id="modal-rec-form" onsubmit="event.preventDefault()">
+      <div class="mr-row">
+        <div class="field mr-full">
+          <label>Tipo</label>
+          <select id="mr-tipo" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit" onchange="toggleCamposClinica()">
+            <option value="respiracion">🌬 Respiración</option>
+            <option value="meditacion">🧘 Meditación</option>
+            <option value="ejercicio">🏃 Ejercicio</option>
+            <option value="lectura">📖 Lectura</option>
+            <option value="video">🎬 Video</option>
+            <option value="clinica">🏥 Clínica</option>
+            <option value="linea_crisis">🆘 Línea de Crisis</option>
+          </select>
+        </div>
+        <div class="field mr-full"><label>Título</label><input id="mr-titulo" type="text" placeholder="Nombre del recurso" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+        <div class="field mr-full"><label>Descripción</label><textarea id="mr-desc" rows="2" placeholder="Breve descripción visible al usuario" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical"></textarea></div>
+        <div class="field"><label>Orden (menor = primero)</label><input id="mr-orden" type="number" value="0" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+        <div class="field"><label>Duración (minutos)</label><input id="mr-duracion" type="number" placeholder="Ej. 10" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+        <div class="field mr-full"><label>URL imagen (opcional)</label><input id="mr-img" type="text" placeholder="https://..." style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+        <div class="field mr-full"><label>URL externo (opcional)</label><input id="mr-url" type="text" placeholder="https://..." style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+
+        <!-- Campos solo para clínica / línea de crisis -->
+        <div id="mr-campos-clinica" style="display:none;grid-column:1/-1">
+          <div class="mr-row">
+            <div class="field"><label>Teléfono</label><input id="mr-tel" type="text" placeholder="55 1234 5678" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+            <div class="field"><label>Horario</label><input id="mr-horario" type="text" placeholder="Lun-Vie 9-18h" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+            <div class="field mr-full"><label>Dirección</label><input id="mr-dir" type="text" placeholder="Calle, colonia, ciudad" style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:13px;font-family:inherit"/></div>
+            <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:18px"><input type="checkbox" id="mr-24h" style="width:16px;height:16px"/><label for="mr-24h" style="text-transform:none;font-size:13px;font-weight:500">Disponible 24 horas</label></div>
+          </div>
+        </div>
+
+        <!-- Contenido JSON -->
+        <div class="field mr-full">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <label style="margin-bottom:0">Contenido (JSON)</label>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="insertarPlantilla()" style="font-size:11px"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Insertar plantilla</button>
+          </div>
+          <textarea id="mr-contenido" rows="6" placeholder='Ej. {"pasos": ["Inhala 4 seg", "Exhala 4 seg"]}' style="width:100%;padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:12px;font-family:monospace;resize:vertical"></textarea>
+        </div>
+
+        <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:8px"><input type="checkbox" id="mr-activo" checked style="width:16px;height:16px"/><label for="mr-activo" style="text-transform:none;font-size:13px;font-weight:500">Recurso activo (visible en la app)</label></div>
+      </div>
+    </form>
+    <div id="modal-rec-err" style="display:none;color:var(--rojo);font-size:13px;padding:8px;background:rgba(198,90,73,.08);border-radius:8px;margin-top:10px"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" onclick="guardarRecurso()" style="flex:1" id="modal-rec-btn">Guardar</button>
+      <button class="btn btn-ghost" onclick="cerrarModalRecurso()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = window.location.origin + '/api';
 let token = localStorage.getItem('apfa_at') || '';
 let adminUser = null;
 let _usuariosCache = [];
 let _psicologosCache = [];
+let _recursosCache = [];
+let _recChipActivo = '';
+let _editandoRecursoId = null;
+
+const REC_TIPOS = {
+  respiracion:'Respiración', meditacion:'Meditación', ejercicio:'Ejercicio',
+  lectura:'Lectura', video:'Video', clinica:'Clínica', linea_crisis:'Línea de Crisis',
+};
+const REC_PLANTILLAS = {
+  respiracion: {"pasos":["Inhala 4 seg","Mantén 4 seg","Exhala 4 seg"],"emoji_pasos":["🫁","⏸️","😮‍💨"]},
+  meditacion:  {"posturas":[{"nombre":"Postura inicial","tiempo":"5 minutos"}]},
+  ejercicio:   {"ejercicios":[{"nombre":"Ejercicio 1","duracion":"30 segundos","descanso":"10 segundos"}]},
+  lectura:     {"secciones":[{"titulo":"Introducción","texto":"Escribe el contenido aquí..."}],"cita":"Una cita inspiradora aquí."},
+  video:       {"puntos_clave":["Punto clave 1","Punto clave 2"],"temas":["Bienestar"]},
+  clinica:     {"servicios":["Orientación psicológica"],"requisitos":["Credencial vigente"],"costo":"Gratuito","tipo_apoyo":["Psicológico"]},
+  linea_crisis:{"servicios":["Apoyo emocional en crisis"],"requisitos":[],"costo":"Gratuito","tipo_apoyo":["Crisis emocional"]},
+};
 
 // ── Helpers ────────────────────────────────────────────────
 async function apiFetch(path, opts = {}) {
@@ -367,6 +480,7 @@ function pg(id) {
   if (id === 'stats')        { cargarStats(); }
   if (id === 'actividad')    cargarActividadAdmin();
   if (id === 'emergencias')  cargarEmergencias();
+  if (id === 'recursos')     cargarRecursos();
 }
 
 // ── Init ───────────────────────────────────────────────────
@@ -388,7 +502,7 @@ window.onload = async () => {
   const target = sessionStorage.getItem('kai_admin_target') || window.location.hash.replace('#','');
   if (target) {
     sessionStorage.removeItem('kai_admin_target');
-    const valid = ['inicio','stats','usuarios','asignaciones','actividad','emergencias'];
+    const valid = ['inicio','stats','usuarios','asignaciones','actividad','emergencias','recursos'];
     if (valid.includes(target)) setTimeout(() => pg(target), 150);
   }
 };
@@ -500,8 +614,8 @@ function renderTablaUsuarios(data) {
       <td>${rb(u.rol)}</td>
       <td><span class="status-dot ${u.activo?'sd-on':'sd-off'}"></span>${u.activo?'Activo':'Inactivo'}</td>
       <td style="white-space:nowrap">
-        <button class="btn btn-ghost btn-sm" onclick='editarUsuario(${ud})' title="Editar">✏️</button>
-        ${!esYo?`<button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}','${(u.nombre||'').replace(/'/g,'')}')" title="Desactivar">🗑️</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick='editarUsuario(${ud})' title="Editar"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        ${!esYo?`<button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}','${(u.nombre||'').replace(/'/g,'')}')" title="Desactivar"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>`:''}
       </td>
     </tr>`;
   });
@@ -769,11 +883,11 @@ const EMERG_KEY = 'kai_lineas_sos';
 let _emergEditId = null;
 
 const EMERG_DEF = [
-  {id:'saptel', icono:'🆘', nombre:'SAPTEL — Línea de Crisis', telefono:'800-290-0024', descripcion:'Apoyo emocional 24/7', disponible_24h:true,  tipo:'llamada'},
-  {id:'imss',   icono:'🏥', nombre:'IMSS — Salud Mental',      telefono:'800 911 2000',  descripcion:'Orientación en crisis',  disponible_24h:true,  tipo:'llamada'},
-  {id:'locatel',icono:'🏙', nombre:'LOCATEL — CDMX',           telefono:'55 5658-1111',  descripcion:'Información ciudadana',  disponible_24h:true,  tipo:'llamada'},
-  {id:'911',    icono:'🚨', nombre:'Emergencias',               telefono:'911',           descripcion:'Policía / Ambulancias',  disponible_24h:true,  tipo:'llamada'},
-  {id:'fes',    icono:'🏛', nombre:'Psicopedagogía FES Acatlán',telefono:'55 5623 1666',  descripcion:'Lun–Vie 8am–8pm',       disponible_24h:false, tipo:'llamada'},
+  {id:'saptel', icono:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>', nombre:'SAPTEL — Línea de Crisis', telefono:'800-290-0024', descripcion:'Apoyo emocional 24/7', disponible_24h:true,  tipo:'llamada'},
+  {id:'imss',   icono:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', nombre:'IMSS — Salud Mental',      telefono:'800 911 2000',  descripcion:'Orientación en crisis',  disponible_24h:true,  tipo:'llamada'},
+  {id:'locatel',icono:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', nombre:'LOCATEL — CDMX',           telefono:'55 5658-1111',  descripcion:'Información ciudadana',  disponible_24h:true,  tipo:'llamada'},
+  {id:'911',    icono:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', nombre:'Emergencias',               telefono:'911',           descripcion:'Policía / Ambulancias',  disponible_24h:true,  tipo:'llamada'},
+  {id:'fes',    icono:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', nombre:'Psicopedagogía FES Acatlán',telefono:'55 5623 1666',  descripcion:'Lun–Vie 8am–8pm',       disponible_24h:false, tipo:'llamada'},
 ];
 
 function getEmerg() { try { return JSON.parse(localStorage.getItem(EMERG_KEY))||null; } catch { return null; } }
@@ -796,8 +910,8 @@ function renderEmerg(data, el) {
         <div style="font-size:12px;color:var(--verde);font-weight:600;margin-top:2px">${e.telefono}${e.disponible_24h?' <span style="background:rgba(51,126,89,.1);color:var(--verde);font-size:10px;padding:1px 6px;border-radius:10px">24h</span>':''}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn btn-ghost btn-sm" onclick="editarEmerg('${e.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="eliminarEmerg('${e.id}')">🗑️</button>
+        <button class="btn btn-ghost btn-sm" onclick="editarEmerg('${e.id}')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarEmerg('${e.id}')"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
       </div>
     </div>`).join('');
 }
@@ -853,6 +967,152 @@ function eliminarEmerg(id) {
   renderEmerg(data, document.getElementById('lista-emerg'));
   toast('Línea eliminada');
 }
+
+// ── Recursos ───────────────────────────────────────────────
+async function cargarRecursos() {
+  document.getElementById('rec-grid').innerHTML = '<div class="loader"><i class="bx bx-loader-alt"></i> Cargando…</div>';
+  try {
+    const qs = _recChipActivo ? '?tipo=' + _recChipActivo + '&por_pagina=100' : '?por_pagina=100';
+    const data = await apiFetch('/recursos/' + qs);
+    _recursosCache = data || [];
+    renderRecursos(_recursosCache);
+  } catch(e) {
+    document.getElementById('rec-grid').innerHTML = '<div class="empty-msg">Error: ' + e.message + '</div>';
+  }
+}
+
+function renderRecursos(lista) {
+  const grid = document.getElementById('rec-grid');
+  if (!lista.length) {
+    grid.innerHTML = '<div class="empty-msg">No hay recursos' + (_recChipActivo ? ' de este tipo' : '') + '. Crea el primero.</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(r => {
+    const tipoLabel = REC_TIPOS[r.tipo] || r.tipo;
+    const bColor = r.activo ? 'var(--azul2)' : '#ccc';
+    const meta = [r.duracion_minutos ? r.duracion_minutos + ' min' : '', 'Orden ' + (r.orden ?? 0), !r.activo ? '⚠ Inactivo' : ''].filter(Boolean).join(' · ');
+    return `<div class="rec-card" style="border-left-color:${bColor}">
+      <div class="rec-card-hdr">
+        <div class="rec-card-titulo">${r.titulo}</div>
+        <span class="rec-tipo-badge">${tipoLabel}</span>
+      </div>
+      <div class="rec-card-desc">${r.descripcion || '—'}</div>
+      <div class="rec-card-meta">${meta}</div>
+      <div class="rec-card-actions">
+        <button class="btn btn-ghost btn-sm" onclick="abrirModalRecurso('${r.id}')"><i class='bx bx-edit'></i> Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarRecurso('${r.id}','${r.titulo.replace(/'/g,"\\'")}')"><i class='bx bx-trash'></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selChip(tipo) {
+  _recChipActivo = tipo;
+  document.querySelectorAll('.rec-chip').forEach(c => c.classList.toggle('on', c.dataset.tipo === tipo));
+  cargarRecursos();
+}
+
+function abrirModalRecurso(id = null) {
+  _editandoRecursoId = id;
+  document.getElementById('modal-rec-tit').textContent = id ? 'Editar recurso' : 'Nuevo recurso';
+  document.getElementById('modal-rec-err').style.display = 'none';
+  if (id) {
+    const r = _recursosCache.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('mr-tipo').value     = r.tipo;
+    document.getElementById('mr-titulo').value   = r.titulo;
+    document.getElementById('mr-desc').value     = r.descripcion || '';
+    document.getElementById('mr-orden').value    = r.orden ?? 0;
+    document.getElementById('mr-duracion').value = r.duracion_minutos || '';
+    document.getElementById('mr-img').value      = r.imagen_url || '';
+    document.getElementById('mr-url').value      = r.url_externo || '';
+    document.getElementById('mr-tel').value      = r.telefono || '';
+    document.getElementById('mr-dir').value      = r.direccion || '';
+    document.getElementById('mr-horario').value  = r.horario || '';
+    document.getElementById('mr-24h').checked    = r.disponible_24h || false;
+    document.getElementById('mr-activo').checked = r.activo !== false;
+    document.getElementById('mr-contenido').value = r.contenido ? JSON.stringify(r.contenido, null, 2) : '';
+  } else {
+    document.getElementById('modal-rec-form').reset();
+    document.getElementById('mr-activo').checked = true;
+    document.getElementById('mr-orden').value = 0;
+    document.getElementById('mr-contenido').value = '';
+  }
+  toggleCamposClinica();
+  document.getElementById('modal-rec').style.display = 'flex';
+}
+
+function cerrarModalRecurso() {
+  document.getElementById('modal-rec').style.display = 'none';
+  _editandoRecursoId = null;
+}
+
+function toggleCamposClinica() {
+  const tipo = document.getElementById('mr-tipo').value;
+  document.getElementById('mr-campos-clinica').style.display =
+    (tipo === 'clinica' || tipo === 'linea_crisis') ? '' : 'none';
+}
+
+function insertarPlantilla() {
+  const tipo = document.getElementById('mr-tipo').value;
+  if (REC_PLANTILLAS[tipo])
+    document.getElementById('mr-contenido').value = JSON.stringify(REC_PLANTILLAS[tipo], null, 2);
+}
+
+async function guardarRecurso() {
+  const btn = document.getElementById('modal-rec-btn');
+  const errEl = document.getElementById('modal-rec-err');
+  errEl.style.display = 'none';
+  const titulo = document.getElementById('mr-titulo').value.trim();
+  if (!titulo) { errEl.textContent = 'El título es obligatorio.'; errEl.style.display = 'block'; return; }
+  const contRaw = document.getElementById('mr-contenido').value.trim();
+  let contenido = null;
+  if (contRaw) {
+    try { contenido = JSON.parse(contRaw); }
+    catch { errEl.textContent = 'El contenido JSON no es válido.'; errEl.style.display = 'block'; return; }
+  }
+  const body = {
+    tipo:            document.getElementById('mr-tipo').value,
+    titulo,
+    descripcion:     document.getElementById('mr-desc').value.trim() || null,
+    orden:           parseInt(document.getElementById('mr-orden').value) || 0,
+    duracion_minutos:parseInt(document.getElementById('mr-duracion').value) || null,
+    imagen_url:      document.getElementById('mr-img').value.trim() || null,
+    url_externo:     document.getElementById('mr-url').value.trim() || null,
+    telefono:        document.getElementById('mr-tel').value.trim() || null,
+    direccion:       document.getElementById('mr-dir').value.trim() || null,
+    horario:         document.getElementById('mr-horario').value.trim() || null,
+    disponible_24h:  document.getElementById('mr-24h').checked,
+    activo:          document.getElementById('mr-activo').checked,
+    contenido,
+  };
+  btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Guardando…';
+  try {
+    if (_editandoRecursoId) {
+      await apiFetch('/recursos/' + _editandoRecursoId, { method: 'PATCH', body: JSON.stringify(body) });
+      toast('Recurso actualizado');
+    } else {
+      await apiFetch('/recursos/', { method: 'POST', body: JSON.stringify(body) });
+      toast('Recurso creado');
+    }
+    cerrarModalRecurso();
+    cargarRecursos();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Guardar';
+  }
+}
+
+async function eliminarRecurso(id, titulo) {
+  if (!confirm(`¿Eliminar "${titulo}"? Esta acción no se puede deshacer.`)) return;
+  try {
+    await apiFetch('/recursos/' + id, { method: 'DELETE' });
+    toast('Recurso eliminado');
+    cargarRecursos();
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
 </script>
 
 <nav class="bottom-nav" id="bottom-nav-admin">
@@ -861,6 +1121,7 @@ function eliminarEmerg(id) {
   <button class="bnav-btn"    id="bnav-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>Asignac.</button>
   <button class="bnav-btn"    id="bnav-emergencias"  onclick="pg('emergencias')"> <i class='bx bxs-phone'></i>Emergencias</button>
   <button class="bnav-btn"    id="bnav-stats"        onclick="pg('stats')">       <i class='bx bx-bar-chart-alt-2'></i>Stats</button>
+  <button class="bnav-btn"    id="bnav-recursos"     onclick="pg('recursos')">    <i class='bx bxs-book-content'></i>Recursos</button>
 </nav>
 
 </body>

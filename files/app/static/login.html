@@ -275,6 +275,20 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);c
       <div class="field-hint">Se usará para recuperar tu contraseña</div>
     </div>
 
+    <div style="background:rgba(39,98,102,.06);border-radius:12px;padding:14px;margin-bottom:4px">
+      <div style="font-size:11px;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Contacto de emergencia</div>
+      <div class="field-row">
+        <div class="field" style="margin-bottom:0">
+          <label>Nombre</label>
+          <input type="text" id="r-emerg-nombre" placeholder="Nombre completo"/>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Teléfono (diferente al tuyo)</label>
+          <input type="tel" id="r-emerg-tel" placeholder="Ej. 5512345678" maxlength="10"/>
+        </div>
+      </div>
+    </div>
+
     <div class="field">
       <label>Contraseña</label>
       <div class="pass-wrap">
@@ -321,14 +335,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);c
       </select>
     </div>
 
-    <div class="field">
-      <label>Tipo de cuenta</label>
-      <select id="r-rol">
-        <option value="estudiante">🎓 Estudiante</option>
-        <option value="psicologo">🧠 Psicólogo / Orientador</option>
-      </select>
-      <div style="font-size:12px;color:#789;margin-top:4px;">Los psicólogos requieren aprobación del administrador</div>
-    </div>
 
     <!-- CAPTCHA -->
     <div class="captcha-wrap">
@@ -348,7 +354,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);c
   <!-- ══════════════ PANEL: VERIFICACIÓN ══════════════ -->
   <div class="panel" id="panel-verify">
     <div class="verify-wrap">
-      <div class="verify-icon">📬</div>
+      <div class="verify-icon"><svg style="width:48px;height:48px;color:var(--azul2)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
       <div class="verify-title">Verifica tu correo</div>
       <p class="verify-sub">
         Enviamos un código de 6 dígitos a<br>
@@ -407,29 +413,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);c
       <i class='bx bx-arrow-back'></i> Volver al inicio
     </button>
 
-    <div class="recover-icon-wrap">🔑</div>
+    <div class="recover-icon-wrap"><svg style="width:44px;height:44px;color:var(--azul2)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778Zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3L15.5 7.5Z"/></svg></div>
     <div class="recover-title">Recuperar contraseña</div>
     <p class="recover-sub">
-      Ingresa tu correo o teléfono registrado y te enviaremos tu contraseña temporal.
+      Ingresa tu correo institucional y te enviaremos una contraseña temporal.
     </p>
-
-    <div class="mode-tabs">
-      <div class="mode-tab on" id="rm-email" onclick="setRecoverMode('email')">
-        <i class='bx bx-envelope'></i> Correo
-      </div>
-      <div class="mode-tab" id="rm-tel" onclick="setRecoverMode('tel')">
-        <i class='bx bx-phone'></i> Teléfono
-      </div>
-    </div>
 
     <div id="recover-email-f" class="field">
       <label>Correo institucional</label>
       <input type="email" id="rec-email" placeholder="usuario@pcpuma.acatlan.unam.mx"
-             onkeydown="if(event.key==='Enter')doRecover()"/>
-    </div>
-    <div id="recover-tel-f" class="field" style="display:none">
-      <label>Teléfono registrado</label>
-      <input type="tel" id="rec-tel" placeholder="Ej. 5512345678"
              onkeydown="if(event.key==='Enter')doRecover()"/>
     </div>
 
@@ -456,7 +448,6 @@ let timerSecs   = 180;
 let resendID    = null;
 let pendingData = {};   // datos del registro pendiente de verificar
 let loginMode   = 'email';
-let recoverMode = 'email';
 const TIMER_FULL = 213.6; // 2π×34
 
 // ── Toast ──────────────────────────────────────────────────
@@ -542,14 +533,6 @@ function setLoginMode(m) {
   document.getElementById('login-tel-f').style.display   = m === 'tel'   ? 'block' : 'none';
 }
 
-// ── Modo recover ──────────────────────────────────────────
-function setRecoverMode(m) {
-  recoverMode = m;
-  document.getElementById('rm-email').classList.toggle('on', m === 'email');
-  document.getElementById('rm-tel').classList.toggle('on', m === 'tel');
-  document.getElementById('recover-email-f').style.display = m === 'email' ? 'block' : 'none';
-  document.getElementById('recover-tel-f').style.display   = m === 'tel'   ? 'block' : 'none';
-}
 
 function showRecover() { setPanel('recover'); }
 
@@ -623,10 +606,12 @@ async function doRegistro() {
   const nombre   = document.getElementById('r-nombre').value.trim();
   const apellidos= document.getElementById('r-apellidos').value.trim();
   const email    = document.getElementById('r-email').value.trim().toLowerCase();
-  const tel      = document.getElementById('r-tel').value.trim();
+  const tel           = document.getElementById('r-tel').value.trim();
+  const emergNombre   = document.getElementById('r-emerg-nombre').value.trim();
+  const emergTel      = document.getElementById('r-emerg-tel').value.trim();
   const pass     = document.getElementById('r-pass').value;
   const carrera  = document.getElementById('r-carrera').value;
-  const rol      = document.getElementById('r-rol').value;
+  const rol      = 'estudiante';
   const captcha  = parseInt(document.getElementById('captcha-ans').value);
 
   // Validaciones
@@ -645,7 +630,9 @@ async function doRegistro() {
 
   // Guardar datos para usar después de verificar
   pendingData = { nombre, apellidos, email, telefono: tel || undefined,
-                  password: pass, carrera: carrera || undefined, rol };
+                  password: pass, carrera: carrera || undefined, rol,
+                  emergencia_nombre:   emergNombre || undefined,
+                  emergencia_telefono: emergTel    || undefined };
 
   const btn = document.getElementById('reg-btn');
   btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Enviando código…';
@@ -848,15 +835,9 @@ async function doRecover() {
   const btn = document.getElementById('recover-btn');
   let body;
 
-  if (recoverMode === 'email') {
-    const email = document.getElementById('rec-email').value.trim().toLowerCase();
-    if (!email) { showRecoverMsg('Ingresa tu correo.', 'err'); return; }
-    body = { email };
-  } else {
-    const tel = document.getElementById('rec-tel').value.trim();
-    if (!tel) { showRecoverMsg('Ingresa tu teléfono.', 'err'); return; }
-    body = { telefono: tel };
-  }
+  const email = document.getElementById('rec-email').value.trim().toLowerCase();
+  if (!email) { showRecoverMsg('Ingresa tu correo.', 'err'); return; }
+  body = { email };
 
   btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Enviando…';
   try {
@@ -882,10 +863,22 @@ function onAuth(r) {
   localStorage.setItem('token',   r.access_token);
   localStorage.setItem('user',    JSON.stringify(r.usuario));
 
-  const rol = (r.usuario && r.usuario.rol) ? r.usuario.rol.toLowerCase() : '';
-  if (rol === 'admin')      { window.location.href = '/admin.html';     return; }
-  if (rol === 'psicologo')  { window.location.href = '/psicologo.html'; return; }
-  window.location.href = '/';
+  const nombre = r.usuario?.nombre || '';
+  const rol    = (r.usuario?.rol || '').toLowerCase();
+
+  // Mostrar toast de bienvenida
+  const toast = document.createElement('div');
+  toast.textContent = `¡Bienvenido/a, ${nombre}! `;
+  Object.assign(toast.style, {
+    position:'fixed', bottom:'30px', left:'50%', transform:'translateX(-50%)',
+    background:'#276266', color:'#fff', padding:'12px 24px', borderRadius:'50px',
+    fontFamily:'DM Sans,sans-serif', fontSize:'14px', fontWeight:'600',
+    zIndex:'9999', boxShadow:'0 4px 16px rgba(0,0,0,.2)', whiteSpace:'nowrap'
+  });
+  document.body.appendChild(toast);
+
+  const dest = rol === 'admin' ? '/admin.html' : rol === 'psicologo' ? '/psicologo.html' : '/';
+  setTimeout(() => window.location.href = dest, 1200);
 }
 
 // ── INIT ──────────────────────────────────────────────────

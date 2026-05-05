@@ -135,13 +135,16 @@ async def get_current_admin(
 
 async def verificar_bloqueo(usuario: Usuario) -> None:
     """Lanza 429 si la cuenta está temporalmente bloqueada."""
-    if usuario.bloqueado_hasta and usuario.bloqueado_hasta > datetime.now(timezone.utc):
-        segundos = int((usuario.bloqueado_hasta - datetime.now(timezone.utc)).total_seconds())
-        raise HTTPException(
-            status_code=429,
-            detail=f"Cuenta bloqueada. Intenta de nuevo en {segundos} segundos.",
-            headers={"Retry-After": str(segundos)},
-        )
+    if usuario.bloqueado_hasta:
+        ahora = datetime.now(timezone.utc)
+        bloq = usuario.bloqueado_hasta if usuario.bloqueado_hasta.tzinfo else usuario.bloqueado_hasta.replace(tzinfo=timezone.utc)
+        if bloq > ahora:
+            segundos = int((bloq - ahora).total_seconds())
+            raise HTTPException(
+                status_code=429,
+                detail=f"Cuenta bloqueada. Intenta de nuevo en {segundos} segundos.",
+                headers={"Retry-After": str(segundos)},
+            )
 
 
 async def registrar_intento_fallido(usuario: Usuario, db: AsyncSession) -> None:

@@ -253,6 +253,36 @@ class NotificacionRespuesta(BaseModel):
         from_attributes = True
 
 
+# ── Eventos del Psicólogo ─────────────────────────────────
+
+class EventoPsicologoCrear(BaseModel):
+    titulo:      str            = Field(..., min_length=3, max_length=200)
+    tipo:        str            = Field(default="platica")
+    descripcion: Optional[str] = None
+    fecha_hora:  datetime
+    modalidad:   str            = Field(default="presencial")
+    lugar:       Optional[str] = Field(None, max_length=200)
+    link_evento: Optional[str] = Field(None, max_length=500)
+    capacidad:   Optional[int] = Field(None, ge=1)
+
+
+class EventoPsicologoRespuesta(BaseModel):
+    id:          str
+    titulo:      str
+    tipo:        str
+    descripcion: Optional[str]
+    fecha_hora:  datetime
+    modalidad:   str
+    lugar:       Optional[str]
+    link_evento: Optional[str]
+    capacidad:   Optional[int]
+    activo:      bool
+    creado_en:   datetime
+
+    class Config:
+        from_attributes = True
+
+
 # ── Genéricos ─────────────────────────────────────────────
 
 class MensajeRespuesta(BaseModel):

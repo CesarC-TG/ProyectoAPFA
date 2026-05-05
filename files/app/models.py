@@ -56,10 +56,7 @@ class EstadoCita(str, enum.Enum):
 
 class Usuario(Base):
     __tablename__ = "usuarios"
-    # Esta configuración es la clave para que no choque en scripts externos
-    __table_args__ = (
-        {'extend_existing': True}
-    )
+   
     
     # El resto de tus columnas se quedan igual...
 
@@ -85,6 +82,9 @@ class Usuario(Base):
     emergencia_nombre   = Column(String(120), nullable=True)
     emergencia_telefono = Column(String(20),  nullable=True)
     emergencia_email    = Column(String(200), nullable=True)
+
+    # ── Categoría problemática (asignada por psicólogo) ───
+    categoria_problema  = Column(String(50),  nullable=True)
 
     # Google OAuth
     google_id       = Column(String(100), unique=True, nullable=True)
@@ -322,6 +322,29 @@ class AsignacionPsicologo(Base):
         Index("ix_asig_psicologo",  "psicologo_id"),
         Index("ix_asig_estudiante", "estudiante_id"),
     )
+
+class EventoPsicologo(Base):
+    """Eventos (pláticas, talleres) creados por un psicólogo."""
+    __tablename__ = "eventos_psicologo"
+
+    id           = Column(String(36), primary_key=True, default=gen_uuid)
+    psicologo_id = Column(String(36), ForeignKey("usuarios.id"), nullable=False)
+
+    titulo       = Column(String(200), nullable=False)
+    tipo         = Column(String(30),  default="platica")   # platica | taller | otro
+    descripcion  = Column(Text,        nullable=True)
+    fecha_hora   = Column(DateTime(timezone=True), nullable=False)
+    modalidad    = Column(String(20),  default="presencial")  # presencial | en_linea
+    lugar        = Column(String(200), nullable=True)
+    link_evento  = Column(String(500), nullable=True)
+    capacidad    = Column(Integer,     nullable=True)
+    activo       = Column(Boolean,     default=True)
+    creado_en    = Column(DateTime(timezone=True), server_default=func.now())
+
+    psicologo = relationship("Usuario", foreign_keys=[psicologo_id])
+
+    __table_args__ = (Index("ix_evento_psicologo", "psicologo_id"),)
+
 
 class VerificacionRegistro(Base):
      """Token de 6 dígitos para verificar el correo antes de completar el registro."""
