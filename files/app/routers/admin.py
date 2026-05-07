@@ -1,14 +1,17 @@
 """
 Router de Administración — stats, CRUD usuarios, asignaciones, emergencias, actividad
 """
-
-from fastapi import APIRouter, Depends, HTTPException, Query, Body
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_, update, delete
-from typing import Optional, List
-from datetime import datetime, timedelta, timezone
+# stdlib
 import uuid
+from datetime import timedelta
+from typing import Optional, List
 
+# third-party
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
+from sqlalchemy import select, func, and_, or_, update, delete
+from sqlalchemy.ext.asyncio import AsyncSession
+
+# local
 from app.database import get_db
 from app.models import (
     Usuario, EntradaDiario, EventoSOS, Cita, MensajeChat,
@@ -21,6 +24,7 @@ from app.schemas import (
 from app.service.auth_service import (
     get_current_psicologo, get_current_admin, hashear_password
 )
+from app.utils import ahora_utc, asegurar_utc, contar, dias_desde, estado_actividad
 
 router = APIRouter()
 
@@ -30,35 +34,19 @@ router = APIRouter()
 @router.get("/stats")
 async def obtener_estadisticas(
     db: AsyncSession = Depends(get_db),
-    _admin: Usuario = Depends(get_current_psicologo),
+    _admin: Usuario = Depends(get_current_admin),   # FIX: antes usaba get_current_psicologo → bypass de privilegios
 ):
-    hoy        = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    ahora      = ahora_utc()
+    hoy        = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
     hace_7dias = hoy - timedelta(days=7)
 
-    total_estudiantes = (await db.execute(
-        select(func.count()).select_from(Usuario)
-        .where(Usuario.rol == RolUsuario.ESTUDIANTE, Usuario.activo == True)
-    )).scalar() or 0
-
-    total_psicologos = (await db.execute(
-        select(func.count()).select_from(Usuario)
-        .where(Usuario.rol == RolUsuario.PSICOLOGO, Usuario.activo == True)
-    )).scalar() or 0
-
-    entradas_hoy = (await db.execute(
-        select(func.count()).select_from(EntradaDiario)
-        .where(EntradaDiario.creada_en >= hoy)
-    )).scalar() or 0
-
-    alertas_activas = (await db.execute(
-        select(func.count()).select_from(EventoSOS)
-        .where(EventoSOS.atendido == False)
-    )).scalar() or 0
-
-    entradas_compartidas = (await db.execute(
-        select(func.count()).select_from(EntradaDiario)
-        .where(EntradaDiario.compartida == True)
-    )).scalar() or 0
+    total_estudiantes, total_psicologos, entradas_hoy, alertas_activas, entradas_compartidas = (
+        await contar(db, Usuario,    Usuario.rol == RolUsuario.ESTUDIANTE, Usuario.activo == True),
+        await contar(db, Usuario,    Usuario.rol == RolUsuario.PSICOLOGO,  Usuario.activo == True),
+        await contar(db, EntradaDiario, EntradaDiario.creada_en >= hoy),
+        await contar(db, EventoSOS,  EventoSOS.atendido == False),
+        await contar(db, EntradaDiario, EntradaDiario.compartida == True),
+    )
 
     sesiones_chat_semana = (await db.execute(
         select(func.count(MensajeChat.sesion_chat_id.distinct()))
@@ -72,7 +60,7 @@ async def obtener_estadisticas(
         "alertas_activas":      alertas_activas,
         "entradas_compartidas": entradas_compartidas,
         "sesiones_chat_semana": sesiones_chat_semana,
-        "timestamp":            datetime.now(timezone.utc).isoformat(),
+        "timestamp":            ahora.isoformat(),
     }
 
 
@@ -85,7 +73,7 @@ async def reporte_actividad_usuarios(
     _admin: Usuario = Depends(get_current_psicologo),
 ):
     """Reporte de actividad: último acceso, eventos SOS, días sin entrar."""
-    desde = datetime.now(timezone.utc) - timedelta(days=dias)
+    desde = ahora_utc() - timedelta(days=dias)
 
     result = await db.execute(
         select(Usuario)
@@ -93,47 +81,27 @@ async def reporte_actividad_usuarios(
         .order_by(Usuario.ultimo_acceso.desc().nullslast())
     )
     estudiantes = result.scalars().all()
-    ahora = datetime.now(timezone.utc)
 
     datos = []
     for u in estudiantes:
-        # Días sin entrar
-        if u.ultimo_acceso:
-            ua = u.ultimo_acceso
-            if ua.tzinfo is None:
-                ua = ua.replace(tzinfo=timezone.utc)
-            dias_sin_entrar = (ahora - ua).days
-        else:
-            dias_sin_entrar = None
+        inactivo = dias_desde(u.ultimo_acceso)
 
-        # Eventos SOS del usuario
-        sos_count = (await db.execute(
-            select(func.count()).select_from(EventoSOS)
-            .where(EventoSOS.usuario_id == u.id, EventoSOS.creado_en >= desde)
-        )).scalar() or 0
-
-        # Entradas diario últimos N días
-        entradas_count = (await db.execute(
-            select(func.count()).select_from(EntradaDiario)
-            .where(EntradaDiario.usuario_id == u.id, EntradaDiario.creada_en >= desde)
-        )).scalar() or 0
+        sos_count, entradas_count = (
+            await contar(db, EventoSOS,     EventoSOS.usuario_id == u.id,     EventoSOS.creado_en >= desde),
+            await contar(db, EntradaDiario, EntradaDiario.usuario_id == u.id, EntradaDiario.creada_en >= desde),
+        )
 
         datos.append({
-            "id":              u.id,
-            "nombre":          u.nombre,
-            "apellidos":       u.apellidos,
-            "email":           u.email,
-            "carrera":         u.carrera,
-            "ultimo_acceso":   u.ultimo_acceso.isoformat() if u.ultimo_acceso else None,
-            "dias_sin_entrar": dias_sin_entrar,
-            "sos_periodo":     sos_count,
-            "entradas_periodo":entradas_count,
-            "estado": (
-                "sin_registro" if dias_sin_entrar is None else
-                "critico"      if dias_sin_entrar >= 14  else
-                "alerta"       if dias_sin_entrar >= 7   else
-                "activo"
-            ),
+            "id":               u.id,
+            "nombre":           u.nombre,
+            "apellidos":        u.apellidos,
+            "email":            u.email,
+            "carrera":          u.carrera,
+            "ultimo_acceso":    asegurar_utc(u.ultimo_acceso).isoformat() if u.ultimo_acceso else None,
+            "dias_sin_entrar":  inactivo,
+            "sos_periodo":      sos_count,
+            "entradas_periodo": entradas_count,
+            "estado":           estado_actividad(inactivo),
         })
 
     return datos
@@ -146,7 +114,7 @@ async def actividad_sos(
     _admin: Usuario = Depends(get_current_psicologo),
 ):
     """Detalle de todos los eventos SOS en los últimos N días."""
-    desde = datetime.now(timezone.utc) - timedelta(days=dias)
+    desde = ahora_utc() - timedelta(days=dias)
     result = await db.execute(
         select(EventoSOS, Usuario)
         .outerjoin(Usuario, EventoSOS.usuario_id == Usuario.id)
@@ -507,9 +475,9 @@ async def actualizar_estado_cita(
 async def reporte_estados_animo(
     dias: int = Query(default=30, ge=1, le=365),
     db: AsyncSession = Depends(get_db),
-    _admin: Usuario = Depends(get_current_psicologo),
+    _admin: Usuario = Depends(get_current_admin),   # FIX: antes usaba get_current_psicologo → bypass de privilegios
 ):
-    desde = datetime.now(timezone.utc) - timedelta(days=dias)
+    desde = ahora_utc() - timedelta(days=dias)
     result = await db.execute(
         select(EntradaDiario.estado_animo, func.count(EntradaDiario.id).label("total"))
         .where(EntradaDiario.creada_en >= desde)

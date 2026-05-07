@@ -3,12 +3,13 @@ Tarea periódica — Notificaciones de inactividad
 Corre cada hora. Si un usuario no ha accedido en 2+ días y no tiene
 ya una notificación de recordatorio sin leer, se le crea una.
 """
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from sqlalchemy import select, and_, not_, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Usuario, Notificacion, RolUsuario
 from app.service.notificacion_service import notificacion_inactividad
+from app.utils import ahora_utc
 
 
 async def verificar_usuarios_inactivos(db: AsyncSession) -> int:
@@ -18,7 +19,7 @@ async def verificar_usuarios_inactivos(db: AsyncSession) -> int:
     crea la notificacion.
     Devuelve el numero de notificaciones generadas.
     """
-    limite = datetime.now(timezone.utc) - timedelta(days=2)
+    limite = ahora_utc() - timedelta(days=2)
     generadas = 0
 
     result = await db.execute(

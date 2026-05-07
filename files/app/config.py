@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI:  str = "http://localhost:8000/api/auth/google/callback"
     ALLOWED_EMAIL_DOMAIN: str = "comunidad.unam.mx"
+    VERIFICATION_EMAIL_DOMAIN: str = "pcpuma.acatlan.unam.mx"  # dominio para registro con verificación
 
     # ── Email (notificaciones) ────────────────────────────
     SMTP_HOST:       str = "smtp.gmail.com"
@@ -87,9 +88,30 @@ class Settings(BaseSettings):
 
     @field_validator("SECRET_KEY", "JWT_SECRET_KEY", mode="before")
     @classmethod
-    def no_defaults_en_produccion(cls, v: str) -> str:
-        # Esta validación corre al cargar la app; fallará si se usa
-        # el valor placeholder en producción.
+    def no_defaults_en_produccion(cls, v: str, info) -> str:
+        """
+        Reglas de seguridad para las claves secretas:
+        1. Nunca pueden ser el placeholder 'CHANGE_ME_IN_PRODUCTION*'.
+        2. Deben tener al menos 32 caracteres para resistir fuerza bruta.
+        Si alguna regla falla la app NO arranca — es intencional.
+        """
+        PLACEHOLDERS = {
+            "CHANGE_ME_IN_PRODUCTION",
+            "CHANGE_ME_IN_PRODUCTION_JWT",
+            "",
+        }
+        if v in PLACEHOLDERS:
+            raise ValueError(
+                f"\n\n🔐  SEGURIDAD: La variable '{info.field_name}' usa el valor por defecto inseguro.\n"
+                "   Define un secreto real en tu archivo .env antes de iniciar la app.\n"
+                "   Puedes generar uno con:  python -c \"import secrets; print(secrets.token_urlsafe(64))\"\n"
+            )
+        if len(v) < 32:
+            raise ValueError(
+                f"\n\n🔐  SEGURIDAD: '{info.field_name}' es demasiado corta ({len(v)} chars).\n"
+                "   Usa al menos 32 caracteres. Genera una con:\n"
+                "   python -c \"import secrets; print(secrets.token_urlsafe(64))\"\n"
+            )
         return v
 
     @property

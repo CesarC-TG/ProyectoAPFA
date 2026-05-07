@@ -1,17 +1,21 @@
 """
 Router de Autenticación — registro, login (email/teléfono), OAuth, refresh, logout, recuperar contraseña
 """
+# stdlib
+import logging
 import random
+import secrets
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+# third-party
 from datetime import datetime, timedelta, timezone
-import secrets, string
-from app.models import VerificacionRegistro  
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
+# local
+from app.config import settings
 from app.database import get_db
-from app.models import Usuario, SesionUsuario, RolUsuario
+from app.models import Usuario, SesionUsuario, RolUsuario, VerificacionRegistro
 from app.schemas import (
     UsuarioCrear, LoginRequest, LoginTelefonoRequest,
     GoogleAuthRequest, PasswordResetRequest, PasswordResetEmailRequest,
@@ -26,10 +30,43 @@ from app.service.auth_service import (
     verificar_bloqueo, registrar_intento_fallido, limpiar_intentos_fallidos,
     _emitir_tokens_y_sesion,
 )
-from app.config import settings
 from app.service.notificacion_service import enviar_email
+from app.utils import log_excepcion
 
+logger = logging.getLogger("apoyofes")
 router = APIRouter()
+
+
+# ── Helper privado — flujo de login compartido ────────────────────────────────
+
+async def _ejecutar_login(
+    usuario: Usuario | None,
+    password_raw: str,
+    db: AsyncSession,
+    request_info: dict,
+    error_msg: str = "Credenciales inválidas",
+) -> dict:
+    """
+    Abstrae el flujo de autenticación por contraseña que se repite en
+    /login y /login-telefono: verificar existencia → bloqueo → password
+    → limpiar intentos → emitir tokens.
+
+    Lanza HTTPException 401/403/429 según corresponda.
+    """
+    if not usuario or not usuario.password_hash:
+        raise HTTPException(status_code=401, detail=error_msg)
+
+    await verificar_bloqueo(usuario)
+
+    if not verificar_password(password_raw, usuario.password_hash):
+        await registrar_intento_fallido(usuario, db)
+        raise HTTPException(status_code=401, detail=error_msg)
+
+    if not usuario.activo:
+        raise HTTPException(status_code=403, detail="Cuenta desactivada")
+
+    await limpiar_intentos_fallidos(usuario, db)
+    return await _emitir_tokens_y_sesion(usuario, db, request_info)
 
 
 # ── Registro con email/contraseña ──────────────────────────
@@ -78,25 +115,13 @@ async def login(
     result = await db.execute(select(Usuario).where(Usuario.email == datos.email))
     usuario = result.scalar_one_or_none()
 
-    if not usuario or not usuario.password_hash:
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
-
-    await verificar_bloqueo(usuario)
-
-    if not verificar_password(datos.password, usuario.password_hash):
-        await registrar_intento_fallido(usuario, db)
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
-
-    if not usuario.activo:
-        raise HTTPException(status_code=403, detail="Cuenta desactivada")
-
-    await limpiar_intentos_fallidos(usuario, db)
-
-    request_info = {
-        "user_agent": request.headers.get("user-agent"),
-        "ip": request.client.host if request.client else None,
-    }
-    return await _emitir_tokens_y_sesion(usuario, db, request_info)
+    return await _ejecutar_login(
+        usuario, datos.password, db,
+        request_info={
+            "user_agent": request.headers.get("user-agent"),
+            "ip": request.client.host if request.client else None,
+        },
+    )
 
 
 # ── Login con número de teléfono ───────────────────────────
@@ -112,24 +137,14 @@ async def login_telefono(
     result = await db.execute(select(Usuario).where(Usuario.telefono == tel))
     usuario = result.scalar_one_or_none()
 
-    if not usuario or not usuario.password_hash:
-        raise HTTPException(status_code=401, detail="Número de teléfono o contraseña inválidos")
-
-    await verificar_bloqueo(usuario)
-
-    if not verificar_password(datos.password, usuario.password_hash):
-        await registrar_intento_fallido(usuario, db)
-        raise HTTPException(status_code=401, detail="Número de teléfono o contraseña inválidos")
-
-    if not usuario.activo:
-        raise HTTPException(status_code=403, detail="Cuenta desactivada")
-
-    await limpiar_intentos_fallidos(usuario, db)
-
-    return await _emitir_tokens_y_sesion(usuario, db, {
-        "user_agent": request.headers.get("user-agent"),
-        "ip": request.client.host if request.client else None,
-    })
+    return await _ejecutar_login(
+        usuario, datos.password, db,
+        request_info={
+            "user_agent": request.headers.get("user-agent"),
+            "ip": request.client.host if request.client else None,
+        },
+        error_msg="Número de teléfono o contraseña inválidos",
+    )
 
 
 # ── Recuperar contraseña por teléfono ─────────────────────
@@ -209,9 +224,13 @@ async def recuperar_password(
     if email_enviado:
         return {"mensaje": f"✅ Te enviamos una contraseña temporal a {usuario.email}. Revisa tu bandeja (y spam)."}
     else:
-        # Fallback visible para desarrollo si SMTP no está configurado
-        via = f"correo {usuario.email}" if datos.email else "teléfono registrado"
-        return {"mensaje": f"✅ Contraseña generada para {via}. [Configura SMTP en .env para envío automático] Contraseña temporal: {nueva_pass}"}
+        # FIX: nunca exponer la contraseña temporal en la respuesta API.
+        # En desarrollo revisa los logs del servidor para obtenerla.
+        logger.warning(
+            "[DESARROLLO] Contraseña temporal generada para %s (SMTP no configurado): %s",
+            usuario.email, nueva_pass,
+        )
+        return {"mensaje": "Contraseña temporal generada. Si no recibes el correo, contacta al administrador."}
 
 
 # ── Google OAuth ───────────────────────────────────────────
@@ -331,8 +350,9 @@ async def solicitar_verificacion(
     """
     email = datos.email.strip().lower()
 
-    if not email.endswith('@pcpuma.acatlan.unam.mx'):
-        raise HTTPException(status_code=400, detail="Solo se aceptan correos @pcpuma.acatlan.unam.mx")
+    dominio_permitido = getattr(settings, "VERIFICATION_EMAIL_DOMAIN", "pcpuma.acatlan.unam.mx")
+    if not email.endswith(f"@{dominio_permitido}"):
+        raise HTTPException(status_code=400, detail=f"Solo se aceptan correos @{dominio_permitido}")
 
     result = await db.execute(select(Usuario).where(Usuario.email == email))
     if result.scalar_one_or_none():
@@ -380,7 +400,9 @@ async def solicitar_verificacion(
             html=html,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"No se pudo enviar el correo: {e}")
+        # FIX: no exponer el mensaje de la excepción al cliente (puede filtrar config SMTP)
+        logger.error("Error al enviar email de verificación a %s: %s", email, e)
+        raise HTTPException(status_code=500, detail="No se pudo enviar el correo de verificación. Intenta más tarde.")
 
     return {"mensaje": f"Código enviado a {email}. Revisa tu bandeja de entrada (y spam)."}
 

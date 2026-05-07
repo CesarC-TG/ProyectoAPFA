@@ -9,9 +9,11 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -19,6 +21,7 @@ import uvicorn, logging, os
 
 from app.config import settings
 from app.database import engine, Base
+from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware, RequestLoggingMiddleware, CSRFMiddleware
 
 from app.routers.auth      import router as auth_router
 from app.routers.users     import router as users_router
@@ -104,14 +107,24 @@ app = FastAPI(
     redoc_url   = "/api/redoc",
     lifespan    = lifespan,
 )
-# ── CORS — permite cualquier origen en desarrollo ─────────
+# ── CORS — solo orígenes conocidos ───────────────────────
+# FIX: antes era allow_origins=["*"] (cualquier origen). Ahora usa la
+# lista definida en settings.ALLOWED_ORIGINS para restringir el acceso.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins     = ["*"],
-    allow_credentials = False,
-    allow_methods     = ["*"],
-    allow_headers     = ["*"],
+    allow_origins     = settings.ALLOWED_ORIGINS,
+    allow_credentials = True,
+    allow_methods     = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers     = ["Authorization", "Content-Type", "X-Requested-With"],
 )
+
+# ── CSRF — valida el origen de peticiones mutables ───────
+app.add_middleware(CSRFMiddleware, allowed_origins=settings.ALLOWED_ORIGINS)
+
+# ── Otros middlewares ─────────────────────────────────────
+app.add_middleware(RateLimitMiddleware, calls=settings.RATE_LIMIT_PER_MINUTE)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1_000)
 
 # ── Archivos estáticos ────────────────────────────────────
@@ -129,6 +142,52 @@ app.include_router(chatbot_router,   prefix="/api/chatbot",  tags=["Chatbot IA"]
 app.include_router(admin_router,     prefix="/api/admin",    tags=["Administración"])
 app.include_router(websocket_router,  prefix="/ws",            tags=["WebSockets"])
 app.include_router(psicologo_router,  prefix="/api/psicologo", tags=["Psicólogo"])
+
+# ── Manejadores de error globales ────────────────────────
+# FIX: evita que excepciones internas filtren stack traces o mensajes
+# técnicos al cliente. Solo los HTTPException controlados pasan su
+# 'detail'; cualquier otro error produce un mensaje genérico.
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Re-emite HTTPExceptions con el mismo status pero sin datos internos extras."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Errores de validación Pydantic: devuelve los campos con error sin exponer internos."""
+    errores = [
+        {"campo": " → ".join(str(loc) for loc in e["loc"]), "mensaje": e["msg"]}
+        for e in exc.errors()
+    ]
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "Datos inválidos.", "errores": errores},
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """
+    Captura cualquier excepción no controlada.
+    - Loguea el error completo (con traceback) en el servidor.
+    - Devuelve al cliente solo un mensaje genérico 500.
+    Esto evita filtrar rutas internas, versiones de librerías o lógica de negocio.
+    """
+    logger.exception(
+        "Error no controlado: %s %s — %s: %s",
+        request.method,
+        request.url.path,
+        type(exc).__name__,
+        exc,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Error interno del servidor. Por favor intenta más tarde."},
+    )
+
 
 # ── Health check ──────────────────────────────────────────
 @app.get("/health", tags=["Sistema"])

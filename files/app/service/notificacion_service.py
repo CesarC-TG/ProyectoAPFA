@@ -1,14 +1,20 @@
 """
 Servicio de notificaciones — Email + WebSocket push
 """
-
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from typing import Optional
+# stdlib
 import asyncio
+import logging
+import smtplib
+import uuid
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import Optional
 
+# local
 from app.config import settings
+from app.utils import log_excepcion
+
+logger = logging.getLogger("apoyofes")
 
 
 async def notificar_sos_a_admin(evento, usuario=None):
@@ -35,7 +41,7 @@ Panel: https://apoyofes.unam.mx/api/docs
             destinatario = getattr(settings, "ADMIN_ALERT_EMAIL", None) or settings.EMAIL_FROM
             await enviar_email(destinatario=destinatario, asunto=asunto, cuerpo=cuerpo)
         except Exception as e:
-            print(f"Error enviando email SOS: {e}")
+            log_excepcion("Error enviando email SOS a admin", e, destinatario=destinatario)
 
     try:
         from app.websocket import notificar_sos_en_vivo
@@ -45,8 +51,8 @@ Panel: https://apoyofes.unam.mx/api/docs
             "usuario": nombre,
             "descripcion": evento.descripcion,
         })
-    except Exception:
-        pass
+    except Exception as e:
+        log_excepcion("Error notificando SOS por WebSocket", e)
 
 
 async def enviar_email(destinatario: str, asunto: str, cuerpo: str, html: Optional[str] = None):
@@ -58,7 +64,7 @@ async def enviar_email(destinatario: str, asunto: str, cuerpo: str, html: Option
     if html:
         msg.attach(MIMEText(html, "html", "utf-8"))
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, _enviar_smtp, msg, destinatario)
 
 
@@ -73,7 +79,7 @@ async def enviar_email_resend(destinatario: str, asunto: str, html: str, texto: 
     """Envía email usando Resend. Requiere RESEND_API_KEY en .env"""
     if not settings.RESEND_API_KEY:
         raise RuntimeError("Resend no configurado. Define RESEND_API_KEY en tu archivo .env")
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, _enviar_resend, destinatario, asunto, html, texto)
 
 
@@ -127,14 +133,13 @@ No respondas a este correo.
                 cuerpo=cuerpo,
             )
         except Exception as e:
-            print(f"Error notificando contacto emergencia: {e}")
+            log_excepcion("Error notificando contacto de emergencia", e, email=email_emergencia)
 
-    # Log SMS simulado (integrar con Twilio en producción)
+    # SMS simulado — integrar Twilio en producción
     if tel_emergencia:
-        import logging
-        logging.getLogger("apoyofes").info(
-            f"[SMS SIMULADO] SOS → {tel_emergencia} ({nombre_emergencia}): "
-            f"{usuario.nombre} necesita apoyo."
+        logger.info(
+            "[SMS SIMULADO] SOS → %s (%s): %s necesita apoyo.",
+            tel_emergencia, nombre_emergencia, usuario.nombre,
         )
 
 
@@ -285,7 +290,7 @@ async def enviar_email_cita(
                 html=_html(nombre_dest, otro_nombre, rol_otro),
             )
         except Exception as e:
-            print(f"Error enviando email de cita a {email_dest}: {e}")
+            log_excepcion("Error enviando email de cita", e, destinatario=email_dest)
 
 
 async def notificacion_inactividad(db_session, usuario):
@@ -294,7 +299,6 @@ async def notificacion_inactividad(db_session, usuario):
     Llamada desde el scheduler periódico.
     """
     from app.models import Notificacion
-    import uuid
 
     notif = Notificacion(
         id         = str(uuid.uuid4()),

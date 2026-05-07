@@ -54,29 +54,75 @@ async def actualizar_mi_perfil(
 ):
     """Alias de PATCH /me — actualiza perfil incluyendo contacto de emergencia."""
     return await actualizar_perfil(datos, db, usuario)
+
+# ── Constantes para validación de avatares ──────────────────
+_MIME_PERMITIDOS = {
+    "image/jpeg": ("jpg", b"\xff\xd8\xff"),           # magic bytes JPEG
+    "image/png":  ("png", b"\x89PNG\r\n\x1a\n"),      # magic bytes PNG
+    "image/webp": ("webp", b"RIFF"),                   # magic bytes WebP (RIFF....)
+}
+# Extensiones de archivo válidas derivadas del dict anterior
+_EXT_PERMITIDAS = {data[0] for data in _MIME_PERMITIDOS.values()}
+
+
+def _validar_magic_bytes(contenido: bytes, content_type: str) -> bool:
+    """
+    Comprueba que los primeros bytes del archivo coincidan con el tipo MIME declarado.
+    Evita que alguien renombre un .php/.exe como .jpg para saltarse la validación.
+    """
+    firma = _MIME_PERMITIDOS.get(content_type)
+    if not firma:
+        return False
+    _, magic = firma
+    return contenido[:len(magic)] == magic
+
+
 @router.post("/me/avatar", response_model=UsuarioRespuesta)
 async def subir_avatar(
     archivo: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     usuario: Usuario = Depends(get_current_user),
 ):
-    """Sube o reemplaza el avatar del usuario."""
-    # Validar tipo y tamaño
-    if archivo.content_type not in ("image/jpeg", "image/png", "image/webp"):
-        raise HTTPException(status_code=415, detail="Solo se aceptan imágenes JPEG, PNG o WebP")
+    """Sube o reemplaza el avatar del usuario.
 
-    contenido = await archivo.read()
-    if len(contenido) > settings.MAX_FILE_SIZE_MB * 1_000_000:
+    Validaciones de seguridad aplicadas:
+    - Lista blanca de MIME types permitidos.
+    - Verificación de magic bytes (los primeros bytes del archivo).
+    - Lista blanca de extensiones (derivada del MIME type, nunca del nombre original).
+    - Límite de tamaño configurable (MAX_FILE_SIZE_MB).
+    - El archivo se guarda con nombre basado en UUID, nunca con el nombre original.
+    """
+
+    # 1. Validar MIME type declarado por el cliente
+    if archivo.content_type not in _MIME_PERMITIDOS:
         raise HTTPException(
-            status_code=413,
-            detail=f"El archivo supera el límite de {settings.MAX_FILE_SIZE_MB} MB",
+            status_code=415,
+            detail="Tipo de archivo no permitido. Solo se aceptan imágenes JPEG, PNG o WebP.",
         )
 
-    # Guardar en disco
+    # 2. Leer contenido y verificar tamaño
+    contenido = await archivo.read()
+    limite_bytes = settings.MAX_FILE_SIZE_MB * 1_000_000
+    if len(contenido) > limite_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"El archivo supera el límite de {settings.MAX_FILE_SIZE_MB} MB.",
+        )
+
+    # 3. Verificar magic bytes — defiende contra archivos disfrazados
+    if not _validar_magic_bytes(contenido, archivo.content_type):
+        raise HTTPException(
+            status_code=415,
+            detail="El contenido del archivo no coincide con su tipo declarado.",
+        )
+
+    # 4. Obtener extensión desde el MIME type (nunca desde el nombre del archivo)
+    ext = _MIME_PERMITIDOS[archivo.content_type][0]   # "jpg" | "png" | "webp"
+
+    # 5. Guardar con nombre seguro: UUID fijo por usuario, sin datos del nombre original
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-    ext      = archivo.filename.rsplit(".", 1)[-1].lower()
-    nombre   = f"avatar_{usuario.id}.{ext}"
-    ruta     = os.path.join(settings.UPLOAD_DIR, nombre)
+    nombre = f"avatar_{usuario.id}.{ext}"
+    ruta   = os.path.join(settings.UPLOAD_DIR, nombre)
 
     with open(ruta, "wb") as f:
         f.write(contenido)

@@ -21,6 +21,14 @@ from app.service.notificacion_service import notificar_sos_a_admin, notificar_co
 router = APIRouter()
 
 # Líneas de crisis precargadas
+
+# SVGs del paquete KAI — stroke minimalista, heredan color vía currentColor
+_ICO_PHONE  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+_ICO_HEART  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+_ICO_USER   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+_ICO_ALERT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+_ICO_BOOK   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
+
 LINEAS_CRISIS = [
     {
         "id": "saptel",
@@ -29,7 +37,7 @@ LINEAS_CRISIS = [
         "telefono_href": "tel:8002900024",
         "disponible_24h": True,
         "descripcion": "Apoyo emocional y crisis, 24/7 los 365 días del año",
-        "icono": "🆘",
+        "icono": _ICO_PHONE,
     },
     {
         "id": "imss",
@@ -38,7 +46,7 @@ LINEAS_CRISIS = [
         "telefono_href": "tel:8009112000",
         "disponible_24h": True,
         "descripcion": "Orientación en crisis de salud mental",
-        "icono": "🏥",
+        "icono": _ICO_HEART,
     },
     {
         "id": "capa",
@@ -47,7 +55,7 @@ LINEAS_CRISIS = [
         "telefono_href": "tel:8002900024",
         "disponible_24h": False,
         "descripcion": "CDMX · Salud mental pública",
-        "icono": "👁",
+        "icono": _ICO_USER,
     },
     {
         "id": "911",
@@ -56,7 +64,7 @@ LINEAS_CRISIS = [
         "telefono_href": "tel:911",
         "disponible_24h": True,
         "descripcion": "Policía / Ambulancias / Bomberos",
-        "icono": "🚨",
+        "icono": _ICO_ALERT,
     },
     {
         "id": "fes",
@@ -65,7 +73,7 @@ LINEAS_CRISIS = [
         "telefono_href": "tel:5556231666",
         "disponible_24h": False,
         "descripcion": "Lun–Vie 8am–8pm · Edificio D, Planta Baja",
-        "icono": "🏛",
+        "icono": _ICO_BOOK,
     },
 ]
 
