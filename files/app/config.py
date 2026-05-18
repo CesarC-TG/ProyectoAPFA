@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:8000",
+        "http://192.168.0.25:8000",
+        "http://192.168.0.23:8000",
         "https://apoyofes.unam.mx",
     ]
 
