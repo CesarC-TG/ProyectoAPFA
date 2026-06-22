@@ -105,6 +105,57 @@ async def todos_los_estudiantes(
     return out
 
 
+@router.get("/intervenciones")
+async def listar_intervenciones(
+    db: AsyncSession = Depends(get_db),
+    psicologo: Usuario = Depends(get_current_psicologo),
+):
+    """Devuelve todas las intervenciones registradas con conteo de citas por estudiante."""
+    asig_res = await db.execute(
+        select(AsignacionPsicologo).where(AsignacionPsicologo.activa == True)
+        .order_by(AsignacionPsicologo.creada_en.desc())
+    )
+    asignaciones = asig_res.scalars().all()
+
+    # Conteo de citas por estudiante
+    total_res = await db.execute(
+        select(Cita.estudiante_id, func.count(Cita.id).label("total"))
+        .group_by(Cita.estudiante_id)
+    )
+    comp_res = await db.execute(
+        select(Cita.estudiante_id, func.count(Cita.id).label("completadas"))
+        .where(Cita.estado == EstadoCita.COMPLETADA)
+        .group_by(Cita.estudiante_id)
+    )
+    citas_total = {r.estudiante_id: r.total for r in total_res.all()}
+    citas_comp  = {r.estudiante_id: r.completadas for r in comp_res.all()}
+    citas_map = {eid: {"total": citas_total.get(eid, 0), "completadas": citas_comp.get(eid, 0)}
+                 for eid in set(list(citas_total.keys()) + list(citas_comp.keys()))}
+
+    out = []
+    for a in asignaciones:
+        psico = await db.get(Usuario, a.psicologo_id)
+        est   = await db.get(Usuario, a.estudiante_id)
+        notas = a.notas or ""
+        partes = notas.split(" · ", 1)
+        tipo = partes[0] if partes[0] else "—"
+        obs  = partes[1] if len(partes) > 1 else ""
+        citas = citas_map.get(a.estudiante_id, {"total": 0, "completadas": 0})
+        out.append({
+            "id": a.id,
+            "estudiante_id": a.estudiante_id,
+            "psicologo_id": a.psicologo_id,
+            "psicologo_nombre": (psico.nombre + " " + (psico.apellidos or "")).strip() if psico else "—",
+            "estudiante_nombre": (est.nombre + " " + (est.apellidos or "")).strip() if est else "—",
+            "tipo": tipo,
+            "observaciones": obs,
+            "fecha": a.creada_en.isoformat() if a.creada_en else None,
+            "citas_total": citas["total"],
+            "citas_completadas": citas["completadas"],
+        })
+    return out
+
+
 @router.patch("/estudiantes/{estudiante_id}/categoria")
 async def asignar_categoria(
     estudiante_id: str,

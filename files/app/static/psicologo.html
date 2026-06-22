@@ -96,19 +96,6 @@ header{background:var(--gradient-primary);padding:13px 20px;display:flex;align-i
 .btn-chat-est{margin-top:12px;width:100%;background:var(--gradient-primary);color:#fff;border:none;padding:9px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;box-shadow:0 3px 10px rgba(39,98,102,.28)}
 .btn-chat-est:hover{box-shadow:0 5px 16px rgba(39,98,102,.38);transform:translateY(-1px)}
 
-/* ── Diario ──────────────────────────────────────── */
-.diario-filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.filter-select{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--texto);cursor:pointer}
-.entrada-card{background:#fff;border-radius:14px;padding:18px;box-shadow:var(--card-shadow);border:1px solid rgba(229,225,216,.8);margin-bottom:14px;border-left:4px solid var(--azul);transition:all .2s}
-.entrada-card:hover{box-shadow:var(--sh-md)}
-.entrada-card.alerta{border-left-color:var(--rojo)}
-.entrada-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.entrada-autor{font-size:13px;font-weight:600;color:var(--azul)}
-.entrada-fecha{font-size:11px;color:var(--suave)}
-.entrada-animo{font-size:20px}
-.entrada-texto{font-size:14px;color:var(--texto);line-height:1.55;margin-bottom:8px}
-.entrada-tags{display:flex;gap:6px;flex-wrap:wrap}
-.alerta-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(198,90,73,.1);color:var(--rojo);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
 
 /* ── Chat ─────────────────────────────────────────── */
 .chat-layout{display:grid;grid-template-columns:260px 1fr;gap:0;height:calc(100vh - 140px);background:#fff;border-radius:18px;box-shadow:var(--sh-md);border:1px solid rgba(229,225,216,.7);overflow:hidden}
@@ -220,8 +207,6 @@ header{background:var(--gradient-primary);padding:13px 20px;display:flex;align-i
 .btn-est i{font-size:16px}
 .btn-est-chat{background:rgba(39,98,102,.1);color:var(--azul)}
 .btn-est-chat:hover{background:rgba(39,98,102,.2)}
-.btn-est-diario{background:rgba(201,168,76,.1);color:#8a6200}
-.btn-est-diario:hover{background:rgba(201,168,76,.2)}
 .btn-est-cita{background:rgba(51,126,89,.1);color:var(--verde)}
 .btn-est-cita:hover{background:rgba(51,126,89,.2)}
 .btn-est-act{background:rgba(122,91,156,.1);color:var(--morado,#7A5B9C)}
@@ -253,6 +238,21 @@ header{background:var(--gradient-primary);padding:13px 20px;display:flex;align-i
 .ev-field input,.ev-field select,.ev-field textarea{background:var(--fondo);border:1px solid var(--borde);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--texto);width:100%;box-sizing:border-box;transition:border .15s}
 .ev-field input:focus,.ev-field select:focus,.ev-field textarea:focus{outline:none;border-color:var(--azul)}
 .ev-field textarea{resize:vertical;min-height:72px}
+
+/* ── Intervención en tarjeta estudiante ──────── */
+.intv-section{margin-top:12px;border-top:1px solid var(--fondo);padding-top:10px}
+.intv-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap}
+.intv-label{font-size:10px;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;font-weight:700;min-width:70px}
+.intv-val{font-size:12px;color:var(--texto);font-weight:500}
+.intv-tipo{background:rgba(39,98,102,.1);color:var(--azul);font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+.seg-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.seg-sin{background:rgba(122,139,148,.1);color:var(--suave)}
+.seg-inicio{background:rgba(201,168,76,.12);color:#8a6200}
+.seg-activo{background:rgba(51,126,89,.12);color:var(--verde)}
+.sesiones-row{display:flex;gap:8px;margin-top:8px}
+.ses-pill{background:var(--fondo);border-radius:8px;padding:6px 10px;text-align:center;flex:1}
+.ses-pill-num{font-size:16px;font-weight:700;color:var(--azul);font-family:'Fraunces',serif}
+.ses-pill-lbl{font-size:10px;color:var(--suave);margin-top:1px}
 
 /* ── Toggle vista mis/todos ───────────────────── */
 .filter-toggle{background:none;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--suave);transition:.15s;font-family:inherit}
@@ -413,13 +413,6 @@ header{background:var(--gradient-primary);padding:13px 20px;display:flex;align-i
         </div>
       </div>
 
-      <!-- Alertas recientes -->
-      <h3 style="font-size:16px;font-weight:600;margin-bottom:14px;color:var(--texto)">
-        <i class='bx bxs-bell-ring' style="color:var(--rojo)"></i> Entradas con alerta reciente
-      </h3>
-      <div id="alertas-recientes">
-        <div class="loader"><i class='bx bx-loader-alt'></i> Cargando alertas…</div>
-      </div>
     </div>
 
     <!-- ── PERFIL ── -->
@@ -456,12 +449,9 @@ header{background:var(--gradient-primary);padding:13px 20px;display:flex;align-i
     <div class="page" id="page-estudiantes">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">
         <div class="page-title" style="margin:0">Estudiantes</div>
-        <div style="display:flex;background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:3px;gap:2px">
-          <button id="toggle-mis" class="filter-toggle on" onclick="toggleVistaEst('mis')">Mis estudiantes</button>
-          <button id="toggle-todos" class="filter-toggle" onclick="toggleVistaEst('todos')">Todos</button>
-        </div>
+        <button class="btn-cita btn-confirmar" onclick="cargarEstudiantes()" style="padding:7px 12px;font-size:12px"><i class='bx bx-refresh'></i> Actualizar</button>
       </div>
-      <div class="page-sub">Filtra y categoriza para un seguimiento más efectivo</div>
+      <div class="page-sub">Todos los estudiantes · con registro de intervención y seguimiento</div>
 
       <!-- Chips de categoría -->
       <div id="cat-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
@@ -583,7 +573,7 @@ const API = API_BASE;
 let token = localStorage.getItem('apfa_at') || '';
 let psico = null;
 let estudiantesCache = [];
-let vistaEst = 'mis';   // 'mis' | 'todos'
+let intervencionesCache = {};  // keyed by estudiante_id
 let catFiltro = '';     // categoría activa
 
 // ── Helpers ──────────────────────────────────────────────
@@ -663,7 +653,6 @@ function showPage(id) {
 
   // Cargar stats
   cargarStats();
-  cargarAlertasRecientes();
   // Navegar a la sección pedida: sessionStorage tiene prioridad, luego hash URL
   const target = sessionStorage.getItem('kai_psico_target') || window.location.hash.replace('#','');
   if (target) {
@@ -721,31 +710,6 @@ async function cargarStats() {
   }
 }
 
-// ── Alertas recientes ─────────────────────────────────────
-
-async function cargarAlertasRecientes() {
-  const el = document.getElementById('alertas-recientes');
-  try {
-    const data = await apiFetch('/psicologo/diarios');
-    if (!data) return;
-    const alertas = data.filter(d => d.alerta_crisis).slice(0, 5);
-    if (alertas.length === 0) {
-      el.innerHTML = '<div class="empty-msg"> Sin alertas de crisis recientes</div>';
-      return;
-    }
-    el.innerHTML = alertas.map(e => `
-      <div class="entrada-card alerta">
-        <div class="entrada-header">
-          <span class="entrada-autor">${e.estudiante?.nombre || 'Estudiante'}</span>
-          <span class="entrada-fecha">${dfmt(e.creada_en)}</span>
-        </div>
-        <div class="entrada-texto">${e.texto.substring(0, 180)}${e.texto.length > 180 ? '…' : ''}</div>
-        <span class="alerta-badge"><i class='bx bxs-error-circle'></i> Alerta de crisis</span>
-      </div>`).join('');
-  } catch (e) {
-    el.innerHTML = '<div class="empty-msg">No se pudieron cargar las alertas.</div>';
-  }
-}
 
 // ── Perfil ────────────────────────────────────────────────
 
@@ -771,13 +735,16 @@ async function cargarEstudiantes() {
   const el = document.getElementById('lista-estudiantes');
   el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando estudiantes…</div>';
   try {
-    const endpoint = vistaEst === 'todos' ? '/psicologo/todos-estudiantes' : '/psicologo/mis-estudiantes';
-    const data = await apiFetch(endpoint);
+    const [data, intervs] = await Promise.all([
+      apiFetch('/psicologo/todos-estudiantes'),
+      apiFetch('/psicologo/intervenciones').catch(() => []),
+    ]);
     if (!data) return;
     estudiantesCache = data;
-
-
-
+    intervencionesCache = {};
+    (intervs || []).forEach(i => {
+      if (!intervencionesCache[i.estudiante_id]) intervencionesCache[i.estudiante_id] = i;
+    });
     renderEstudiantesFiltrados();
   } catch (e) {
     el.innerHTML = `<div class="empty-msg" style="color:var(--rojo)">Error al cargar estudiantes: ${e.message}</div>`;
@@ -795,20 +762,10 @@ function renderEstudiantesFiltrados() {
   }
 
   if (datos.length === 0) {
-    const msg = vistaEst === 'mis'
-      ? 'Aún no tienes estudiantes asignados.<br>Aparecerán aquí cuando tengas citas o compartan su diario contigo.'
-      : 'No hay estudiantes con esta categoría.';
-    el.innerHTML = `<div class="empty-msg">${msg}</div>`;
+    el.innerHTML = '<div class="empty-msg">No hay estudiantes registrados en el sistema.</div>';
     return;
   }
   el.innerHTML = `<div class="estudiantes-grid">${datos.map(e => renderEstudianteCard(e)).join('')}</div>`;
-}
-
-function toggleVistaEst(modo) {
-  vistaEst = modo;
-  document.getElementById('toggle-mis').classList.toggle('on', modo === 'mis');
-  document.getElementById('toggle-todos').classList.toggle('on', modo === 'todos');
-  cargarEstudiantes();
 }
 
 function selCat(btn, cat) {
@@ -867,6 +824,45 @@ function renderEstudianteCard(e) {
     onclick="cambiarCategoria('${e.id}','${nombre.replace(/'/g,"\\'")}')">
     ${catLabel || '+ Categoría'}</span>`;
 
+  // Datos de intervención
+  const intv = intervencionesCache[e.id];
+  let intvHtml = '';
+  if (intv) {
+    const fechaIntv = intv.fecha ? new Date(intv.fecha).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const total = intv.citas_total || 0;
+    const comp  = intv.citas_completadas || 0;
+    let segClass, segLabel;
+    if (comp === 0)      { segClass='seg-sin';    segLabel='Sin seguimiento'; }
+    else if (comp <= 2)  { segClass='seg-inicio'; segLabel='Inicio de seguimiento'; }
+    else                 { segClass='seg-activo'; segLabel='Seguimiento activo'; }
+    intvHtml = `
+      <div class="intv-section">
+        <div class="intv-row">
+          <span class="intv-label">Primer acercamiento</span>
+          <span class="intv-tipo">${intv.tipo}</span>
+        </div>
+        <div class="intv-row">
+          <span class="intv-label">Atendido por</span>
+          <span class="intv-val">${intv.psicologo_nombre}</span>
+        </div>
+        ${intv.observaciones ? `<div class="intv-row"><span class="intv-label">Motivo</span><span class="intv-val" style="color:var(--suave)">${intv.observaciones}</span></div>` : ''}
+        <div class="intv-row" style="margin-top:6px">
+          <span class="intv-label">Seguimiento</span>
+          <span class="seg-badge ${segClass}">${segLabel}</span>
+        </div>
+        <div class="sesiones-row">
+          <div class="ses-pill"><div class="ses-pill-num">${total}</div><div class="ses-pill-lbl">Citas totales</div></div>
+          <div class="ses-pill"><div class="ses-pill-num">${comp}</div><div class="ses-pill-lbl">Completadas</div></div>
+          <div class="ses-pill"><div class="ses-pill-num" style="font-size:11px;color:var(--suave)">${fechaIntv}</div><div class="ses-pill-lbl">Fecha registro</div></div>
+        </div>
+      </div>`;
+  } else {
+    intvHtml = `
+      <div class="intv-section">
+        <div style="font-size:12px;color:var(--suave);font-style:italic">Sin intervención registrada</div>
+      </div>`;
+  }
+
   return `
     <div class="estudiante-card" id="est-card-${e.id}">
       <div class="est-header">
@@ -884,27 +880,10 @@ function renderEstudianteCard(e) {
         ${catBadge}
       </div>
 
-      <!-- Mini-resumen expandible -->
-      <div class="est-detail-panel" id="edp-${eid}">
-        <div class="edp-row">
-          <div class="edp-stat"><div class="edp-stat-lbl">Último acceso</div>
-            <div style="font-size:12px;font-weight:600;color:var(--texto)">${
-              e.ultimo_acceso
-                ? new Date(e.ultimo_acceso).toLocaleDateString('es-MX',{day:'numeric',month:'short'})
-                : '—'
-            }</div>
-          </div>
-          <div class="edp-stat"><div class="edp-stat-lbl">SOS 30d</div>
-            <div class="edp-stat-val" id="edp-sos-${eid}">…</div>
-          </div>
-          <div class="edp-stat"><div class="edp-stat-lbl">Entradas</div>
-            <div class="edp-stat-val" id="edp-ent-${eid}">…</div>
-          </div>
-        </div>
-      </div>
+      ${intvHtml}
 
       <!-- Botones de acción -->
-      <div class="est-actions">
+      <div class="est-actions" style="margin-top:10px">
         <button class="btn-est btn-est-cita"
           onclick="abrirModalCita('${e.id}','${nombre.replace(/'/g,"\\'")}')">
           <i class='bx bxs-calendar-plus'></i>Cita
@@ -1270,7 +1249,7 @@ async function verActividadEstudiante(uid, nombre) {
         </div>
         <div style="background:var(--fondo);border-radius:10px;padding:12px">
           <div style="font-size:10px;color:var(--suave);text-transform:uppercase;margin-bottom:4px">Actividad 30d</div>
-          <div style="font-size:13px;font-weight:600">${est.entradas_periodo} entradas diario</div>
+          <div style="font-size:13px;font-weight:600">${est.sos_periodo} eventos SOS 30d</div>
           <div style="font-size:12px;color:var(--rojo);font-weight:600;margin-top:2px">${est.sos_periodo} eventos SOS</div>
         </div>
       </div>

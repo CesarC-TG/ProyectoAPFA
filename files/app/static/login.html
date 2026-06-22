@@ -308,7 +308,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--fondo);c
     </div>
 
     <div class="field">
-      <label>Carrera (opcional)</label>
+      <label>Carrera <span style="color:var(--rojo)">*</span></label>
       <select id="r-carrera">
         <option value="">-- Selecciona tu carrera --</option>
         <option>Actuaría</option>
@@ -622,6 +622,8 @@ async function doRegistro() {
   // Validaciones
   if (!nombre || !email || !pass)
     return showErr('reg-err', 'Nombre, correo y contraseña son obligatorios.');
+  if (!carrera)
+    return showErr('reg-err', 'Debes seleccionar tu carrera.');
   if (!email.endsWith('@pcpuma.acatlan.unam.mx'))
     return showErr('reg-err', 'Solo se acepta correo @pcpuma.acatlan.unam.mx');
   if (tel && !/^\d{10}$/.test(tel))
@@ -635,7 +637,7 @@ async function doRegistro() {
 
   // Guardar datos para usar después de verificar
   pendingData = { nombre, apellidos, email, telefono: tel || undefined,
-                  password: pass, carrera: carrera || undefined, rol,
+                  password: pass, carrera: carrera, rol,
                   emergencia_nombre:   emergNombre || undefined,
                   emergencia_telefono: emergTel    || undefined };
 

@@ -153,7 +153,7 @@ tr:hover td{background:rgba(39,98,102,.02)}
     <button class="nav-btn"    id="nb-stats"        onclick="pg('stats')">       <i class='bx bx-bar-chart-alt-2'></i>Estadísticas</button>
     <div class="nav-label">Gestión</div>
     <button class="nav-btn"    id="nb-usuarios"     onclick="pg('usuarios')">    <i class='bx bxs-group'></i>         Usuarios<span class="nbadge hidden" id="nb-cnt">0</span></button>
-    <button class="nav-btn"    id="nb-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>     Asignaciones</button>
+    <button class="nav-btn"    id="nb-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-notepad'></i>      Intervenciones</button>
     <button class="nav-btn"    id="nb-actividad"    onclick="pg('actividad')">   <i class='bx bxs-bar-chart-alt-2'></i>Actividad</button>
     <button class="nav-btn"    id="nb-emergencias"  onclick="pg('emergencias')"> <i class='bx bxs-phone'></i>          Emergencias</button>
     <button class="nav-btn"    id="nb-recursos"     onclick="pg('recursos')">    <i class='bx bxs-book-content'></i>  Recursos</button>
@@ -170,8 +170,6 @@ tr:hover td{background:rgba(39,98,102,.02)}
         <div class="scard v"> <div class="scard-lbl">Psicólogos</div><div class="scard-val" id="si-psi">—</div></div>
         <div class="scard d"> <div class="scard-lbl">Chats / semana</div><div class="scard-val" id="si-cht">—</div></div>
         <div class="scard r"> <div class="scard-lbl">Alertas activas</div><div class="scard-val" id="si-alt">—</div></div>
-        <div class="scard">   <div class="scard-lbl">Entradas hoy</div><div class="scard-val" id="si-hoy">—</div></div>
-        <div class="scard v"> <div class="scard-lbl">Diarios comp.</div><div class="scard-val" id="si-cmp">—</div></div>
       </div>
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div>
@@ -191,8 +189,6 @@ tr:hover td{background:rgba(39,98,102,.02)}
         <div class="scard v"> <div class="scard-lbl">Total psicólogos</div><div class="scard-val" id="st-psi">—</div></div>
         <div class="scard d"> <div class="scard-lbl">Chats / semana</div><div class="scard-val" id="st-cht">—</div></div>
         <div class="scard r"> <div class="scard-lbl">Alertas SOS activas</div><div class="scard-val" id="st-alt">—</div></div>
-        <div class="scard">   <div class="scard-lbl">Entradas diario hoy</div><div class="scard-val" id="st-hoy">—</div></div>
-        <div class="scard v"> <div class="scard-lbl">Diarios compartidos</div><div class="scard-val" id="st-cmp">—</div></div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
         <button class="btn btn-primary" onclick="cargarStats()"><i class='bx bx-refresh'></i> Actualizar</button>
@@ -222,23 +218,35 @@ tr:hover td{background:rgba(39,98,102,.02)}
       </div>
     </div>
 
-    <!-- ── ASIGNACIONES ── -->
+    <!-- ── INTERVENCIONES ── -->
     <div class="pg" id="pg-asignaciones">
-      <div class="pg-title">Asignaciones</div>
-      <div class="pg-sub">Asignar estudiantes a psicólogos según disponibilidad</div>
+      <div class="pg-title">Intervenciones</div>
+      <div class="pg-sub">Registro de primer acercamiento y seguimiento con psicólogos</div>
       <div class="asig-grid">
 
         <!-- Formulario -->
         <div class="asig-form">
-          <h3><i class='bx bxs-user-plus' style="color:var(--azul)"></i> Nueva asignación</h3>
+          <h3><i class='bx bxs-notepad' style="color:var(--azul)"></i> Registrar intervención</h3>
           <div class="field">
-            <label>Psicólogo</label>
+            <label>Tipo de acercamiento</label>
+            <select id="asig-tipo">
+              <option value="">— Selecciona el tipo —</option>
+              <option value="Primera sesión">Primera sesión</option>
+              <option value="Seguimiento">Seguimiento</option>
+              <option value="Atención en crisis">Atención en crisis</option>
+              <option value="Derivación">Derivación</option>
+              <option value="Taller / grupo">Taller / grupo</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Psicólogo que atendió</label>
             <select id="asig-psico">
               <option value="">— Selecciona un psicólogo —</option>
             </select>
           </div>
           <div id="asig-psico-info" style="background:var(--fondo);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--suave);display:none">
-            <span id="asig-psico-est">0</span> estudiantes actuales
+            <span id="asig-psico-est">0</span> intervenciones registradas
           </div>
           <div class="field">
             <label>Estudiante</label>
@@ -247,18 +255,18 @@ tr:hover td{background:rgba(39,98,102,.02)}
             </select>
           </div>
           <div class="field">
-            <label>Notas (opcional)</label>
-            <textarea id="asig-notas" rows="2" placeholder="Motivo de asignación…"></textarea>
+            <label>Observaciones (opcional)</label>
+            <textarea id="asig-notas" rows="3" placeholder="Describe brevemente el acercamiento, motivo o resultado…"></textarea>
           </div>
           <button class="btn btn-primary" style="width:100%" onclick="crearAsignacion()">
-            <i class='bx bx-link'></i> Crear asignación
+            <i class='bx bxs-notepad'></i> Registrar intervención
           </button>
         </div>
 
-        <!-- Lista de asignaciones -->
+        <!-- Lista de intervenciones -->
         <div class="asig-list">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <h3 style="font-size:15px;font-weight:600">Asignaciones activas</h3>
+            <h3 style="font-size:15px;font-weight:600">Registro de intervenciones</h3>
             <button class="btn btn-ghost btn-sm" onclick="cargarAsignaciones()"><i class='bx bx-refresh'></i></button>
           </div>
           <div id="asig-lista"><div class="loader"><i class='bx bx-loader-alt'></i></div></div>
@@ -531,7 +539,7 @@ async function cargarStats() {
     if (!s) return;
     const ids = [['si-est','st-est',s.total_estudiantes],['si-psi','st-psi',s.total_psicologos],
                  ['si-cht','st-cht',s.sesiones_chat_semana],['si-alt','st-alt',s.alertas_activas],
-                 ['si-hoy','st-hoy',s.entradas_hoy],['si-cmp','st-cmp',s.entradas_compartidas]];
+                 ];
     ids.forEach(([a,b,v]) => {
       const va = document.getElementById(a), vb = document.getElementById(b);
       if (va) va.textContent = v ?? '—';
@@ -690,23 +698,31 @@ async function cargarAsignaciones() {
   try {
     const data = await apiFetch('/admin/asignaciones');
     if (!data) return;
-    if (!data.length) { el.innerHTML = '<div class="empty-msg">Sin asignaciones activas.</div>'; return; }
-    el.innerHTML = data.map(a => `
+    if (!data.length) { el.innerHTML = '<div class="empty-msg">Sin intervenciones registradas.</div>'; return; }
+    el.innerHTML = data.map(a => {
+      const partes = (a.notas || '').split(' · ');
+      const tipo   = partes[0] || '—';
+      const obs    = partes.slice(1).join(' · ');
+      const fecha  = a.creada_en ? new Date(a.creada_en).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return `
       <div class="asig-item" id="asig-${a.id}">
         <div class="asig-av">${(a.psicologo?.nombre||'P').charAt(0).toUpperCase()}</div>
         <div class="asig-info">
           <div class="asig-names">
-            <span style="font-weight:600;color:var(--azul)">${a.psicologo?.nombre||'—'}</span>
+            <span style="background:rgba(39,98,102,.1);color:var(--azul);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px">${tipo}</span>
+          </div>
+          <div class="asig-names" style="margin-top:4px">
+            <span style="font-weight:600">${a.psicologo?.nombre||'—'}</span>
             <span class="asig-arrow">→</span>
             <span>${a.estudiante?.nombre||'—'}</span>
           </div>
-          <div class="asig-meta">${a.psicologo?.email||''} · ${a.estudiante?.email||''}</div>
-          ${a.notas ? '<div class="asig-meta" style="font-style:italic">'+a.notas+'</div>' : ''}
+          <div class="asig-meta">${fecha}${obs ? ' · ' + obs : ''}</div>
         </div>
-        <button class="btn-del-asig" onclick="eliminarAsignacion('${a.id}')" title="Eliminar asignación">
+        <button class="btn-del-asig" onclick="eliminarAsignacion('${a.id}')" title="Eliminar intervención">
           <i class='bx bx-x-circle'></i>
         </button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch(e) {
     el.innerHTML = '<div class="empty-msg" style="color:var(--rojo)">Error: ' + e.message + '</div>';
   }
@@ -715,14 +731,18 @@ async function cargarAsignaciones() {
 async function crearAsignacion() {
   const pid   = document.getElementById('asig-psico').value;
   const eid   = document.getElementById('asig-est').value;
-  const notas = document.getElementById('asig-notas').value.trim();
+  const tipo  = document.getElementById('asig-tipo').value;
+  const obs   = document.getElementById('asig-notas').value.trim();
+  if (!tipo)       { toast('Selecciona el tipo de acercamiento'); return; }
   if (!pid || !eid) { toast('Selecciona psicólogo y estudiante'); return; }
+  const notas = tipo + (obs ? ' · ' + obs : '');
   try {
     const r = await apiFetch('/admin/asignaciones', {
       method: 'POST',
       body: JSON.stringify({ psicologo_id: pid, estudiante_id: eid, notas: notas || null })
     });
-    toast(r?.mensaje || 'Asignación creada');
+    toast(r?.mensaje || 'Intervención registrada');
+    document.getElementById('asig-tipo').value  = '';
     document.getElementById('asig-psico').value = '';
     document.getElementById('asig-est').value   = '';
     document.getElementById('asig-notas').value = '';
@@ -732,10 +752,10 @@ async function crearAsignacion() {
 }
 
 async function eliminarAsignacion(id) {
-  if (!confirm('¿Eliminar esta asignación?')) return;
+  if (!confirm('¿Eliminar este registro de intervención?')) return;
   try {
     await apiFetch('/admin/asignaciones/' + id, { method: 'DELETE' });
-    toast('Asignación eliminada');
+    toast('Intervención eliminada');
     cargarAsignaciones();
     cargarSelectsPsicologosYEstudiantes();
   } catch(e) { toast('Error: ' + e.message); }
@@ -1121,7 +1141,7 @@ async function eliminarRecurso(id, titulo) {
 <nav class="bottom-nav" id="bottom-nav-admin">
   <button class="bnav-btn on" id="bnav-inicio"       onclick="pg('inicio')">      <i class='bx bxs-dashboard'></i>Inicio</button>
   <button class="bnav-btn"    id="bnav-usuarios"     onclick="pg('usuarios')">    <i class='bx bxs-group'></i>Usuarios</button>
-  <button class="bnav-btn"    id="bnav-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-user-plus'></i>Asignac.</button>
+  <button class="bnav-btn"    id="bnav-asignaciones" onclick="pg('asignaciones')"><i class='bx bxs-notepad'></i>Intervenc.</button>
   <button class="bnav-btn"    id="bnav-emergencias"  onclick="pg('emergencias')"> <i class='bx bxs-phone'></i>Emergencias</button>
   <button class="bnav-btn"    id="bnav-stats"        onclick="pg('stats')">       <i class='bx bx-bar-chart-alt-2'></i>Stats</button>
   <button class="bnav-btn"    id="bnav-recursos"     onclick="pg('recursos')">    <i class='bx bxs-book-content'></i>Recursos</button>
