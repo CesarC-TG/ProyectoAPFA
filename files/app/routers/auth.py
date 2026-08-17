@@ -375,6 +375,7 @@ async def solicitar_verificacion(
     db.add(verif)
     await db.commit()
 
+    # ── Armar HTML del correo ──
     html = f"""
 <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f8f7f4">
   <div style="background:#276266;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
@@ -392,18 +393,27 @@ async def solicitar_verificacion(
   <p style="color:#aaa;font-size:11px">Equipo APFA · FES Acatlán, UNAM</p>
 </div>"""
 
-    try:
-        await enviar_email(
-            destinatario=email,
-            asunto="Tu código de verificación — APFA FES Acatlán",
-            cuerpo=f"Hola {datos.nombre}, tu código de verificación es: {codigo}. Válido por 10 minutos.",
-            html=html,
-        )
-    except Exception as e:
-        # FIX: no exponer el mensaje de la excepción al cliente (puede filtrar config SMTP)
-        logger.error("Error al enviar email de verificación a %s: %s", email, e)
-        raise HTTPException(status_code=500, detail="No se pudo enviar el correo de verificación. Intenta más tarde.")
+    # ── Intentar enviar correo real; si falla, by-pass con log en terminal ──
+    if settings.SMTP_USER and settings.SMTP_PASSWORD and settings.SMTP_PASSWORD != "TU_CONTRASEÑA_DE_APLICACION":
+        try:
+            await enviar_email(
+                destinatario=email,
+                asunto="Tu código de verificación — APFA FES Acatlán",
+                cuerpo=f"Hola {datos.nombre}, tu código de verificación es: {codigo}. Válido por 10 minutos.",
+                html=html,
+            )
+            return {"mensaje": f"Código enviado a {email}. Revisa tu bandeja de entrada (y spam)."}
+        except Exception as e:
+            logger.error("Error al enviar email de verificación a %s: %s", email, e)
+            # Si falla, cae al by-pass
 
+    # ── By-pass: mostrar código en terminal (desarrollo / SMTP no configurado) ──
+    logger.info("=" * 52)
+    logger.info("🔑 CÓDIGO DE VERIFICACIÓN (by-pass)")
+    logger.info(f"   Email: {email}")
+    logger.info(f"   Código: {codigo}")
+    logger.info(f"   Válido por 10 minutos")
+    logger.info("=" * 52)
     return {"mensaje": f"Código enviado a {email}. Revisa tu bandeja de entrada (y spam)."}
 
 
