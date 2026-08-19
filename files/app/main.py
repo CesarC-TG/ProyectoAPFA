@@ -49,21 +49,6 @@ async def lifespan(app: FastAPI):
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Agregar columnas nuevas a tablas existentes (compatibilidad con BDs previas)
-        columnas_nuevas = [
-            "ALTER TABLE usuarios ADD COLUMN emergencia_nombre    VARCHAR(120)",
-            "ALTER TABLE usuarios ADD COLUMN emergencia_telefono  VARCHAR(20)",
-            "ALTER TABLE usuarios ADD COLUMN emergencia_email     VARCHAR(200)",
-            "ALTER TABLE usuarios ADD COLUMN numero_cuenta        VARCHAR(50)",
-            "ALTER TABLE usuarios ADD COLUMN password_reset_token VARCHAR(200)",
-            "ALTER TABLE usuarios ADD COLUMN categoria_problema   VARCHAR(50)",
-            "ALTER TABLE usuarios ADD COLUMN en_crisis            BOOLEAN DEFAULT false",
-        ]
-        for sql in columnas_nuevas:
-            try:
-                await conn.execute(__import__("sqlalchemy").text(sql))
-            except Exception:
-                pass  # La columna ya existe — ignorar
     logger.info("✅ Base de datos inicializada")
     from app.routers.recursos_seed import seed as seed_recursos
     await seed_recursos()
