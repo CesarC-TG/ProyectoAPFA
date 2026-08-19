@@ -25,16 +25,6 @@ class RolUsuario(str, enum.Enum):
     ADMIN      = "admin"
 
 
-class EstadoAnimo(str, enum.Enum):
-    MUY_BIEN   = "😄"
-    BIEN       = "😊"
-    REGULAR    = "😐"
-    MAL        = "😔"
-    ANSIOSO    = "😰"
-    FRUSTRADO  = "😤"
-    MUY_MAL    = "😞"
-
-
 class TipoRecurso(str, enum.Enum):
     RESPIRACION  = "respiracion"
     MEDITACION   = "meditacion"
@@ -50,6 +40,18 @@ class EstadoCita(str, enum.Enum):
     CONFIRMADA  = "confirmada"
     CANCELADA   = "cancelada"
     COMPLETADA  = "completada"
+
+
+class EstadoCola(str, enum.Enum):
+    PENDIENTE = "pendiente"
+    TOMADA    = "tomada"
+    RESUELTA  = "resuelta"
+
+
+class PrioridadCola(str, enum.Enum):
+    ALTA  = "alta"
+    MEDIA = "media"
+    BAJA  = "baja"
 
 
 # ── Modelos ───────────────────────────────────────────────
@@ -74,6 +76,9 @@ class Usuario(Base):
     rol             = Column(Enum(RolUsuario), default=RolUsuario.ESTUDIANTE, nullable=False)
     activo          = Column(Boolean, default=True)
     email_verificado = Column(Boolean, default=False)
+    # Señal de crisis persistente — reemplaza alerta_crisis del diario (eliminado).
+    # Se activa al disparar SOS y se apaga al resolver el caso en la cola.
+    en_crisis       = Column(Boolean, default=False, nullable=False, index=True)
 
     telefono        = Column(String(20),  unique=True, nullable=True, index=True)
     password_reset_token = Column(String(100), nullable=True)
@@ -99,9 +104,6 @@ class Usuario(Base):
     ultimo_acceso   = Column(DateTime(timezone=True), nullable=True)
 
     # Relaciones
-    entradas_diario = relationship("EntradaDiario", back_populates="usuario",
-                                   foreign_keys="EntradaDiario.usuario_id",
-                                   cascade="all, delete-orphan")
     sesiones        = relationship("SesionUsuario",  back_populates="usuario",
                                    cascade="all, delete-orphan")
     citas           = relationship("Cita", back_populates="estudiante",
@@ -138,38 +140,6 @@ class SesionUsuario(Base):
     __table_args__ = (
         Index("ix_sesion_token", "refresh_token"),
         Index("ix_sesion_usuario", "usuario_id"),
-    )
-
-
-class EntradaDiario(Base):
-    __tablename__ = "entradas_diario"
-
-    id          = Column(String(36), primary_key=True, default=gen_uuid)
-    usuario_id  = Column(String(36), ForeignKey("usuarios.id"), nullable=False)
-
-    texto       = Column(Text, nullable=False)
-    estado_animo = Column(Enum(EstadoAnimo), nullable=True)
-    etiquetas   = Column(JSON, default=list)
-
-    # Compartir con psicólogo
-    compartida  = Column(Boolean, default=False)
-    psicologo_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
-
-    # Análisis de IA
-    analisis_ia  = Column(JSON, nullable=True)
-    alerta_crisis = Column(Boolean, default=False)
-
-    creada_en    = Column(DateTime(timezone=True), server_default=func.now())
-    actualizada_en = Column(DateTime(timezone=True), onupdate=func.now())
-
-    usuario   = relationship("Usuario", back_populates="entradas_diario",
-                             foreign_keys=[usuario_id])
-    psicologo = relationship("Usuario", foreign_keys=[psicologo_id])
-
-    __table_args__ = (
-        Index("ix_diario_usuario",    "usuario_id"),
-        Index("ix_diario_compartida", "compartida"),
-        Index("ix_diario_alerta",     "alerta_crisis"),
     )
 
 
@@ -358,4 +328,56 @@ class VerificacionRegistro(Base):
      creado_en  = Column(DateTime(timezone=True), server_default=func.now())
 
      __table_args__ = (Index("ix_verif_email", "email"),)
+
+
+class ColaAtencion(Base):
+    """Cola de trabajo para psicólogos — estado y dueño de cada caso."""
+    __tablename__ = "cola_atencion"
+
+    id            = Column(String(36), primary_key=True, default=gen_uuid)
+    estudiante_id = Column(String(36), ForeignKey("usuarios.id"), nullable=False)
+    psicologo_id  = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+
+    estado        = Column(Enum(EstadoCola), default=EstadoCola.PENDIENTE, nullable=False)
+    prioridad     = Column(Enum(PrioridadCola), default=PrioridadCola.MEDIA, nullable=False)
+    origen        = Column(String(30), default="manual")   # sos | inactividad | manual
+    motivo        = Column(Text, nullable=True)
+
+    creada_en     = Column(DateTime(timezone=True), server_default=func.now())
+    tomada_en     = Column(DateTime(timezone=True), nullable=True)
+    resuelta_en   = Column(DateTime(timezone=True), nullable=True)
+
+    estudiante = relationship("Usuario", foreign_keys=[estudiante_id])
+    psicologo  = relationship("Usuario", foreign_keys=[psicologo_id])
+
+    __table_args__ = (
+        Index("ix_cola_estado",     "estado"),
+        Index("ix_cola_prioridad",  "prioridad"),
+        Index("ix_cola_estudiante", "estudiante_id"),
+        Index("ix_cola_psicologo",  "psicologo_id"),
+    )
+
+
+class AuditoriaAcceso(Base):
+    """Registro inmutable de accesos a expedientes y acciones sobre la cola."""
+    __tablename__ = "auditoria_acceso"
+
+    id            = Column(String(36), primary_key=True, default=gen_uuid)
+    psicologo_id  = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+    estudiante_id = Column(String(36), ForeignKey("usuarios.id"), nullable=True)
+
+    accion        = Column(String(40), nullable=False)  # ver_expediente | tomar_caso | reasignar | liberar | resolver | asignar
+    detalle       = Column(Text, nullable=True)
+    ip_address    = Column(String(50), nullable=True)
+
+    creado_en     = Column(DateTime(timezone=True), server_default=func.now())
+
+    psicologo  = relationship("Usuario", foreign_keys=[psicologo_id])
+    estudiante = relationship("Usuario", foreign_keys=[estudiante_id])
+
+    __table_args__ = (
+        Index("ix_auditoria_psicologo",  "psicologo_id"),
+        Index("ix_auditoria_estudiante", "estudiante_id"),
+        Index("ix_auditoria_accion",     "accion"),
+    )
  

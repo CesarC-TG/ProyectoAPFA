@@ -8,6 +8,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import Usuario, Notificacion
 from app.service.auth_service import get_current_user
+from app.utils import camelize
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ async def mis_notificaciones(
         .limit(30)
     )
     notifs = result.scalars().all()
-    return {
+    return camelize({
         "notificaciones": [
             {
                 "id": n.id,
@@ -39,7 +40,7 @@ async def mis_notificaciones(
             for n in notifs
         ],
         "sin_leer": sum(1 for n in notifs if not n.leida),
-    }
+    })
 
 
 @router.patch("/{notif_id}/leer")

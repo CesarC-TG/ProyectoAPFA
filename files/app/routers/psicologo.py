@@ -1,27 +1,29 @@
 """
-Router del Psicólogo — panel, estudiantes, diarios, citas, actividad, stats SOS
+Router del Psicólogo — panel, estudiantes, cola, citas, actividad, stats SOS
 """
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
 from typing import Optional
 from datetime import datetime, timedelta, timezone
+import uuid
 
 from app.database import get_db
-from app.models import Usuario, EntradaDiario, Cita, RolUsuario, EstadoCita, EventoSOS, AsignacionPsicologo, EventoPsicologo
+from app.models import Usuario, Cita, RolUsuario, EstadoCita, EventoSOS, AsignacionPsicologo, EventoPsicologo, AuditoriaAcceso
 from app.service.auth_service import get_current_psicologo
+from app.utils import camelize
 
 router = APIRouter()
 
 
 @router.get("/perfil")
 async def mi_perfil_psicologo(psicologo: Usuario = Depends(get_current_psicologo)):
-    return {
+    return camelize({
         "id": psicologo.id, "nombre": psicologo.nombre, "apellidos": psicologo.apellidos,
         "email": psicologo.email, "carrera": psicologo.carrera,
         "semestre": psicologo.semestre, "avatar_url": psicologo.avatar_url, "rol": psicologo.rol,
-    }
+    })
 
 
 @router.get("/mis-estudiantes")
@@ -45,13 +47,6 @@ async def listar_mis_estudiantes(
     )
     for u in res2.scalars().all(): mapa[u.id] = u
 
-    # Por diario compartido
-    res3 = await db.execute(
-        select(Usuario).join(EntradaDiario, EntradaDiario.usuario_id == Usuario.id)
-        .where(EntradaDiario.compartida == True, EntradaDiario.psicologo_id == psicologo.id).distinct()
-    )
-    for u in res3.scalars().all(): mapa[u.id] = u
-
     ahora = datetime.now(timezone.utc)
     out = []
     for u in mapa.values():
@@ -71,21 +66,53 @@ async def listar_mis_estudiantes(
             "dias_sin_entrar": dias_sin,
             "categoria_problema": u.categoria_problema,
         })
-    return out
+    return camelize(out)
 
 
 @router.get("/todos-estudiantes")
 async def todos_los_estudiantes(
+    buscar:      Optional[str] = None,
+    solo_crisis: bool = False,
+    categoria:   Optional[str] = None,
+    pagina:      int = Query(default=1, ge=1),
+    por_pagina:  int = Query(default=50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
     psicologo: Usuario = Depends(get_current_psicologo),
 ):
-    """Devuelve TODOS los estudiantes activos del sistema para visibilidad del psicólogo."""
+    """
+    Roster de TODOS los estudiantes activos (visibilidad total que pidió el cliente),
+    pero SIN PII sensible (sin email ni teléfono) y paginado/filtrable para no saturar.
+    El expediente completo se consulta vía GET /estudiantes/{id}/expediente (auditado).
+    """
+    filtros = [Usuario.rol == RolUsuario.ESTUDIANTE, Usuario.activo == True]
+    if solo_crisis:
+        filtros.append(Usuario.en_crisis == True)
+    if categoria == "sin_cat":
+        filtros.append(Usuario.categoria_problema.is_(None))
+    elif categoria:
+        filtros.append(Usuario.categoria_problema == categoria)
+
+    query = select(Usuario).where(and_(*filtros))
+    if buscar:
+        like = f"%{buscar}%"
+        query = query.where(
+            or_(
+                Usuario.nombre.ilike(like),
+                Usuario.apellidos.ilike(like),
+                Usuario.carrera.ilike(like),
+            )
+        )
+
+    total = (await db.execute(
+        select(func.count()).select_from(query.subquery())
+    )).scalar() or 0
+
     result = await db.execute(
-        select(Usuario).where(
-            Usuario.rol == RolUsuario.ESTUDIANTE,
-            Usuario.activo == True,
-        ).order_by(Usuario.nombre)
+        query.order_by(Usuario.en_crisis.desc(), Usuario.nombre.asc())
+        .offset((pagina - 1) * por_pagina)
+        .limit(por_pagina)
     )
+
     ahora = datetime.now(timezone.utc)
     out = []
     for u in result.scalars().all():
@@ -96,13 +123,52 @@ async def todos_los_estudiantes(
             dias_sin = None
         out.append({
             "id": u.id, "nombre": u.nombre, "apellidos": u.apellidos,
-            "email": u.email, "carrera": u.carrera, "semestre": u.semestre,
+            "carrera": u.carrera, "semestre": u.semestre,
             "avatar_url": u.avatar_url,
+            "en_crisis": u.en_crisis,
             "ultimo_acceso": u.ultimo_acceso.isoformat() if u.ultimo_acceso else None,
             "dias_sin_entrar": dias_sin,
             "categoria_problema": u.categoria_problema,
         })
-    return out
+    return camelize({"estudiantes": out, "total": total, "pagina": pagina, "por_pagina": por_pagina})
+
+
+@router.get("/estudiantes/{estudiante_id}/expediente")
+async def ver_expediente(
+    estudiante_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    psicologo: Usuario = Depends(get_current_psicologo),
+):
+    """
+    Expediente completo de un estudiante (email, teléfono, emergencia).
+    Acceso auditado: cada consulta queda en AuditoriaAcceso — control anti-fuga.
+    """
+    est = await db.get(Usuario, estudiante_id)
+    if not est or est.rol != RolUsuario.ESTUDIANTE:
+        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+
+    db.add(AuditoriaAcceso(
+        id            = str(uuid.uuid4()),
+        psicologo_id  = psicologo.id,
+        estudiante_id = est.id,
+        accion        = "ver_expediente",
+        ip_address    = request.client.host if request.client else None,
+    ))
+    await db.commit()
+
+    return camelize({
+        "id": est.id, "nombre": est.nombre, "apellidos": est.apellidos,
+        "email": est.email, "telefono": est.telefono, "numero_cuenta": est.numero_cuenta,
+        "carrera": est.carrera, "semestre": est.semestre,
+        "categoria_problema": est.categoria_problema, "en_crisis": est.en_crisis,
+        "avatar_url": est.avatar_url, "activo": est.activo,
+        "emergencia_nombre":   est.emergencia_nombre,
+        "emergencia_telefono": est.emergencia_telefono,
+        "emergencia_email":    est.emergencia_email,
+        "creado_en":     est.creado_en.isoformat() if est.creado_en else None,
+        "ultimo_acceso": est.ultimo_acceso.isoformat() if est.ultimo_acceso else None,
+    })
 
 
 @router.get("/intervenciones")
@@ -153,7 +219,7 @@ async def listar_intervenciones(
             "citas_total": citas["total"],
             "citas_completadas": citas["completadas"],
         })
-    return out
+    return camelize(out)
 
 
 @router.patch("/estudiantes/{estudiante_id}/categoria")
@@ -178,49 +244,6 @@ async def asignar_categoria(
     return {"mensaje": "Categoría actualizada", "categoria": estudiante.categoria_problema}
 
 
-@router.get("/diarios")
-async def ver_diarios_compartidos(
-    estudiante_id: Optional[str] = None,
-    solo_crisis: bool = False,
-    db: AsyncSession = Depends(get_db),
-    psicologo: Usuario = Depends(get_current_psicologo),
-):
-    sub_asig = select(AsignacionPsicologo.estudiante_id).where(
-        AsignacionPsicologo.psicologo_id == psicologo.id, AsignacionPsicologo.activa == True
-    )
-    sub_citas = select(Cita.estudiante_id).where(Cita.psicologo_id == psicologo.id)
-    sub_diario_directo = select(EntradaDiario.usuario_id).where(
-        EntradaDiario.psicologo_id == psicologo.id, EntradaDiario.compartida == True
-    )
-
-    filtros = [
-        EntradaDiario.compartida == True,
-        or_(
-            EntradaDiario.usuario_id.in_(sub_asig),
-            EntradaDiario.usuario_id.in_(sub_citas),
-            EntradaDiario.usuario_id.in_(sub_diario_directo),
-        )
-    ]
-    if estudiante_id: filtros.append(EntradaDiario.usuario_id == estudiante_id)
-    if solo_crisis:   filtros.append(EntradaDiario.alerta_crisis == True)
-
-    result = await db.execute(
-        select(EntradaDiario, Usuario)
-        .join(Usuario, EntradaDiario.usuario_id == Usuario.id)
-        .where(and_(*filtros))
-        .order_by(EntradaDiario.creada_en.desc()).limit(200)
-    )
-    return [
-        {
-            "id": e.id, "texto": e.texto, "estado_animo": e.estado_animo,
-            "etiquetas": e.etiquetas, "alerta_crisis": e.alerta_crisis,
-            "creada_en": e.creada_en.isoformat(),
-            "estudiante": {"id": u.id, "nombre": u.nombre, "email": u.email, "carrera": u.carrera},
-        }
-        for e, u in result.all()
-    ]
-
-
 @router.get("/citas")
 async def mis_citas(
     estado: Optional[EstadoCita] = None,
@@ -234,7 +257,7 @@ async def mis_citas(
         .join(Usuario, Cita.estudiante_id == Usuario.id)
         .where(and_(*filtros)).order_by(Cita.fecha_hora.asc()).limit(100)
     )
-    return [
+    return camelize([
         {
             "id": c.id, "fecha_hora": c.fecha_hora.isoformat(), "modalidad": c.modalidad,
             "estado": c.estado, "motivo": c.motivo,
@@ -243,7 +266,7 @@ async def mis_citas(
             "estudiante": {"id": u.id, "nombre": u.nombre, "email": u.email},
         }
         for c, u in result.all()
-    ]
+    ])
 
 
 @router.get("/actividad")
@@ -283,11 +306,6 @@ async def actividad_mis_estudiantes(
             .where(EventoSOS.usuario_id == u.id, EventoSOS.creado_en >= desde)
         )).scalar() or 0
 
-        entradas = (await db.execute(
-            select(func.count()).select_from(EntradaDiario)
-            .where(EntradaDiario.usuario_id == u.id, EntradaDiario.creada_en >= desde)
-        )).scalar() or 0
-
         # Eventos SOS detalle
         sos_eventos = await db.execute(
             select(EventoSOS).where(EventoSOS.usuario_id == u.id, EventoSOS.creado_en >= desde)
@@ -300,7 +318,6 @@ async def actividad_mis_estudiantes(
             "ultimo_acceso":   u.ultimo_acceso.isoformat() if u.ultimo_acceso else None,
             "dias_sin_entrar": dias_sin,
             "sos_periodo":     sos,
-            "entradas_periodo":entradas,
             "sos_eventos": [
                 {"tipo": e.tipo_accion, "fecha": e.creado_en.isoformat(), "atendido": e.atendido}
                 for e in sos_eventos.scalars().all()
@@ -312,7 +329,7 @@ async def actividad_mis_estudiantes(
                 "activo"
             ),
         })
-    return out
+    return camelize(out)
 
 
 @router.post("/citas", status_code=201)
@@ -369,7 +386,7 @@ async def crear_cita_psicologo(
         tipo              = "nueva",
     )
 
-    return {
+    return camelize({
         "id":            cita.id,
         "fecha_hora":    cita.fecha_hora.isoformat(),
         "modalidad":     cita.modalidad,
@@ -377,7 +394,7 @@ async def crear_cita_psicologo(
         "motivo":        cita.motivo,
         "estudiante_id": cita.estudiante_id,
         "psicologo_id":  cita.psicologo_id,
-    }
+    })
 
 
 @router.patch("/citas/{cita_id}/estado")
@@ -463,19 +480,13 @@ async def stats_psicologo(
         .where(Cita.psicologo_id == psicologo.id, Cita.estado == EstadoCita.PENDIENTE)
     )).scalar() or 0
 
-    diarios_comp = (await db.execute(
-        select(func.count()).select_from(EntradaDiario)
+    # Estudiantes activos con señal de crisis (flag persistente en Usuario)
+    en_crisis_total = (await db.execute(
+        select(func.count()).select_from(Usuario)
         .where(
-            EntradaDiario.compartida == True,
-            or_(EntradaDiario.usuario_id.in_(sub_asig), EntradaDiario.psicologo_id == psicologo.id)
-        )
-    )).scalar() or 0
-
-    alertas = (await db.execute(
-        select(func.count()).select_from(EntradaDiario)
-        .where(
-            EntradaDiario.compartida == True, EntradaDiario.alerta_crisis == True,
-            or_(EntradaDiario.usuario_id.in_(sub_asig), EntradaDiario.psicologo_id == psicologo.id)
+            Usuario.rol == RolUsuario.ESTUDIANTE,
+            Usuario.activo == True,
+            Usuario.en_crisis == True,
         )
     )).scalar() or 0
 
@@ -488,19 +499,18 @@ async def stats_psicologo(
             .where(EventoSOS.usuario_id.in_(list(ids)), EventoSOS.creado_en >= desde)
         )).scalar() or 0
 
-    return {
+    return camelize({
         "total_estudiantes_asignados": total_estudiantes,
         "citas_pendientes":            citas_pendientes,
-        "diarios_compartidos":         diarios_comp,
-        "alertas_crisis":              alertas,
+        "estudiantes_en_crisis":       en_crisis_total,
         "sos_reciente_30d":            sos_reciente,
-    }
+    })
 
 
 # ── Eventos del Psicólogo ─────────────────────────────────
 
 def _evento_dict(e: EventoPsicologo) -> dict:
-    return {
+    return camelize({
         "id":          e.id,
         "titulo":      e.titulo,
         "tipo":        e.tipo,
@@ -512,7 +522,7 @@ def _evento_dict(e: EventoPsicologo) -> dict:
         "capacidad":   e.capacidad,
         "activo":      e.activo,
         "creado_en":   e.creado_en.isoformat() if e.creado_en else None,
-    }
+    })
 
 
 @router.get("/eventos")

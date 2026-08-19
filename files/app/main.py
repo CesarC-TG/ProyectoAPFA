@@ -25,7 +25,6 @@ from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware, Reque
 
 from app.routers.auth      import router as auth_router
 from app.routers.users     import router as users_router
-from app.routers.diario    import router as diario_router
 from app.routers.recursos  import router as recursos_router
 from app.routers.sos           import router as sos_router
 from app.routers.notificaciones import router as notif_router
@@ -33,6 +32,7 @@ from app.routers.chatbot   import router as chatbot_router
 from app.routers.admin     import router as admin_router
 from app.routers.websocket  import router as websocket_router
 from app.routers.psicologo  import router as psicologo_router
+from app.routers.cola       import router as cola_router
 
 logging.basicConfig(
     level=logging.DEBUG if settings.DEBUG else logging.INFO,
@@ -44,13 +44,12 @@ logger = logging.getLogger("apoyofes")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Asegurar que la carpeta del proyecto esté en el path de trabajo
-    # para que SQLite encuentre el .db sin importar desde dónde se corra
     import os
     os.chdir(Path(__file__).resolve().parent.parent)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Agregar columnas nuevas a tablas existentes (SQLite no lo hace automáticamente)
+        # Agregar columnas nuevas a tablas existentes (compatibilidad con BDs previas)
         columnas_nuevas = [
             "ALTER TABLE usuarios ADD COLUMN emergencia_nombre    VARCHAR(120)",
             "ALTER TABLE usuarios ADD COLUMN emergencia_telefono  VARCHAR(20)",
@@ -58,6 +57,7 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE usuarios ADD COLUMN numero_cuenta        VARCHAR(50)",
             "ALTER TABLE usuarios ADD COLUMN password_reset_token VARCHAR(200)",
             "ALTER TABLE usuarios ADD COLUMN categoria_problema   VARCHAR(50)",
+            "ALTER TABLE usuarios ADD COLUMN en_crisis            BOOLEAN DEFAULT false",
         ]
         for sql in columnas_nuevas:
             try:
@@ -134,7 +134,6 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # ── Routers API ───────────────────────────────────────────
 app.include_router(auth_router,      prefix="/api/auth",     tags=["Autenticación"])
 app.include_router(users_router, prefix="/api/users", tags=["Usuarios"])
-app.include_router(diario_router,    prefix="/api/diario",   tags=["Diario"])
 app.include_router(recursos_router,  prefix="/api/recursos", tags=["Recursos"])
 app.include_router(sos_router,       prefix="/api/sos",      tags=["SOS"])
 app.include_router(notif_router,      prefix="/api/notificaciones", tags=["Notificaciones"])
@@ -142,6 +141,7 @@ app.include_router(chatbot_router,   prefix="/api/chatbot",  tags=["Chatbot IA"]
 app.include_router(admin_router,     prefix="/api/admin",    tags=["Administración"])
 app.include_router(websocket_router,  prefix="/ws",            tags=["WebSockets"])
 app.include_router(psicologo_router,  prefix="/api/psicologo", tags=["Psicólogo"])
+app.include_router(cola_router,       prefix="/api/psicologo", tags=["Cola de atención"])
 
 # ── Manejadores de error globales ────────────────────────
 # FIX: evita que excepciones internas filtren stack traces o mensajes

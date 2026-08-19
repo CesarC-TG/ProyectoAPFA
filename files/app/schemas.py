@@ -2,15 +2,30 @@
 Schemas Pydantic — Validación de entrada y salida
 """
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
+from pydantic.alias_generators import to_camel
 from typing import Optional, List, Any, Dict
 from datetime import datetime
-from app.models import RolUsuario, EstadoAnimo, TipoRecurso, EstadoCita
+from app.models import RolUsuario, TipoRecurso, EstadoCita, EstadoCola, PrioridadCola
+
+
+# ── Base con convención camelCase ─────────────────────────
+# Todo el JSON de la API sale en camelCase (numeroCuenta, enCrisis, …).
+# populate_by_name=True permite aceptar snake_case Y camelCase en la entrada
+# durante la transición, para no romper el frontend de golpe.
+
+
+class CamelModel(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
 
 
 # ── Usuario ───────────────────────────────────────────────
 
-class UsuarioBase(BaseModel):
+class UsuarioBase(CamelModel):
     nombre:        str      = Field(..., min_length=2, max_length=120)
     apellidos:     Optional[str] = None
     email:         EmailStr
@@ -41,14 +56,13 @@ class UsuarioRespuesta(UsuarioBase):
     activo:           bool
     avatar_url:       Optional[str]
     email_verificado: bool
+    en_crisis:        bool = False
     creado_en:        datetime
     ultimo_acceso:    Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    
 
-
-class UsuarioActualizar(BaseModel):
+class UsuarioActualizar(CamelModel):
     nombre:     Optional[str] = Field(None, min_length=2, max_length=120)
     apellidos:  Optional[str] = None
     carrera:    Optional[str] = None
@@ -63,7 +77,7 @@ class UsuarioActualizar(BaseModel):
 
 # ── Autenticación ─────────────────────────────────────────
 
-class LoginRequest(BaseModel):
+class LoginRequest(CamelModel):
     email:    EmailStr
     password: str = Field(..., min_length=1)
 
@@ -73,11 +87,11 @@ class LoginRequest(BaseModel):
         return v.strip().lower()
 
 
-class GoogleAuthRequest(BaseModel):
+class GoogleAuthRequest(CamelModel):
     token: str
 
 
-class TokenResponse(BaseModel):
+class TokenResponse(CamelModel):
     access_token:  str
     refresh_token: str
     token_type:    str = "bearer"
@@ -85,56 +99,13 @@ class TokenResponse(BaseModel):
     usuario:       UsuarioRespuesta
 
 
-class RefreshTokenRequest(BaseModel):
+class RefreshTokenRequest(CamelModel):
     refresh_token: str
-
-
-# ── Diario ────────────────────────────────────────────────
-
-class EntradaDiarioCrear(BaseModel):
-    texto:        str   = Field(..., min_length=1, max_length=10_000)
-    estado_animo: Optional[EstadoAnimo] = None
-    etiquetas:    List[str] = []
-    compartida:   bool = False
-
-    @field_validator("etiquetas")
-    @classmethod
-    def limpiar_etiquetas(cls, v: List[str]) -> List[str]:
-        return [t.strip().lower() for t in v if t.strip()][:20]
-
-
-class EntradaDiarioActualizar(BaseModel):
-    texto:        Optional[str]            = None
-    estado_animo: Optional[EstadoAnimo]    = None
-    etiquetas:    Optional[List[str]]      = None
-    compartida:   Optional[bool]           = None
-
-
-class EntradaDiarioRespuesta(BaseModel):
-    id:           str
-    texto:        str
-    estado_animo: Optional[str]
-    etiquetas:    List[str]
-    compartida:   bool
-    alerta_crisis: bool
-    analisis_ia:  Optional[Dict[str, Any]]
-    creada_en:    datetime
-    actualizada_en: Optional[datetime]
-
-    class Config:
-        from_attributes = True
-
-
-class EntradaDiarioListaRespuesta(BaseModel):
-    entradas:   List[EntradaDiarioRespuesta]
-    total:      int
-    pagina:     int
-    por_pagina: int
 
 
 # ── Recursos ──────────────────────────────────────────────
 
-class RecursoRespuesta(BaseModel):
+class RecursoRespuesta(CamelModel):
     id:               str
     titulo:           str
     descripcion:      Optional[str]
@@ -149,11 +120,9 @@ class RecursoRespuesta(BaseModel):
     disponible_24h:   bool
     vistas:           int = 0
 
-    class Config:
-        from_attributes = True
+    
 
-
-class RecursoCrear(BaseModel):
+class RecursoCrear(CamelModel):
     titulo:           str = Field(..., min_length=3, max_length=200)
     descripcion:      Optional[str] = None
     tipo:             TipoRecurso
@@ -167,14 +136,14 @@ class RecursoCrear(BaseModel):
 
 # ── SOS ──────────────────────────────────────────────────
 
-class EventoSOSCrear(BaseModel):
+class EventoSOSCrear(CamelModel):
     tipo_accion: str        = Field(..., pattern="^(llamada|sms|ubicacion|chatbot|fes)$")
     descripcion: Optional[str] = None
     latitud:     Optional[float] = None
     longitud:    Optional[float] = None
 
 
-class EventoSOSRespuesta(BaseModel):
+class EventoSOSRespuesta(CamelModel):
     id:          str
     tipo_accion: str
     descripcion: Optional[str]
@@ -183,36 +152,32 @@ class EventoSOSRespuesta(BaseModel):
     atendido:    bool
     creado_en:   datetime
 
-    class Config:
-        from_attributes = True
-
+    
 
 # ── Chatbot ───────────────────────────────────────────────
 
-class MensajeChatEnviar(BaseModel):
+class MensajeChatEnviar(CamelModel):
     contenido: str      = Field(..., min_length=1, max_length=2_000)
     sesion_id: Optional[str] = None
 
 
-class MensajeChatRespuesta(BaseModel):
+class MensajeChatRespuesta(CamelModel):
     id:        str
     sesion_id: str
     rol:       str
     contenido: str
     creado_en: datetime
 
-    class Config:
-        from_attributes = True
+    
 
-
-class HistorialChatRespuesta(BaseModel):
+class HistorialChatRespuesta(CamelModel):
     sesion_id: str
     mensajes:  List[MensajeChatRespuesta]
 
 
 # ── Citas ─────────────────────────────────────────────────
 
-class CitaCrear(BaseModel):
+class CitaCrear(CamelModel):
     # BUG FIX: el schema original solo tenía psicologo_id y lo usaba
     # como estudiante_id en admin.py — ahora cada campo tiene su semántica correcta.
     psicologo_id:   str
@@ -222,7 +187,7 @@ class CitaCrear(BaseModel):
     motivo:         Optional[str] = Field(None, max_length=500)
 
 
-class CitaRespuesta(BaseModel):
+class CitaRespuesta(CamelModel):
     id:                str
     estudiante_id:     str
     psicologo_id:      str
@@ -234,13 +199,11 @@ class CitaRespuesta(BaseModel):
     link_videollamada: Optional[str]
     creada_en:         datetime
 
-    class Config:
-        from_attributes = True
-
+    
 
 # ── Notificaciones ────────────────────────────────────────
 
-class NotificacionRespuesta(BaseModel):
+class NotificacionRespuesta(CamelModel):
     id:         str
     titulo:     str
     mensaje:    str
@@ -249,13 +212,11 @@ class NotificacionRespuesta(BaseModel):
     url_accion: Optional[str]
     creada_en:  datetime
 
-    class Config:
-        from_attributes = True
-
+    
 
 # ── Eventos del Psicólogo ─────────────────────────────────
 
-class EventoPsicologoCrear(BaseModel):
+class EventoPsicologoCrear(CamelModel):
     titulo:      str            = Field(..., min_length=3, max_length=200)
     tipo:        str            = Field(default="platica")
     descripcion: Optional[str] = None
@@ -266,7 +227,7 @@ class EventoPsicologoCrear(BaseModel):
     capacidad:   Optional[int] = Field(None, ge=1)
 
 
-class EventoPsicologoRespuesta(BaseModel):
+class EventoPsicologoRespuesta(CamelModel):
     id:          str
     titulo:      str
     tipo:        str
@@ -279,28 +240,26 @@ class EventoPsicologoRespuesta(BaseModel):
     activo:      bool
     creado_en:   datetime
 
-    class Config:
-        from_attributes = True
-
+    
 
 # ── Genéricos ─────────────────────────────────────────────
 
-class MensajeRespuesta(BaseModel):
+class MensajeRespuesta(CamelModel):
     mensaje: str
     exito:   bool = True
 
 
-class PaginacionParams(BaseModel):
+class PaginacionParams(CamelModel):
     pagina:     int = Field(default=1,  ge=1)
     por_pagina: int = Field(default=20, ge=1, le=100)
 
 # ── Recuperación de contraseña ────────────────────────────
 
-class LoginTelefonoRequest(BaseModel):
+class LoginTelefonoRequest(CamelModel):
     telefono: str = Field(..., min_length=10, max_length=15)
     password: str = Field(..., min_length=1)
 
-class PasswordResetRequest(BaseModel):
+class PasswordResetRequest(CamelModel):
     """Acepta { email } O { telefono } — al menos uno es requerido."""
     email:    Optional[str] = None
     telefono: Optional[str] = Field(None, min_length=10, max_length=15)
@@ -316,12 +275,12 @@ class PasswordResetRequest(BaseModel):
 
 # ── Asignación psicólogo ──────────────────────────────────
 
-class AsignacionCrear(BaseModel):
+class AsignacionCrear(CamelModel):
     psicologo_id:  str
     estudiante_id: str
     notas:         Optional[str] = None
 
-class AsignacionRespuesta(BaseModel):
+class AsignacionRespuesta(CamelModel):
     id:            str
     psicologo_id:  str
     estudiante_id: str
@@ -329,17 +288,46 @@ class AsignacionRespuesta(BaseModel):
     notas:         Optional[str]
     creada_en:     datetime
 
-    class Config:
-        from_attributes = True
-
+    
 # Alias para compatibilidad
 PasswordResetEmailRequest = PasswordResetRequest
 
-class SolicitarVerificacionRequest(BaseModel):
+class SolicitarVerificacionRequest(CamelModel):
     email: str
     nombre: str
 
-class VerificarCodigoRequest(BaseModel):
+class VerificarCodigoRequest(CamelModel):
     email: str
     codigo: str
+
+
+# ── Cola de atención ───────────────────────────────────────
+
+class ColaReasignar(CamelModel):
+    """Reasignar un caso a otro psicólogo."""
+    psicologo_id: str = Field(..., min_length=1)
+
+
+class ColaAsignar(CamelModel):
+    """Asignar manualmente un estudiante a un psicólogo."""
+    estudiante_id: str = Field(..., min_length=1)
+    psicologo_id:  str = Field(..., min_length=1)
+    motivo:        Optional[str] = Field(None, max_length=500)
+    prioridad:     PrioridadCola = PrioridadCola.MEDIA
+
+
+class ColaRespuesta(CamelModel):
+    id:             str
+    estudiante_id:  str
+    psicologo_id:   Optional[str]
+    estado:         EstadoCola
+    prioridad:      PrioridadCola
+    origen:         str
+    motivo:         Optional[str]
+    creada_en:      Optional[datetime]
+    tomada_en:      Optional[datetime]
+    resuelta_en:    Optional[datetime]
+
+    class Config:
+        from_attributes = True
  

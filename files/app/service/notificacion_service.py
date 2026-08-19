@@ -306,8 +306,7 @@ async def notificacion_inactividad(db_session, usuario):
         titulo     = "¿Cómo te has sentido? 💙",
         mensaje    = (
             "Llevamos un par de días sin saber de ti. "
-            "¿Todo bien? Si quieres, puedes escribir cómo te sientes en tu diario "
-            "o chatear con KAI — estamos aquí cuando lo necesites. 🌿"
+            "¿Todo bien? Chatea con KAI cuando lo necesites — estamos aquí. 🌿"
         ),
         tipo       = "recordatorio",
         leida      = False,

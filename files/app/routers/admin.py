@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # local
 from app.database import get_db
 from app.models import (
-    Usuario, EntradaDiario, EventoSOS, Cita, MensajeChat,
+    Usuario, EventoSOS, Cita, MensajeChat,
     RolUsuario, EstadoCita, AsignacionPsicologo,
 )
 from app.schemas import (
@@ -24,7 +24,7 @@ from app.schemas import (
 from app.service.auth_service import (
     get_current_psicologo, get_current_admin, hashear_password
 )
-from app.utils import ahora_utc, asegurar_utc, contar, dias_desde, estado_actividad
+from app.utils import ahora_utc, asegurar_utc, contar, dias_desde, estado_actividad, camelize
 
 router = APIRouter()
 
@@ -40,12 +40,11 @@ async def obtener_estadisticas(
     hoy        = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
     hace_7dias = hoy - timedelta(days=7)
 
-    total_estudiantes, total_psicologos, entradas_hoy, alertas_activas, entradas_compartidas = (
-        await contar(db, Usuario,    Usuario.rol == RolUsuario.ESTUDIANTE, Usuario.activo == True),
-        await contar(db, Usuario,    Usuario.rol == RolUsuario.PSICOLOGO,  Usuario.activo == True),
-        await contar(db, EntradaDiario, EntradaDiario.creada_en >= hoy),
-        await contar(db, EventoSOS,  EventoSOS.atendido == False),
-        await contar(db, EntradaDiario, EntradaDiario.compartida == True),
+    total_estudiantes, total_psicologos, alertas_activas, estudiantes_en_crisis = (
+        await contar(db, Usuario,   Usuario.rol == RolUsuario.ESTUDIANTE, Usuario.activo == True),
+        await contar(db, Usuario,   Usuario.rol == RolUsuario.PSICOLOGO,  Usuario.activo == True),
+        await contar(db, EventoSOS, EventoSOS.atendido == False),
+        await contar(db, Usuario,   Usuario.rol == RolUsuario.ESTUDIANTE, Usuario.activo == True, Usuario.en_crisis == True),
     )
 
     sesiones_chat_semana = (await db.execute(
@@ -53,15 +52,14 @@ async def obtener_estadisticas(
         .where(MensajeChat.creado_en >= hace_7dias)
     )).scalar() or 0
 
-    return {
-        "total_estudiantes":    total_estudiantes,
-        "total_psicologos":     total_psicologos,
-        "entradas_hoy":         entradas_hoy,
-        "alertas_activas":      alertas_activas,
-        "entradas_compartidas": entradas_compartidas,
-        "sesiones_chat_semana": sesiones_chat_semana,
-        "timestamp":            ahora.isoformat(),
-    }
+    return camelize({
+        "total_estudiantes":      total_estudiantes,
+        "total_psicologos":       total_psicologos,
+        "alertas_activas":        alertas_activas,
+        "estudiantes_en_crisis":  estudiantes_en_crisis,
+        "sesiones_chat_semana":   sesiones_chat_semana,
+        "timestamp":              ahora.isoformat(),
+    })
 
 
 # ── Actividad de usuarios (para psicólogo y admin) ────────
@@ -86,10 +84,7 @@ async def reporte_actividad_usuarios(
     for u in estudiantes:
         inactivo = dias_desde(u.ultimo_acceso)
 
-        sos_count, entradas_count = (
-            await contar(db, EventoSOS,     EventoSOS.usuario_id == u.id,     EventoSOS.creado_en >= desde),
-            await contar(db, EntradaDiario, EntradaDiario.usuario_id == u.id, EntradaDiario.creada_en >= desde),
-        )
+        sos_count = await contar(db, EventoSOS, EventoSOS.usuario_id == u.id, EventoSOS.creado_en >= desde)
 
         datos.append({
             "id":               u.id,
@@ -100,11 +95,10 @@ async def reporte_actividad_usuarios(
             "ultimo_acceso":    asegurar_utc(u.ultimo_acceso).isoformat() if u.ultimo_acceso else None,
             "dias_sin_entrar":  inactivo,
             "sos_periodo":      sos_count,
-            "entradas_periodo": entradas_count,
             "estado":           estado_actividad(inactivo),
         })
 
-    return datos
+    return camelize(datos)
 
 
 @router.get("/sos-actividad")
@@ -122,7 +116,7 @@ async def actividad_sos(
         .order_by(EventoSOS.creado_en.desc())
         .limit(200)
     )
-    return [
+    return camelize([
         {
             "id":          e.id,
             "tipo":        e.tipo_accion,
@@ -136,7 +130,7 @@ async def actividad_sos(
             },
         }
         for e, u in result.all()
-    ]
+    ])
 
 
 # ── CRUD Usuarios ──────────────────────────────────────────
@@ -165,7 +159,7 @@ async def listar_usuarios(
     )
     if filtros: query = query.where(and_(*filtros))
     result = await db.execute(query)
-    return [
+    return camelize([
         {
             "id":         u.id,
             "nombre":     u.nombre,
@@ -180,7 +174,7 @@ async def listar_usuarios(
             "ultimo_acceso": u.ultimo_acceso.isoformat() if u.ultimo_acceso else None,
         }
         for u in result.scalars().all()
-    ]
+    ])
 
 
 @router.post("/usuarios", status_code=201)
@@ -341,7 +335,7 @@ async def listar_asignaciones(
             "estudiante": {"nombre": est.nombre,   "email": est.email}   if est   else {},
             "notas": a.notas, "creada_en": a.creada_en.isoformat() if a.creada_en else None,
         })
-    return out
+    return camelize(out)
 
 
 @router.post("/asignaciones", status_code=201)
@@ -407,7 +401,7 @@ async def psicologos_con_disponibilidad(
             "id": p.id, "nombre": p.nombre, "apellidos": p.apellidos,
             "email": p.email, "carrera": p.carrera, "estudiantes_actuales": count,
         })
-    return out
+    return camelize(out)
 
 
 # ── Citas ──────────────────────────────────────────────────
@@ -467,20 +461,3 @@ async def actualizar_estado_cita(
     if notas: cita.notas_psicologo = notas
     await db.commit()
     return {"mensaje": f"Cita actualizada a {estado}"}
-
-
-# ── Reportes ───────────────────────────────────────────────
-
-@router.get("/reportes/estados-animo")
-async def reporte_estados_animo(
-    dias: int = Query(default=30, ge=1, le=365),
-    db: AsyncSession = Depends(get_db),
-    _admin: Usuario = Depends(get_current_admin),   # FIX: antes usaba get_current_psicologo → bypass de privilegios
-):
-    desde = ahora_utc() - timedelta(days=dias)
-    result = await db.execute(
-        select(EntradaDiario.estado_animo, func.count(EntradaDiario.id).label("total"))
-        .where(EntradaDiario.creada_en >= desde)
-        .group_by(EntradaDiario.estado_animo)
-    )
-    return [{"estado": r.estado_animo, "total": r.total} for r in result.all()]

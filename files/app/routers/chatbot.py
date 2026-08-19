@@ -12,6 +12,7 @@ from app.database import get_db
 from app.models import Usuario, MensajeChat
 from app.schemas import MensajeChatEnviar, MensajeChatRespuesta, HistorialChatRespuesta
 from app.service.auth_service import get_current_user
+from app.utils import camelize
 
 router = APIRouter()
 
@@ -127,11 +128,11 @@ async def listar_sesiones(
         .order_by(func.max(MensajeChat.creado_en).desc())
         .limit(20)
     )
-    return [
+    return camelize([
         {"sesion_id": r.sesion_chat_id, "inicio": r.inicio,
          "ultimo_mensaje": r.ultimo_mensaje, "total_mensajes": r.total_mensajes}
         for r in result.all()
-    ]
+    ])
 
 
 async def _llamar_ia(mensajes: list) -> str:

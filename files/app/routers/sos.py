@@ -9,7 +9,8 @@ from typing import Optional
 import uuid
 
 from app.database import get_db
-from app.models import Usuario, EventoSOS
+from app.models import Usuario, EventoSOS, ColaAtencion, EstadoCola, PrioridadCola
+from app.utils import camelize
 from app.schemas import EventoSOSCrear, EventoSOSRespuesta, MensajeRespuesta
 from app.service.auth_service import (
     get_current_user,
@@ -81,7 +82,7 @@ LINEAS_CRISIS = [
 @router.get("/lineas", response_model=list)
 async def obtener_lineas_crisis():
     """Lista de líneas de crisis disponibles — endpoint público, sin autenticación."""
-    return LINEAS_CRISIS
+    return camelize(LINEAS_CRISIS)
 
 
 @router.post("/evento", response_model=EventoSOSRespuesta, status_code=201)
@@ -112,6 +113,28 @@ async def registrar_evento_sos(
     await db.commit()
     await db.refresh(evento)
 
+    # ── Señal de crisis + cola de atención psicológica ──────
+    # El SOS activa la bandera persistente en_crisis y, si no hay
+    # un caso abierto para este estudiante, crea una fila en la cola.
+    if usuario:
+        usuario.en_crisis = True
+        abierta = await db.execute(
+            select(ColaAtencion).where(
+                ColaAtencion.estudiante_id == usuario.id,
+                ColaAtencion.estado != EstadoCola.RESUELTA,
+            )
+        )
+        if not abierta.scalar_one_or_none():
+            db.add(ColaAtencion(
+                id            = str(uuid.uuid4()),
+                estudiante_id = usuario.id,
+                estado        = EstadoCola.PENDIENTE,
+                prioridad     = PrioridadCola.ALTA,
+                origen        = "sos",
+                motivo        = f"SOS: {datos.tipo_accion}",
+            ))
+        await db.commit()
+
     # Notificar a administradores en background (no bloquea la respuesta)
     background_tasks.add_task(notificar_sos_a_admin, evento, usuario)
     # Notificar al contacto de emergencia personal del usuario
@@ -133,10 +156,27 @@ async def listar_mis_eventos(
         .order_by(EventoSOS.creado_en.desc())
         .limit(50)
     )
-    return result.scalars().all()
+    return camelize([_sos_dict(e) for e in result.scalars().all()])
 
 
 # ── Endpoints de gestión para psicólogos/admin ────────────
+
+def _sos_dict(e: EventoSOS) -> dict:
+    """Convierte un EventoSOS a dict (snake_case) para serializarlo en camelCase."""
+    return {
+        "id":            e.id,
+        "usuario_id":    e.usuario_id,
+        "tipo_accion":   e.tipo_accion,
+        "descripcion":   e.descripcion,
+        "latitud":       e.latitud,
+        "longitud":      e.longitud,
+        "ip_address":    e.ip_address,
+        "atendido":      e.atendido,
+        "atendido_por":  e.atendido_por,
+        "notas_atencion": e.notas_atencion,
+        "creado_en":     e.creado_en.isoformat() if e.creado_en else None,
+    }
+
 
 @router.get("/admin/eventos", response_model=list)
 async def listar_todos_eventos(
@@ -151,7 +191,7 @@ async def listar_todos_eventos(
         query = query.where(EventoSOS.atendido == atendido)
 
     result = await db.execute(query)
-    return result.scalars().all()
+    return camelize([_sos_dict(e) for e in result.scalars().all()])
 
 
 @router.patch("/admin/eventos/{evento_id}/atender", response_model=MensajeRespuesta)

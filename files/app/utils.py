@@ -12,6 +12,7 @@ from typing import Any, Optional, Sequence, TypeVar
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic.alias_generators import to_camel
 
 logger = logging.getLogger("apoyofes")
 
@@ -94,8 +95,8 @@ async def paginar(
     Ejecuta *query* con paginación y devuelve (filas, total).
 
     Ejemplo:
-        entradas, total = await paginar(db, select(EntradaDiario).where(...),
-                                        pagina=1, por_pagina=20)
+        filas, total = await paginar(db, select(Recurso).where(...),
+                                      pagina=1, por_pagina=20)
     """
     # Contar total sin OFFSET/LIMIT
     count_q = select(func.count()).select_from(query.subquery())
@@ -111,12 +112,24 @@ async def paginar(
 # ── Logging helpers ───────────────────────────────────────────────────────────
 
 def log_excepcion(mensaje: str, exc: Exception, **contexto: Any) -> None:
-    """
-    Loguea una excepción con contexto adicional usando el logger global.
-    Reemplaza los patrones `print(f"Error: {e}")` y `except: pass` del código.
-
-    Ejemplo:
-        log_excepcion("Email no enviado", e, destinatario=email)
-    """
+    """Loguea una excepción con contexto adicional usando el logger global."""
     extra = "  ".join(f"{k}={v!r}" for k, v in contexto.items())
     logger.error("%s — %s: %s  %s", mensaje, type(exc).__name__, exc, extra)
+
+
+# ── camelCase helpers ─────────────────────────────────────────────────────────
+
+def camelize(obj: Any) -> Any:
+    """
+    Convierte recursivamente las claves de dicts (y listas) de snake_case
+    a camelCase, para los endpoints que devuelven dicts manuales sin
+    response_model. Los valores se dejan intactos (los serializa FastAPI).
+    """
+    if isinstance(obj, dict):
+        return {
+            (to_camel(k) if isinstance(k, str) else k): camelize(v)
+            for k, v in obj.items()
+        }
+    if isinstance(obj, list):
+        return [camelize(x) for x in obj]
+    return obj
