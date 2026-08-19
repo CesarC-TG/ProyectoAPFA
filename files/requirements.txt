@@ -6,7 +6,6 @@ python-multipart      # para uploads de archivos
 # ── Base de datos ─────────────────────────────────────────
 sqlalchemy
 asyncpg                # driver PostgreSQL asíncrono
-aiosqlite              # driver SQLite asíncrono (desarrollo)
 alembic                # migraciones de base de datos
 
 # ── Validación y configuración ───────────────────────────

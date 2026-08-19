@@ -25,10 +25,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "CHANGE_ME_IN_PRODUCTION_JWT"
 
     # ── Base de datos ─────────────────────────────────────
-    DATABASE_URL: str = "sqlite+aiosqlite:///./apoyofes.db"
-    
-    # SQLite para desarrollo rápido:
-    # DATABASE_URL = "sqlite+aiosqlite:///./apoyofes.db"
+    DATABASE_URL: str = "postgresql+asyncpg://apoyofes:devpassword@localhost:5432/apoyofes_db"
 
     DB_POOL_SIZE:    int = 10
     DB_MAX_OVERFLOW: int = 20
@@ -119,10 +116,6 @@ class Settings(BaseSettings):
     @property
     def is_development(self) -> bool:
         return self.ENVIRONMENT == "development"
-
-    @property
-    def is_sqlite(self) -> bool:
-        return "sqlite" in self.DATABASE_URL
 
     class Config:
         env_file          = ".env"

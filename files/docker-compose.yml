@@ -48,10 +48,9 @@ services:
       POSTGRES_USER:     apoyofes
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U apoyofes -d apoyofes_db"]
       interval: 10s
@@ -65,7 +64,7 @@ services:
     restart: unless-stopped
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
