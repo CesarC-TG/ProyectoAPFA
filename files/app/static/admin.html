@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -525,7 +525,7 @@ function cerrarSesion() {
     fetch(API + '/auth/logout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ refresh_token: rt })
+      body: JSON.stringify({ refreshToken: rt })
     }).catch(() => {});
   }
   ['apfa_at','apfa_rt','token','user'].forEach(k => localStorage.removeItem(k));
@@ -537,8 +537,8 @@ async function cargarStats() {
   try {
     const s = await apiFetch('/admin/stats');
     if (!s) return;
-    const ids = [['si-est','st-est',s.total_estudiantes],['si-psi','st-psi',s.total_psicologos],
-                 ['si-cht','st-cht',s.sesiones_chat_semana],['si-alt','st-alt',s.alertas_activas],
+    const ids = [['si-est','st-est',s.totalEstudiantes],['si-psi','st-psi',s.totalPsicologos],
+                 ['si-cht','st-cht',s.sesionesChatSemana],['si-alt','st-alt',s.alertasActivas],
                  ];
     ids.forEach(([a,b,v]) => {
       const va = document.getElementById(a), vb = document.getElementById(b);
@@ -549,7 +549,7 @@ async function cargarStats() {
     const elTs = document.getElementById('si-ts');   if(elTs) elTs.textContent = ts;
     const stTs = document.getElementById('stats-ts'); if(stTs) stTs.textContent = 'Actualizado: ' + ts;
     const nb = document.getElementById('nb-cnt');
-    if (nb && s.total_estudiantes > 0) { nb.textContent = s.total_estudiantes; nb.classList.remove('hidden'); }
+    if (nb && s.totalEstudiantes > 0) { nb.textContent = s.totalEstudiantes; nb.classList.remove('hidden'); }
   } catch(e) { toast('Error stats: ' + e.message); }
   // Cargar SOS recientes si la página está visible
   cargarSOSRecientes();
@@ -572,7 +572,7 @@ async function cargarSOSRecientes() {
         </div>
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600">${e.usuario?.nombre||'Anónimo'}</div>
-          <div style="font-size:11px;color:var(--suave)">${e.tipo} · ${new Date(e.creado_en).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+          <div style="font-size:11px;color:var(--suave)">${e.tipo} · ${new Date(e.creadoEn).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
           ${e.descripcion ? `<div style="font-size:11px;color:var(--suave)">${e.descripcion.substring(0,60)}${e.descripcion.length>60?'…':''}</div>` : ''}
         </div>
         <span style="font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;${e.atendido?'background:rgba(51,126,89,.1);color:var(--verde)':'background:rgba(198,90,73,.1);color:var(--rojo)'}">${e.atendido?'Atendido':'Pendiente'}</span>
@@ -665,7 +665,7 @@ async function cargarSelectsPsicologosYEstudiantes() {
     (_psicologosCache).forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = p.nombre + (p.apellidos?' '+p.apellidos:'') + ' (' + p.estudiantes_actuales + ' asignados)';
+      opt.textContent = p.nombre + (p.apellidos?' '+p.apellidos:'') + ' (' + p.estudiantesActuales + ' asignados)';
       sPsico.appendChild(opt);
     });
 
@@ -686,7 +686,7 @@ document.addEventListener('change', e => {
     if (!pid) { info.style.display = 'none'; return; }
     const p = _psicologosCache.find(x => x.id === pid);
     if (p) {
-      span.textContent = p.estudiantes_actuales;
+      span.textContent = p.estudiantesActuales;
       info.style.display = 'block';
     }
   }
@@ -703,7 +703,7 @@ async function cargarAsignaciones() {
       const partes = (a.notas || '').split(' · ');
       const tipo   = partes[0] || '—';
       const obs    = partes.slice(1).join(' · ');
-      const fecha  = a.creada_en ? new Date(a.creada_en).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '';
+      const fecha  = a.creadaEn ? new Date(a.creadaEn).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '';
       return `
       <div class="asig-item" id="asig-${a.id}">
         <div class="asig-av">${(a.psicologo?.nombre||'P').charAt(0).toUpperCase()}</div>
@@ -864,7 +864,7 @@ async function cargarActividadAdmin() {
     const crit = data.filter(d=>d.estado==='critico').length;
     const ale  = data.filter(d=>d.estado==='alerta').length;
     const ok   = data.filter(d=>d.estado==='activo').length;
-    const sos  = data.reduce((s,d)=>s+(d.sos_periodo||0),0);
+    const sos  = data.reduce((s,d)=>s+(d.sosPeriodo||0),0);
     document.getElementById('adm-act-crit').textContent = crit;
     document.getElementById('adm-act-ale').textContent  = ale;
     document.getElementById('adm-act-ok').textContent   = ok;
@@ -881,18 +881,17 @@ function filtrarActividadAdmin() {
   const el = document.getElementById('adm-act-tabla');
   if (!dt.length) { el.innerHTML='<div style="padding:20px;text-align:center;color:var(--suave)">Sin resultados.</div>'; return; }
   const col = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'};
-  let html = `<table><thead><tr><th>Usuario</th><th>Último acceso</th><th>Días sin entrar</th><th>SOS (30d)</th><th>Entradas (30d)</th></tr></thead><tbody>`;
+  let html = `<table><thead><tr><th>Usuario</th><th>Último acceso</th><th>Días sin entrar</th><th>SOS (30d)</th></tr></thead><tbody>`;
   dt.forEach(d => {
     const c   = col[d.estado]||'var(--suave)';
-    const dias= d.dias_sin_entrar==null?'—':d.dias_sin_entrar===0?'Hoy':d.dias_sin_entrar+'d';
-    const ua  = d.ultimo_acceso ? new Date(d.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const dias= d.diasSinEntrar==null?'—':d.diasSinEntrar===0?'Hoy':d.diasSinEntrar+'d';
+    const ua  = d.ultimoAcceso ? new Date(d.ultimoAcceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
     html += `<tr>
       <td><div style="font-weight:600">${d.nombre||''} ${d.apellidos||''}</div>
           <div style="font-size:11px;color:var(--suave)">${d.email}${d.carrera?' · '+d.carrera:''}</div></td>
       <td style="font-size:12px">${ua}</td>
       <td><span style="color:${c};font-weight:700">${dias}</span></td>
-      <td style="text-align:center">${d.sos_periodo>0?`<span style="color:var(--rojo);font-weight:700">${d.sos_periodo}</span>`:'0'}</td>
-      <td style="text-align:center">${d.entradas_periodo}</td>
+      <td style="text-align:center">${d.sosPeriodo>0?`<span style="color:var(--rojo);font-weight:700">${d.sosPeriodo}</span>`:'0'}</td>
     </tr>`;
   });
   html += '</tbody></table>';
@@ -1013,7 +1012,7 @@ function renderRecursos(lista) {
   grid.innerHTML = lista.map(r => {
     const tipoLabel = REC_TIPOS[r.tipo] || r.tipo;
     const bColor = r.activo ? 'var(--azul2)' : '#ccc';
-    const meta = [r.duracion_minutos ? r.duracion_minutos + ' min' : '', 'Orden ' + (r.orden ?? 0), !r.activo ? '⚠ Inactivo' : ''].filter(Boolean).join(' · ');
+    const meta = [r.duracionMinutos ? r.duracionMinutos + ' min' : '', 'Orden ' + (r.orden ?? 0), !r.activo ? '⚠ Inactivo' : ''].filter(Boolean).join(' · ');
     return `<div class="rec-card" style="border-left-color:${bColor}">
       <div class="rec-card-hdr">
         <div class="rec-card-titulo">${r.titulo}</div>
@@ -1046,13 +1045,13 @@ function abrirModalRecurso(id = null) {
     document.getElementById('mr-titulo').value   = r.titulo;
     document.getElementById('mr-desc').value     = r.descripcion || '';
     document.getElementById('mr-orden').value    = r.orden ?? 0;
-    document.getElementById('mr-duracion').value = r.duracion_minutos || '';
-    document.getElementById('mr-img').value      = r.imagen_url || '';
-    document.getElementById('mr-url').value      = r.url_externo || '';
+    document.getElementById('mr-duracion').value = r.duracionMinutos || '';
+    document.getElementById('mr-img').value      = r.imagenUrl || '';
+    document.getElementById('mr-url').value      = r.urlExterno || '';
     document.getElementById('mr-tel').value      = r.telefono || '';
     document.getElementById('mr-dir').value      = r.direccion || '';
     document.getElementById('mr-horario').value  = r.horario || '';
-    document.getElementById('mr-24h').checked    = r.disponible_24h || false;
+    document.getElementById('mr-24h').checked    = r.disponible24h || false;
     document.getElementById('mr-activo').checked = r.activo !== false;
     document.getElementById('mr-contenido').value = r.contenido ? JSON.stringify(r.contenido, null, 2) : '';
   } else {

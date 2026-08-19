@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -469,6 +469,11 @@ header{background:var(--gradient-primary);padding:13px 20px;display:flex;align-i
       <div id="lista-estudiantes">
         <div class="loader"><i class='bx bx-loader-alt'></i> Cargando…</div>
       </div>
+      <div id="est-paginacion" style="display:none;align-items:center;justify-content:center;gap:12px;margin-top:16px">
+        <button class="btn btn-ghost btn-sm" id="est-prev" onclick="cargarEstudiantes(estPagina-1)">‹ Anterior</button>
+        <span style="font-size:12px;color:var(--suave)" id="est-info">Página 1</span>
+        <button class="btn btn-ghost btn-sm" id="est-next" onclick="cargarEstudiantes(estPagina+1)">Siguiente ›</button>
+      </div>
     </div>
 
     <!-- ── CITAS ── -->
@@ -575,6 +580,10 @@ let psico = null;
 let estudiantesCache = [];
 let intervencionesCache = {};  // keyed by estudiante_id
 let catFiltro = '';     // categoría activa
+let estPagina = 1;
+let estTotal = 0;
+let estPaginas = 1;
+const EST_POR_PAGINA = 12;
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -670,7 +679,7 @@ function cerrarSesion() {
     fetch(API + '/auth/logout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ refresh_token: rt })
+      body: JSON.stringify({ refreshToken: rt })
     }).catch(() => {});
   }
   localStorage.removeItem('apfa_at');
@@ -686,23 +695,23 @@ async function cargarStats() {
   try {
     const s = await apiFetch('/psicologo/stats');
     if (!s) return;
-    document.getElementById('stat-est').textContent    = s.total_estudiantes_asignados ?? '0';
-    document.getElementById('stat-citas').textContent  = s.citas_pendientes ?? '0';
-    document.getElementById('stat-alertas').textContent= s.alertas_crisis ?? '0';
+    document.getElementById('stat-est').textContent    = s.totalEstudiantesAsignados ?? '0';
+    document.getElementById('stat-citas').textContent  = s.citasPendientes ?? '0';
+    document.getElementById('stat-alertas').textContent= s.estudiantesEnCrisis ?? '0';
 
     // Badgets en sidebar
     const bEst = document.getElementById('badge-est');
-    if (s.total_estudiantes_asignados > 0) {
-      bEst.textContent = s.total_estudiantes_asignados;
+    if (s.totalEstudiantesAsignados > 0) {
+      bEst.textContent = s.totalEstudiantesAsignados;
       bEst.classList.remove('hidden');
     }
     const bAlt = document.getElementById('badge-alertas');
-    if (s.alertas_crisis > 0) {
+    if (s.estudiantesEnCrisis > 0) {
       bAlt.classList.remove('hidden');
     }
     const bCitas = document.getElementById('badge-citas');
-    if (s.citas_pendientes > 0) {
-      bCitas.textContent = s.citas_pendientes;
+    if (s.citasPendientes > 0) {
+      bCitas.textContent = s.citasPendientes;
       bCitas.classList.remove('hidden');
     }
   } catch (e) {
@@ -717,8 +726,8 @@ function renderPerfil() {
   if (!psico) return;
   const ini = (psico.nombre || 'P').charAt(0).toUpperCase();
   const av = document.getElementById('pf-avatar');
-  if (psico.avatar_url) {
-    av.innerHTML = `<img src="${psico.avatar_url}" alt="avatar"/>`;
+  if (psico.avatarUrl) {
+    av.innerHTML = `<img src="${psico.avatarUrl}" alt="avatar"/>`;
   } else {
     av.textContent = ini;
   }
@@ -731,19 +740,26 @@ function renderPerfil() {
 
 // ── Estudiantes ───────────────────────────────────────────
 
-async function cargarEstudiantes() {
+async function cargarEstudiantes(pagina = 1) {
+  if (pagina < 1) pagina = 1;
+  if (pagina > estPaginas) pagina = estPaginas;
+  estPagina = pagina;
   const el = document.getElementById('lista-estudiantes');
   el.innerHTML = '<div class="loader"><i class=\'bx bx-loader-alt\'></i> Cargando estudiantes…</div>';
+  const qs = new URLSearchParams({ pagina: String(estPagina), por_pagina: String(EST_POR_PAGINA) });
+  if (catFiltro) qs.set('categoria', catFiltro);
   try {
     const [data, intervs] = await Promise.all([
-      apiFetch('/psicologo/todos-estudiantes'),
+      apiFetch('/psicologo/todos-estudiantes?' + qs.toString()),
       apiFetch('/psicologo/intervenciones').catch(() => []),
     ]);
     if (!data) return;
-    estudiantesCache = data;
+    estudiantesCache = data.estudiantes || [];
+    estTotal = data.total || 0;
+    estPaginas = Math.max(1, Math.ceil(estTotal / EST_POR_PAGINA));
     intervencionesCache = {};
     (intervs || []).forEach(i => {
-      if (!intervencionesCache[i.estudiante_id]) intervencionesCache[i.estudiante_id] = i;
+      if (!intervencionesCache[i.estudianteId]) intervencionesCache[i.estudianteId] = i;
     });
     renderEstudiantesFiltrados();
   } catch (e) {
@@ -753,26 +769,30 @@ async function cargarEstudiantes() {
 
 function renderEstudiantesFiltrados() {
   const el = document.getElementById('lista-estudiantes');
-  let datos = estudiantesCache;
-
-  if (catFiltro === 'sin_cat') {
-    datos = datos.filter(e => !e.categoria_problema);
-  } else if (catFiltro) {
-    datos = datos.filter(e => e.categoria_problema === catFiltro);
-  }
+  const datos = estudiantesCache;  // el filtro por categoría ya es server-side
 
   if (datos.length === 0) {
-    el.innerHTML = '<div class="empty-msg">No hay estudiantes registrados en el sistema.</div>';
+    el.innerHTML = '<div class="empty-msg">No hay estudiantes con este filtro.</div>';
+    actualizarPaginacion();
     return;
   }
   el.innerHTML = `<div class="estudiantes-grid">${datos.map(e => renderEstudianteCard(e)).join('')}</div>`;
+  actualizarPaginacion();
+}
+
+function actualizarPaginacion() {
+  const p = document.getElementById('est-paginacion');
+  p.style.display = (estPaginas > 1) ? 'flex' : 'none';
+  document.getElementById('est-info').textContent = `Página ${estPagina} de ${estPaginas} · ${estTotal} estudiantes`;
+  document.getElementById('est-prev').disabled = estPagina <= 1;
+  document.getElementById('est-next').disabled = estPagina >= estPaginas;
 }
 
 function selCat(btn, cat) {
   catFiltro = cat;
   document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('on'));
   btn.classList.add('on');
-  renderEstudiantesFiltrados();
+  cargarEstudiantes(1);
 }
 
 async function cambiarCategoria(estudianteId, nombreEst) {
@@ -807,10 +827,10 @@ function renderEstudianteCard(e) {
 
   // Indicador días sin entrar
   let alertaBadge = '';
-  if (e.dias_sin_entrar != null) {
-    if (e.dias_sin_entrar >= 14)      alertaBadge = `<span class="est-alerta ea-critico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${e.dias_sin_entrar}d sin entrar</span>`;
-    else if (e.dias_sin_entrar >= 7)  alertaBadge = `<span class="est-alerta ea-alerta">🟡 ${e.dias_sin_entrar}d sin entrar</span>`;
-    else if (e.dias_sin_entrar === 0) alertaBadge = `<span class="est-alerta ea-activo">🟢 Activo hoy</span>`;
+  if (e.diasSinEntrar != null) {
+    if (e.diasSinEntrar >= 14)      alertaBadge = `<span class="est-alerta ea-critico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${e.diasSinEntrar}d sin entrar</span>`;
+    else if (e.diasSinEntrar >= 7)  alertaBadge = `<span class="est-alerta ea-alerta">🟡 ${e.diasSinEntrar}d sin entrar</span>`;
+    else if (e.diasSinEntrar === 0) alertaBadge = `<span class="est-alerta ea-activo">🟢 Activo hoy</span>`;
   }
 
   const eid = e.id.replace(/[^a-zA-Z0-9]/g,'');
@@ -819,7 +839,7 @@ function renderEstudianteCard(e) {
     ansiedad:'Ansiedad', depresion:'Depresión', estres:'Estrés',
     adicciones:'Adicciones', crisis:'Crisis', duelo:'Duelo', otro:'Otro'
   };
-  const catLabel = e.categoria_problema ? (CAT_LABEL[e.categoria_problema] || e.categoria_problema) : null;
+  const catLabel = e.categoriaProblema ? (CAT_LABEL[e.categoriaProblema] || e.categoriaProblema) : null;
   const catBadge = `<span class="cat-badge ${catLabel ? '' : 'sin-cat'}" title="Cambiar categoría"
     onclick="cambiarCategoria('${e.id}','${nombre.replace(/'/g,"\\'")}')">
     ${catLabel || '+ Categoría'}</span>`;
@@ -829,8 +849,8 @@ function renderEstudianteCard(e) {
   let intvHtml = '';
   if (intv) {
     const fechaIntv = intv.fecha ? new Date(intv.fecha).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '—';
-    const total = intv.citas_total || 0;
-    const comp  = intv.citas_completadas || 0;
+    const total = intv.citasTotal || 0;
+    const comp  = intv.citasCompletadas || 0;
     let segClass, segLabel;
     if (comp === 0)      { segClass='seg-sin';    segLabel='Sin seguimiento'; }
     else if (comp <= 2)  { segClass='seg-inicio'; segLabel='Inicio de seguimiento'; }
@@ -843,7 +863,7 @@ function renderEstudianteCard(e) {
         </div>
         <div class="intv-row">
           <span class="intv-label">Atendido por</span>
-          <span class="intv-val">${intv.psicologo_nombre}</span>
+          <span class="intv-val">${intv.psicologoNombre}</span>
         </div>
         ${intv.observaciones ? `<div class="intv-row"><span class="intv-label">Motivo</span><span class="intv-val" style="color:var(--suave)">${intv.observaciones}</span></div>` : ''}
         <div class="intv-row" style="margin-top:6px">
@@ -869,7 +889,7 @@ function renderEstudianteCard(e) {
         <div class="est-avatar">${ini}</div>
         <div style="flex:1;min-width:0">
           <div class="est-name">${e.nombre} ${e.apellidos || ''}</div>
-          <div class="est-email">${e.email}</div>
+          <div class="est-email">${e.enCrisis ? '🚨 En crisis' : (e.carrera || '')}</div>
           ${alertaBadge}
         </div>
         <span class="online-dot" id="dot-${e.id}" style="flex-shrink:0;width:10px;height:10px;border-radius:50%;background:#ccc;align-self:flex-start;margin-top:4px"></span>
@@ -911,7 +931,7 @@ async function cargarCitas() {
       return;
     }
     el.innerHTML = '<div class="citas-list">' + data.map(cita => {
-      const dt   = new Date(cita.fecha_hora);
+      const dt   = new Date(cita.fechaHora);
       const dia  = dt.getDate();
       const mes  = dt.toLocaleString('es-MX', { month: 'short' });
       const hora = dt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -932,15 +952,15 @@ async function cargarCitas() {
             <div class="cita-motivo">${cita.motivo || 'Sin motivo registrado'} · ${cita.modalidad || 'presencial'}</div>
             <div class="cita-actions">
               ${acc}
-              <button class="btn-cita btn-obs-notas ${cita.notas_psicologo ? 'tiene-notas' : ''}"
+              <button class="btn-cita btn-obs-notas ${cita.notasPsicologo ? 'tiene-notas' : ''}"
                 onclick="toggleObs('${cita.id}')">
-                📝 ${cita.notas_psicologo ? 'Ver notas' : 'Añadir notas'}
+                📝 ${cita.notasPsicologo ? 'Ver notas' : 'Añadir notas'}
               </button>
             </div>
             <div class="obs-panel" id="obs-${cita.id}">
               <div class="obs-hint">Observaciones privadas (solo visibles para ti)</div>
               <textarea class="obs-textarea" id="obs-txt-${cita.id}"
-                placeholder="Escribe tus observaciones sobre esta cita…">${cita.notas_psicologo || ''}</textarea>
+                placeholder="Escribe tus observaciones sobre esta cita…">${cita.notasPsicologo || ''}</textarea>
               <div style="display:flex;justify-content:flex-end;margin-top:6px">
                 <button class="btn-obs-guardar" onclick="guardarNotas('${cita.id}')">Guardar observaciones</button>
               </div>
@@ -1016,7 +1036,7 @@ async function cargarActividad() {
     const criticos = data.filter(d => d.estado === 'critico').length;
     const alertas  = data.filter(d => d.estado === 'alerta').length;
     const activos  = data.filter(d => d.estado === 'activo').length;
-    const totalSos = data.reduce((s,d) => s + (d.sos_periodo||0), 0);
+    const totalSos = data.reduce((s,d) => s + (d.sosPeriodo||0), 0);
     document.getElementById('act-criticos').textContent = criticos;
     document.getElementById('act-alertas').textContent  = alertas;
     document.getElementById('act-activos').textContent  = activos;
@@ -1043,11 +1063,10 @@ function renderActividad(data) {
   el.innerHTML = data.map(d => {
     const ini = (d.nombre||'?').charAt(0).toUpperCase();
     const clr  = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'}[d.estado]||'var(--suave)';
-    const dias = d.dias_sin_entrar == null ? 'Sin registro' : d.dias_sin_entrar === 0 ? 'Hoy' : d.dias_sin_entrar === 1 ? 'Ayer' : `Hace ${d.dias_sin_entrar}d`;
-    const ua   = d.ultimo_acceso ? new Date(d.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    const sosBdg = d.sos_periodo > 0 ? `<span class="act-bdg ab-sos"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> ${d.sos_periodo} SOS</span>` : '';
-    const entBdg = d.entradas_periodo > 0 ? `<span class="act-bdg ab-ent"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${d.entradas_periodo} entradas</span>` : '';
-    const sosDet = (d.sos_eventos||[]).map(e =>
+    const dias = d.diasSinEntrar == null ? 'Sin registro' : d.diasSinEntrar === 0 ? 'Hoy' : d.diasSinEntrar === 1 ? 'Ayer' : `Hace ${d.diasSinEntrar}d`;
+    const ua   = d.ultimoAcceso ? new Date(d.ultimoAcceso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const sosBdg = d.sosPeriodo > 0 ? `<span class="act-bdg ab-sos"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> ${d.sosPeriodo} SOS</span>` : '';
+    const sosDet = (d.sosEventos||[]).map(e =>
       `<div style="font-size:11px;color:var(--rojo);margin-top:3px;padding-left:4px">
         <svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> SOS ${e.tipo} · ${new Date(e.fecha).toLocaleDateString('es-MX')} · ${e.atendido?'atendido':'pendiente'}
        </div>`
@@ -1064,7 +1083,7 @@ function renderActividad(data) {
         </div>
         <div style="font-size:11px;color:var(--suave);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px">${d.email}${d.carrera?' · '+d.carrera:''}</div>
         <div style="display:flex;flex-wrap:wrap;gap:2px">
-          ${sosBdg}${entBdg}<span class="act-bdg ab-dias">${dias}</span>
+          ${sosBdg}<span class="act-bdg ab-dias">${dias}</span>
         </div>
         ${sosDet}
       </div>
@@ -1118,17 +1137,17 @@ function renderSOSList(elId, data, atendido) {
     return;
   }
   el.innerHTML = data.map(ev => {
-    const fecha = new Date(ev.creado_en).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const fecha = new Date(ev.creadoEn).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
     return `
     <div class="sos-event-card ${atendido ? 'atendido' : ''}">
       <div class="sos-ev-hdr">
-        <span class="sos-ev-tipo" style="color:${atendido ? 'var(--verde)' : 'var(--rojo)'}">${atendido ? '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Atendido' : '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Pendiente'} · ${ev.tipo_accion}</span>
+        <span class="sos-ev-tipo" style="color:${atendido ? 'var(--verde)' : 'var(--rojo)'}">${atendido ? '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Atendido' : '<svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg> Pendiente'} · ${ev.tipoAccion}</span>
         <span class="sos-ev-fecha">${fecha}</span>
       </div>
-      <div class="sos-ev-user">${ev.usuario_id ? '👤 Estudiante registrado' : '👤 Anónimo'}</div>
+      <div class="sos-ev-user">${ev.usuarioId ? '👤 Estudiante registrado' : '👤 Anónimo'}</div>
       ${ev.descripcion ? `<div class="sos-ev-detail">${ev.descripcion}</div>` : ''}
-      ${ev.ip_address ? `<div class="sos-ev-detail">IP: ${ev.ip_address}</div>` : ''}
-      ${ev.notas_atencion ? `<div class="sos-ev-notas">📝 ${ev.notas_atencion}</div>` : ''}
+      ${ev.ipAddress ? `<div class="sos-ev-detail">IP: ${ev.ipAddress}</div>` : ''}
+      ${ev.notasAtencion ? `<div class="sos-ev-notas">📝 ${ev.notasAtencion}</div>` : ''}
       ${!atendido ? `<button class="btn-atender" onclick="atenderEvento('${ev.id}')">Marcar como atendido</button>` : ''}
     </div>`;
   }).join('');
@@ -1225,12 +1244,12 @@ async function verActividadEstudiante(uid, nombre) {
     const est  = data ? data.find(d => d.id === uid) : null;
     if (!est) { cont.innerHTML = '<div class="empty-msg">Sin datos de actividad.</div>'; return; }
 
-    const ua = est.ultimo_acceso ? new Date(est.ultimo_acceso).toLocaleString('es-MX',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '—';
-    const dias = est.dias_sin_entrar == null ? 'Sin registro' : est.dias_sin_entrar === 0 ? 'Hoy' : est.dias_sin_entrar === 1 ? 'Ayer' : `Hace ${est.dias_sin_entrar} días`;
+    const ua = est.ultimoAcceso ? new Date(est.ultimoAcceso).toLocaleString('es-MX',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '—';
+    const dias = est.diasSinEntrar == null ? 'Sin registro' : est.diasSinEntrar === 0 ? 'Hoy' : est.diasSinEntrar === 1 ? 'Ayer' : `Hace ${est.diasSinEntrar} días`;
     const col  = {activo:'var(--verde)',alerta:'var(--dorado)',critico:'var(--rojo)',sin_registro:'var(--suave)'}[est.estado]||'var(--suave)';
 
-    const sosDet = (est.sos_eventos||[]).length
-      ? est.sos_eventos.map(s => `
+    const sosDet = (est.sosEventos||[]).length
+      ? est.sosEventos.map(s => `
           <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--fondo)">
             <svg class="kai-ico" style="width:16px;height:16px;color:var(--rojo)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>
             <div>
@@ -1249,8 +1268,8 @@ async function verActividadEstudiante(uid, nombre) {
         </div>
         <div style="background:var(--fondo);border-radius:10px;padding:12px">
           <div style="font-size:10px;color:var(--suave);text-transform:uppercase;margin-bottom:4px">Actividad 30d</div>
-          <div style="font-size:13px;font-weight:600">${est.sos_periodo} eventos SOS 30d</div>
-          <div style="font-size:12px;color:var(--rojo);font-weight:600;margin-top:2px">${est.sos_periodo} eventos SOS</div>
+          <div style="font-size:13px;font-weight:600">${est.sosPeriodo} eventos SOS 30d</div>
+          <div style="font-size:12px;color:var(--rojo);font-weight:600;margin-top:2px">${est.sosPeriodo} eventos SOS</div>
         </div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Historial SOS</div>
@@ -1294,7 +1313,7 @@ function renderEventos() {
   const ahora = new Date();
 
   el.innerHTML = datos.map(ev => {
-    const fecha = new Date(ev.fecha_hora);
+    const fecha = new Date(ev.fechaHora);
     const pasado = fecha < ahora;
     const fechaStr = fecha.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
     const horaStr  = fecha.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
@@ -1318,7 +1337,7 @@ function renderEventos() {
         </span>
         <span class="evento-meta-item">${modalidadIco} ${modalidadLabel}</span>
         ${ev.lugar ? `<span class="evento-meta-item"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${ev.lugar}</span>` : ''}
-        ${ev.link_evento ? `<a href="${ev.link_evento}" target="_blank" class="evento-meta-item" style="color:var(--azul);text-decoration:none"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Ver enlace</a>` : ''}
+        ${ev.linkEvento ? `<a href="${ev.linkEvento}" target="_blank" class="evento-meta-item" style="color:var(--azul);text-decoration:none"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Ver enlace</a>` : ''}
         ${ev.capacidad ? `<span class="evento-meta-item"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Cupo: ${ev.capacidad}</span>` : ''}
       </div>
       <div class="evento-actions">
@@ -1347,10 +1366,10 @@ function abrirModalEvento(id) {
     document.getElementById('ev-modalidad').value   = ev.modalidad || 'presencial';
     document.getElementById('ev-capacidad').value   = ev.capacidad || '';
     document.getElementById('ev-lugar').value       = ev.lugar || '';
-    document.getElementById('ev-link').value        = ev.link_evento || '';
+    document.getElementById('ev-link').value        = ev.linkEvento || '';
     document.getElementById('ev-descripcion').value = ev.descripcion || '';
-    if (ev.fecha_hora) {
-      const f = new Date(ev.fecha_hora);
+    if (ev.fechaHora) {
+      const f = new Date(ev.fechaHora);
       const pad = n => String(n).padStart(2,'0');
       document.getElementById('ev-fecha').value = `${f.getFullYear()}-${pad(f.getMonth()+1)}-${pad(f.getDate())}T${pad(f.getHours())}:${pad(f.getMinutes())}`;
     }

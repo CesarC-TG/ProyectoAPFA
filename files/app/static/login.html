@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -865,9 +865,9 @@ function showRecoverMsg(msg, type) {
 
 // ── ON AUTH (éxito) ────────────────────────────────────────
 function onAuth(r) {
-  localStorage.setItem('apfa_at', r.access_token);
-  localStorage.setItem('apfa_rt', r.refresh_token || '');
-  localStorage.setItem('token',   r.access_token);
+  localStorage.setItem('apfa_at', r.accessToken);
+  localStorage.setItem('apfa_rt', r.refreshToken || '');
+  localStorage.setItem('token',   r.accessToken);
   localStorage.setItem('user',    JSON.stringify(r.usuario));
 
   const nombre = r.usuario?.nombre || '';

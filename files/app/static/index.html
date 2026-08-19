@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -137,7 +137,6 @@ header{background:var(--gradient-primary);padding:13px 18px;display:flex;align-i
 .hc-title{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--texto);letter-spacing:-.01em}
 .hc-sub{font-size:12px;color:var(--suave);line-height:1.45}
 
-/* Diario */
 .nuevo-panel{background:var(--blanco);border:1px solid rgba(229,225,216,.8);border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:var(--sh-sm)}
 .mood-row{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0 13px}
 .mood-btn{width:38px;height:38px;border-radius:50%;border:2px solid var(--borde);background:var(--blanco);font-size:19px;cursor:pointer;transition:all .2s;box-shadow:var(--sh-xs)}
@@ -550,37 +549,7 @@ header{background:var(--gradient-primary);padding:13px 18px;display:flex;align-i
 </div>
 
 
-<div class="page" id="p-diario">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-    <div><div class="page-title">Mi Diario</div><div class="page-sub" style="margin:0">Tu espacio privado de expresión</div></div>
-    <button class="btn btn-azul btn-sm" onclick="toggleNueva()">+ Nueva</button>
-  </div>
-  <div class="share-banner">
-    <span class="ico" id="share-ico">🔒</span>
-    <div><strong style="font-size:13px;display:block">Compartir con psicólogo/a</strong><span style="font-size:12px;color:var(--suave)">El equipo de Psicopedagogía FES podrá ver tus entradas</span></div>
-    <label class="toggle"><input type="checkbox" id="shareToggle" onchange="toggleCompartir()"/><span class="slider"></span></label>
-  </div>
-  <div id="nueva-panel" class="nuevo-panel hidden">
-    <div class="field"><label>¿Cómo te sientes?</label>
-      <div class="mood-row">
-        <button class="mood-btn" data-v="😄" onclick="selMood(this)">😄</button>
-        <button class="mood-btn" data-v="😊" onclick="selMood(this)">😊</button>
-        <button class="mood-btn" data-v="😐" onclick="selMood(this)">😐</button>
-        <button class="mood-btn" data-v="😔" onclick="selMood(this)">😔</button>
-        <button class="mood-btn" data-v="😰" onclick="selMood(this)">😰</button>
-        <button class="mood-btn" data-v="😤" onclick="selMood(this)">😤</button>
-        <button class="mood-btn" data-v="😞" onclick="selMood(this)">😞</button>
-      </div>
-    </div>
-    <div class="field"><label>Escribe libremente</label><textarea id="etexto" placeholder="Escribe lo que llevas dentro… sin filtros, sin juicios." rows="5"></textarea></div>
-    <div style="display:flex;gap:7px;margin-top:5px">
-      <button class="btn btn-azul btn-sm" onclick="guardarEntrada()">Guardar entrada</button>
-      <button class="btn btn-ghost btn-sm" onclick="toggleNueva()">Cancelar</button>
-    </div>
-  </div>
-  <p class="section-label">Entradas guardadas</p>
-  <div id="entradas-list"></div>
-  <div class="psico-bubble" id="psico-bubble" style="display:none">
+<div class="psico-bubble" id="psico-bubble" style="display:none">
     <div class="psico-menu hidden" id="psico-menu">
       <button class="psico-menu-btn" onclick="go('chat-psico')"><span class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Chat con psicólogo/a</button>
       <a class="psico-menu-btn" href="tel:5556231666"><span class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span> Llamar a Psicopedagogía</a>
@@ -589,7 +558,6 @@ header{background:var(--gradient-primary);padding:13px 18px;display:flex;align-i
         <svg viewBox="0 0 100 100"><path d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 80c-19.3 0-35-15.7-35-35s15.7-35 35-35 35 15.7 35 35-15.7 35-35 35zm15-45c0 8.3-6.7 15-15 15s-15-6.7-15-15 6.7-15 15-15 15 6.7 15 15zm20 30H15c0-11 9-20 20-20h30c11 0 20 9 20 20z" fill="currentColor"/></svg>
     </button>
   </div>
-</div>
 
 <div class="page" id="p-chatbot">
   <div class="page-title">KAI</div>
@@ -717,10 +685,6 @@ header{background:var(--gradient-primary);padding:13px 18px;display:flex;align-i
       <a href="/psicologo.html#estudiantes" onclick="irPsicologo('estudiantes')" class="adm-shortcut-btn">
         <i class='bx bxs-group'></i>
         <span>Estudiantes</span>
-      </a>
-      <a href="/psicologo.html#diario" onclick="irPsicologo('diario')" class="adm-shortcut-btn psico">
-        <i class='bx bxs-book-heart'></i>
-        <span>Diarios</span>
       </a>
       <a href="/psicologo.html#citas" onclick="irPsicologo('citas')" class="adm-shortcut-btn psico">
         <i class='bx bxs-calendar-check'></i>
@@ -956,7 +920,7 @@ window.onload = async () => {
 // No restauramos aquí para evitar que tome efecto antes de verificar el token
 
 // Tus otras variables se mantienen igual
-let chatSesion=null, moodSel=null, condSel=null, urlLoc='', shareActivo=false, expandidas={}, psicoOpen=false;
+let chatSesion=null, condSel=null, urlLoc='', psicoOpen=false;
 
 const DOMAINS=['pcpuma.acatlan.unam.mx','comunidad.unam.mx']
 
@@ -978,7 +942,7 @@ async function api(path,opts={}){
 function dfmt(iso){return new Date(iso).toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
 function toast(msg){const e=document.createElement('div');e.className='toast';e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),2600)}
 
-const PAGEMAP={home:'p-home',diario:'p-diario',chatbot:'p-chatbot',sos:'p-sos',adicciones:'p-adicciones',recursos:'p-recursos',perfil:'p-perfil','chat-psico':'p-chat-psico',notificaciones:'p-notificaciones',citas:'p-citas'}
+const PAGEMAP={home:'p-home',chatbot:'p-chatbot',sos:'p-sos',adicciones:'p-adicciones',recursos:'p-recursos',perfil:'p-perfil','chat-psico':'p-chat-psico',notificaciones:'p-notificaciones',citas:'p-citas'}
 const NAVMAP=['home','recursos','chatbot','notificaciones','sos']
 
 function go(page){
@@ -987,7 +951,6 @@ function go(page){
   document.querySelectorAll('.bnav-btn').forEach((b,i)=>b.classList.toggle('on',NAVMAP[i]===page))
   document.getElementById('psico-bubble').style.display='none'
   psicoOpen=false; document.getElementById('psico-menu').classList.add('hidden')
-  if(page==='diario')loadDiario()
   if(page==='recursos')loadRecursos()
   if(page==='notificaciones')loadNotificaciones()
   if(page==='citas')loadCitas()
@@ -1103,10 +1066,10 @@ async function doRegistro(){
 }
 
 function onAuth(r) {
-    token = r.access_token;
+    token = r.accessToken;
     localStorage.setItem('apfa_at', token);
     localStorage.setItem('token', token);
-    if (r.refresh_token) localStorage.setItem('apfa_rt', r.refresh_token);
+    if (r.refreshToken) localStorage.setItem('apfa_rt', r.refreshToken);
     user = r.usuario;
     localStorage.setItem('user', JSON.stringify(user));
     actualizarUI();
@@ -1161,12 +1124,10 @@ function adminTab(cual) {
 async function cargarStatsAdmin() {
   try {
     const s = await api('/admin/stats');
-    document.getElementById('adm-s-est').textContent     = s.total_estudiantes    ?? '--';
-    document.getElementById('adm-s-psico').textContent   = s.total_psicologos     ?? '--';
-    document.getElementById('adm-s-chat').textContent    = s.sesiones_chat_semana ?? '--';
-    document.getElementById('adm-s-alertas').textContent = s.alertas_activas      ?? '--';
-    document.getElementById('adm-s-hoy').textContent     = s.entradas_hoy         ?? '--';
-    document.getElementById('adm-s-comp').textContent    = s.entradas_compartidas ?? '--';
+    document.getElementById('adm-s-est').textContent     = s.totalEstudiantes    ?? '--';
+    document.getElementById('adm-s-psico').textContent   = s.totalPsicologos     ?? '--';
+    document.getElementById('adm-s-chat').textContent    = s.sesionesChatSemana ?? '--';
+    document.getElementById('adm-s-alertas').textContent = s.alertasActivas      ?? '--';
     document.getElementById('adm-s-ts').textContent      = new Date().toLocaleTimeString('es-MX');
   } catch(e) { toast('Error stats: ' + e.message); }
 }
@@ -1254,7 +1215,7 @@ async function cerrarSesion(){
             await fetch(API + '/auth/logout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ refresh_token: rt })
+                body: JSON.stringify({ refreshToken: rt })
             });
         } catch(e) {}
     }
@@ -1301,44 +1262,6 @@ async function guardarPerfil(){
   finally{b.disabled=false;b.textContent='Guardar cambios'}
 }
 
-// Diario
-function toggleNueva(){
-  const p=document.getElementById('nueva-panel'),open=p.classList.contains('hidden')
-  p.classList.toggle('hidden')
-  if(open){moodSel=null;document.getElementById('etexto').value='';document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'))}
-}
-function selMood(btn){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');moodSel=btn.dataset.v}
-function toggleCompartir(){shareActivo=document.getElementById('shareToggle').checked;document.getElementById('share-ico').textContent=shareActivo?'🔓':'🔒'; document.getElementById('share-ico').classList.toggle('on', shareActivo);}
-
-async function guardarEntrada(){
-  const texto=document.getElementById('etexto').value.trim()
-  if(!texto)return toast('Escribe algo antes de guardar')
-  if(!token){abrirAuth();return}
-  try{await api('/diario/',{method:'POST',body:JSON.stringify({texto,estado_animo:moodSel,etiquetas:[],compartida:shareActivo})});toggleNueva();loadDiario();toast('Entrada guardada ✓')}
-  catch(x){toast(x.message)}
-}
-
-async function loadDiario(){
-  const el=document.getElementById('entradas-list')
-  if(!token){el.innerHTML='<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p>Inicia sesión para ver y guardar tu diario.</p></div><button class="btn btn-azul" onclick="abrirAuth()" style="max-width:280px;margin:0 auto">Iniciar sesión</button>';return}
-  el.innerHTML='<div class="loader-msg">Cargando…</div>'
-  try{
-    const r=await api('/diario/?por_pagina=30')
-    if(!r.entradas.length){el.innerHTML='<div class="empty-state"><div class="ico"><svg class="kai-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><p>Aún no tienes entradas.<br>Escribe tu primera hoy.</p></div>';return}
-    el.innerHTML=r.entradas.map(e=>`
-      <div class="entrada-card">
-        <div class="ec-top">${e.estado_animo?`<span style="font-size:20px">${e.estado_animo}</span>`:''}${e.alerta_crisis?'<span class="ec-crisis">Alerta</span>':''}<span class="ec-fecha">${dfmt(e.creada_en)}</span></div>
-        <div class="ec-body ${expandidas[e.id]?'':'short'}">${e.texto}</div>
-        <div class="ec-foot"><div>${e.compartida?'<span class="badge-green">👁 Visible al psicólogo</span>':''}</div>
-        <div style="display:flex;gap:9px"><button class="link-btn azul" onclick="toggleExp('${e.id}')">${expandidas[e.id]?'Ver menos':'Ver más'}</button><button class="link-btn rojo" onclick="eliminarEntrada('${e.id}')">Eliminar</button></div></div>
-      </div>`).join('')
-  }catch{el.innerHTML='<div class="loader-msg">Error cargando entradas.</div>'}
-}
-function toggleExp(id){expandidas[id]=!expandidas[id];loadDiario()}
-async function eliminarEntrada(id){
-  if(!confirm('¿Eliminar esta entrada?'))return
-  try{await api('/diario/'+id,{method:'DELETE'});loadDiario();toast('Entrada eliminada')}catch{toast(x.message)}
-}
 function togglePsicoMenu(){psicoOpen=!psicoOpen;document.getElementById('psico-menu').classList.toggle('hidden',!psicoOpen)}
 
 // Chatbot
@@ -1381,7 +1304,7 @@ async function sendMsg(){
   if(!token){abrirAuth();return}
   const inp=document.getElementById('chat-input'),txt=inp.value.trim();if(!txt)return;inp.value=''
   addBubble(txt,'user','chat-msgs');const td=addTyping('chat-msgs')
-  try{const r=await api('/chatbot/mensaje',{method:'POST',body:JSON.stringify({contenido:txt,sesion_id:chatSesion})});chatSesion=r.sesion_chat_id||chatSesion;td.remove();addBubble(r.contenido,'bot','chat-msgs')}
+  try{const r=await api('/chatbot/mensaje',{method:'POST',body:JSON.stringify({contenido:txt,sesion_id:chatSesion})});chatSesion=r.sesionChatId||chatSesion;td.remove();addBubble(r.contenido,'bot','chat-msgs')}
   catch{td.remove();addBubble('Tuve un problema técnico. Si necesitas ayuda urgente llama a SAPTEL: 800 290 0024','bot','chat-msgs')}
 }
 function addBubble(txt,type,cid){const h=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});const d=document.createElement('div');d.className='bbl '+type;d.innerHTML=txt.replace(/\n/g,'<br>')+`<div class="b-time">${h}</div>`;const c=document.getElementById(cid);c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
@@ -1403,7 +1326,7 @@ function copiarUbicacion(){if(!urlLoc){toast('Primero obtén tu ubicación');ret
 function llamarFES(){if(confirm('¿Llamar a Psicopedagogía FES Acatlán?\n📞 55 5623 1666\nLun–Vie · 8am–8pm'))window.location.href='tel:5556231666'}
 async function loadLineas(){
   const el=document.getElementById('lineas-list')
-  try{const r=await api('/sos/lineas');el.innerHTML=r.map(l=>`<div class="linea-card"><span class="lc-icon">${l.icono}</span><div class="lc-info"><strong>${l.nombre}</strong><span>${l.descripcion}${l.disponible_24h?' · <b>24h</b>':''}</span></div><a class="lc-tel" href="${l.telefono_href}">${l.telefono}</a></div>`).join('')}
+  try{const r=await api('/sos/lineas');el.innerHTML=r.map(l=>`<div class="linea-card"><span class="lc-icon">${l.icono}</span><div class="lc-info"><strong>${l.nombre}</strong><span>${l.descripcion}${l.disponible24h?' · <b>24h</b>':''}</span></div><a class="lc-tel" href="${l.telefonoHref}">${l.telefono}</a></div>`).join('')}
   catch{el.innerHTML='<div class="loader-msg">No se pudieron cargar las líneas.</div>'}
 }
 
@@ -1455,7 +1378,7 @@ async function loadNotificaciones() {
           </div>
           ${!n.leida ? `<button onclick="marcarLeida('${n.id}')" style="flex-shrink:0;background:none;border:none;color:var(--azul2);font-size:12px;cursor:pointer;white-space:nowrap">Marcar leída</button>` : ''}
         </div>
-        <span style="font-size:11px;color:var(--suave);display:block;margin-top:6px">${new Date(n.creada_en).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+        <span style="font-size:11px;color:var(--suave);display:block;margin-top:6px">${new Date(n.creadaEn).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
       </div>`).join('');
   } catch(e) {
     el.innerHTML = `<div class="err-box">${e.message}</div>`;
@@ -1505,8 +1428,8 @@ async function loadCitas() {
 
 function renderCitas() {
   const ahora = new Date();
-  const proximas = citasData.filter(c => new Date(c.fecha_hora) >= ahora && c.estado !== 'cancelada');
-  const pasadas  = citasData.filter(c => new Date(c.fecha_hora) < ahora || c.estado === 'cancelada');
+  const proximas = citasData.filter(c => new Date(c.fechaHora) >= ahora && c.estado !== 'cancelada');
+  const pasadas  = citasData.filter(c => new Date(c.fechaHora) < ahora || c.estado === 'cancelada');
 
   document.getElementById('citas-proximas-list').innerHTML =
     proximas.length ? proximas.map(citaCard).join('') :
@@ -1518,13 +1441,13 @@ function renderCitas() {
 }
 
 function citaCard(c) {
-  const fecha = new Date(c.fecha_hora);
+  const fecha = new Date(c.fechaHora);
   const fechaStr = fecha.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
   const horaStr  = fecha.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
-  const psicNombre = window._psicMap?.[c.psicologo_id] || 'Psicólogo/a';
+  const psicNombre = window._psicMap?.[c.psicologoId] || 'Psicólogo/a';
   const esPendiente   = c.estado === 'pendiente';
   const esCancelable  = c.estado === 'pendiente' || c.estado === 'confirmada';
-  const isFutura = new Date(c.fecha_hora) >= new Date();
+  const isFutura = new Date(c.fechaHora) >= new Date();
 
   return `
   <div class="card" style="border-left:3px solid ${ESTADO_COLOR[c.estado]}">
@@ -1539,7 +1462,7 @@ function citaCard(c) {
       </div>
     </div>
     ${c.motivo ? `<div style="font-size:13px;color:var(--texto);background:var(--fondo);border-radius:8px;padding:8px 10px;margin-bottom:8px;line-height:1.5">${c.motivo}</div>` : ''}
-    ${c.link_videollamada ? `<a href="${c.link_videollamada}" target="_blank" style="font-size:12px;color:var(--azul2);display:block;margin-bottom:8px">🔗 Unirse a videollamada</a>` : ''}
+    ${c.linkVideollamada ? `<a href="${c.linkVideollamada}" target="_blank" style="font-size:12px;color:var(--azul2);display:block;margin-bottom:8px">🔗 Unirse a videollamada</a>` : ''}
     ${isFutura ? `<div style="display:flex;gap:7px;flex-wrap:wrap">
       ${esPendiente ? `<button class="btn btn-verde btn-sm" onclick="confirmarCita('${c.id}')">✓ Confirmar</button>` : ''}
       ${esCancelable ? `<button class="btn btn-ghost btn-sm" style="color:var(--rojo)" onclick="cancelarCita('${c.id}')">Cancelar</button>` : ''}
@@ -1645,13 +1568,13 @@ function buildRecursoCard(r) {
   const tipo   = r.tipo || 'lectura';
   const icon   = REC_ICONS[tipo] || '📌';
   const label  = REC_LABELS[tipo] || tipo;
-  const dur    = r.duracion_minutos ? `<span class="rec-dur"><i class='bx bx-time-five'></i>${r.duracion_minutos} min</span>` : '';
-  const badge24 = r.disponible_24h ? `<span class="rec-24h">24 h</span>` : '';
+  const dur    = r.duracionMinutos ? `<span class="rec-dur"><i class='bx bx-time-five'></i>${r.duracionMinutos} min</span>` : '';
+  const badge24 = r.disponible24h ? `<span class="rec-24h">24 h</span>` : '';
   const telBadge = r.telefono
     ? `<a class="rec-tel-badge" href="tel:${r.telefono.replace(/\s/g,'')}"><i class='bx bx-phone'></i>${r.telefono}</a>`
     : '';
-  const linkBadge = r.url_externo
-    ? `<a class="rec-link-badge" href="${r.url_externo}" target="_blank" rel="noopener"><i class='bx bx-link-external'></i>Ver recurso</a>`
+  const linkBadge = r.urlExterno
+    ? `<a class="rec-link-badge" href="${r.urlExterno}" target="_blank" rel="noopener"><i class='bx bx-link-external'></i>Ver recurso</a>`
     : '';
 
   const detail = buildRecursoDetail(r);
@@ -1779,7 +1702,7 @@ function buildRecursoDetail(r) {
 
   // CTAs
   if (r.telefono) html += `<a class="rec-cta-btn rec-cta-tel" href="tel:${r.telefono.replace(/\s/g,'')}"><i class='bx bx-phone-call'></i>Llamar</a>`;
-  if (r.url_externo) html += `<a class="rec-cta-btn rec-cta-link" href="${r.url_externo}" target="_blank" rel="noopener"><i class='bx bx-link-external'></i>Abrir recurso</a>`;
+  if (r.urlExterno) html += `<a class="rec-cta-btn rec-cta-link" href="${r.urlExterno}" target="_blank" rel="noopener"><i class='bx bx-link-external'></i>Abrir recurso</a>`;
 
   return html;
 }
